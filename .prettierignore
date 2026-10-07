@@ -1,0 +1,13 @@
+node_modules/
+.next/
+legacy/
+public/
+docs/verification/
+playwright-report/
+test-results/
+.env*
+package-lock.json
+next-env.d.ts
+*.tsbuildinfo
+AGENTS.md
+CLAUDE.md

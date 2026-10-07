@@ -1,0 +1,390 @@
+[
+  {
+    "width": 1440,
+    "route": "/",
+    "measurements": [
+      {
+        "label": "before",
+        "h1": {
+          "x": 96,
+          "y": 150.1875,
+          "width": 549.25,
+          "height": 223.40625,
+          "top": 150.1875,
+          "right": 645.25,
+          "bottom": 373.59375,
+          "left": 96
+        },
+        "font": "Onest, sans-serif",
+        "hero": {
+          "x": 0,
+          "y": 100,
+          "width": 1440,
+          "height": 506.796875,
+          "top": 100,
+          "right": 1440,
+          "bottom": 606.796875,
+          "left": 0
+        },
+        "header": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 100,
+          "top": 0,
+          "right": 1440,
+          "bottom": 100,
+          "left": 0
+        },
+        "bodyWidth": 1440,
+        "viewport": 1440
+      },
+      {
+        "label": "after",
+        "h1": {
+          "x": 96,
+          "y": 150.1875,
+          "width": 549.25,
+          "height": 223.40625,
+          "top": 150.1875,
+          "right": 645.25,
+          "bottom": 373.59375,
+          "left": 96
+        },
+        "font": "\"Onest Variable\", sans-serif",
+        "hero": {
+          "x": 0,
+          "y": 100,
+          "width": 1440,
+          "height": 506.796875,
+          "top": 100,
+          "right": 1440,
+          "bottom": 606.796875,
+          "left": 0
+        },
+        "header": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 100,
+          "top": 0,
+          "right": 1440,
+          "bottom": 100,
+          "left": 0
+        },
+        "bodyWidth": 1440,
+        "viewport": 1440
+      }
+    ]
+  },
+  {
+    "width": 1440,
+    "route": "/about/",
+    "measurements": [
+      {
+        "label": "before",
+        "h1": {
+          "x": 276.796875,
+          "y": 250,
+          "width": 886.390625,
+          "height": 64.671875,
+          "top": 250,
+          "right": 1163.1875,
+          "bottom": 314.671875,
+          "left": 276.796875
+        },
+        "font": "Onest, sans-serif",
+        "header": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 100,
+          "top": 0,
+          "right": 1440,
+          "bottom": 100,
+          "left": 0
+        },
+        "bodyWidth": 1440,
+        "viewport": 1440
+      },
+      {
+        "label": "after",
+        "h1": {
+          "x": 276.796875,
+          "y": 250,
+          "width": 886.390625,
+          "height": 64.671875,
+          "top": 250,
+          "right": 1163.1875,
+          "bottom": 314.671875,
+          "left": 276.796875
+        },
+        "font": "\"Onest Variable\", sans-serif",
+        "header": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 100,
+          "top": 0,
+          "right": 1440,
+          "bottom": 100,
+          "left": 0
+        },
+        "bodyWidth": 1440,
+        "viewport": 1440
+      }
+    ]
+  },
+  {
+    "width": 1440,
+    "route": "/reviews/",
+    "measurements": [
+      {
+        "label": "before",
+        "h1": {
+          "x": 276.796875,
+          "y": 250,
+          "width": 886.390625,
+          "height": 64.671875,
+          "top": 250,
+          "right": 1163.1875,
+          "bottom": 314.671875,
+          "left": 276.796875
+        },
+        "font": "Onest, sans-serif",
+        "header": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 100,
+          "top": 0,
+          "right": 1440,
+          "bottom": 100,
+          "left": 0
+        },
+        "bodyWidth": 1440,
+        "viewport": 1440
+      },
+      {
+        "label": "after",
+        "h1": {
+          "x": 276.796875,
+          "y": 250,
+          "width": 886.390625,
+          "height": 64.671875,
+          "top": 250,
+          "right": 1163.1875,
+          "bottom": 314.671875,
+          "left": 276.796875
+        },
+        "font": "\"Onest Variable\", sans-serif",
+        "header": {
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 100,
+          "top": 0,
+          "right": 1440,
+          "bottom": 100,
+          "left": 0
+        },
+        "bodyWidth": 1440,
+        "viewport": 1440
+      }
+    ]
+  },
+  {
+    "width": 390,
+    "route": "/",
+    "measurements": [
+      {
+        "label": "before",
+        "h1": {
+          "x": 20,
+          "y": 102,
+          "width": 350,
+          "height": 137.578125,
+          "top": 102,
+          "right": 370,
+          "bottom": 239.578125,
+          "left": 20
+        },
+        "font": "Onest, sans-serif",
+        "hero": {
+          "x": 0,
+          "y": 94,
+          "width": 390,
+          "height": 655.34375,
+          "top": 94,
+          "right": 390,
+          "bottom": 749.34375,
+          "left": 0
+        },
+        "header": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 94,
+          "top": 0,
+          "right": 390,
+          "bottom": 94,
+          "left": 0
+        },
+        "bodyWidth": 390,
+        "viewport": 390
+      },
+      {
+        "label": "after",
+        "h1": {
+          "x": 20,
+          "y": 102,
+          "width": 350,
+          "height": 137.578125,
+          "top": 102,
+          "right": 370,
+          "bottom": 239.578125,
+          "left": 20
+        },
+        "font": "\"Onest Variable\", sans-serif",
+        "hero": {
+          "x": 0,
+          "y": 94,
+          "width": 390,
+          "height": 655.34375,
+          "top": 94,
+          "right": 390,
+          "bottom": 749.34375,
+          "left": 0
+        },
+        "header": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 94,
+          "top": 0,
+          "right": 390,
+          "bottom": 94,
+          "left": 0
+        },
+        "bodyWidth": 390,
+        "viewport": 390
+      }
+    ]
+  },
+  {
+    "width": 390,
+    "route": "/about/",
+    "measurements": [
+      {
+        "label": "before",
+        "h1": {
+          "x": 48.5,
+          "y": 215,
+          "width": 293,
+          "height": 25.46875,
+          "top": 215,
+          "right": 341.5,
+          "bottom": 240.46875,
+          "left": 48.5
+        },
+        "font": "Onest, sans-serif",
+        "header": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 94,
+          "top": 0,
+          "right": 390,
+          "bottom": 94,
+          "left": 0
+        },
+        "bodyWidth": 390,
+        "viewport": 390
+      },
+      {
+        "label": "after",
+        "h1": {
+          "x": 48.5,
+          "y": 215,
+          "width": 293,
+          "height": 25.46875,
+          "top": 215,
+          "right": 341.5,
+          "bottom": 240.46875,
+          "left": 48.5
+        },
+        "font": "\"Onest Variable\", sans-serif",
+        "header": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 94,
+          "top": 0,
+          "right": 390,
+          "bottom": 94,
+          "left": 0
+        },
+        "bodyWidth": 390,
+        "viewport": 390
+      }
+    ]
+  },
+  {
+    "width": 390,
+    "route": "/reviews/",
+    "measurements": [
+      {
+        "label": "before",
+        "h1": {
+          "x": 48.5,
+          "y": 215,
+          "width": 293,
+          "height": 25.46875,
+          "top": 215,
+          "right": 341.5,
+          "bottom": 240.46875,
+          "left": 48.5
+        },
+        "font": "Onest, sans-serif",
+        "header": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 94,
+          "top": 0,
+          "right": 390,
+          "bottom": 94,
+          "left": 0
+        },
+        "bodyWidth": 390,
+        "viewport": 390
+      },
+      {
+        "label": "after",
+        "h1": {
+          "x": 48.5,
+          "y": 215,
+          "width": 293,
+          "height": 25.46875,
+          "top": 215,
+          "right": 341.5,
+          "bottom": 240.46875,
+          "left": 48.5
+        },
+        "font": "\"Onest Variable\", sans-serif",
+        "header": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 94,
+          "top": 0,
+          "right": 390,
+          "bottom": 94,
+          "left": 0
+        },
+        "bodyWidth": 390,
+        "viewport": 390
+      }
+    ]
+  }
+]

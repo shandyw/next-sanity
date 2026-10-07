@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "source": "authorized-feed",
+  "products": [
+    {
+      "externalListingId": "REPLACE_WITH_REAL_ID",
+      "title": "Example only — replace before importing",
+      "description": "An owned closet product",
+      "size": "16",
+      "condition": "Very good",
+      "listingPrice": 18,
+      "currency": "USD",
+      "availability": "unknown",
+      "vintedUrl": "https://www.vinted.com/items/123456789-example-only",
+      "lastSuccessfullyCheckedAt": "2026-10-01T12:00:00Z"
+    }
+  ]
+}

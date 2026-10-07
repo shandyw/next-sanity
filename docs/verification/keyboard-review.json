@@ -1,0 +1,9 @@
+[
+  "Skip link is the first keyboard stop.",
+  "Mobile menu opens with Enter and closes with Escape, restoring its trigger.",
+  "Request dialog wraps focus in both directions and closes with Escape.",
+  "Filter disclosures open with Enter and close with Escape, returning focus to their trigger.",
+  "Doubling body text still fits the 390px viewport.",
+  "320px narrow reflow remains within the viewport.",
+  "Reduced motion disables smooth page scrolling."
+]

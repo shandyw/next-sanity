@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+
+# Search and filter URLs are marked noindex by the reviews page.
+# Set the production hostname in this sitemap directive before deployment.
+Sitemap: https://your-public-site.example/sitemap.xml

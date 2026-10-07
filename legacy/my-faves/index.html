@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>My Faves | CurvyGirlReviews</title>
+<meta name="description" content="Explore Shandy’s favorite clothing reviews, with real-life fit notes and honest opinions from a size 16–18 perspective." />
+<link rel="canonical" href="/my-faves/" />
+<meta name="robots" content="index,follow" />
+<script>if (window.location.search) document.querySelector('meta[name="robots"]').content = "noindex,follow";</script>
+<meta property="og:type" content="website" />
+<meta property="og:title" content="My Faves | CurvyGirlReviews" />
+<meta property="og:description" content="Explore Shandy’s favorite clothing reviews, with real-life fit notes and honest opinions from a size 16–18 perspective." />
+<meta property="og:image" content="/img/curvy.png" />
+<meta property="og:image:alt" content="CurvyGirlReviews hanger logo" />
+<meta property="og:url" content="/my-faves/" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="My Faves | CurvyGirlReviews" />
+<meta name="twitter:description" content="Explore Shandy’s favorite clothing reviews, with real-life fit notes and honest opinions from a size 16–18 perspective." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&family=Onest:wght@900&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../styles.css?v=mobile-menu-16" />
+</head>
+<body class="favorites-page" data-collection="favorites">
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="header-inner">
+    <a class="wordmark" href="/" aria-label="CurvyGirlReviews home">
+      <img class="wordmark__icon" src="../img/curvy.png" alt="" />CurvyGirlReviews
+    </a>
+    <button class="menu-toggle" id="menuToggle" aria-expanded="false" aria-controls="primaryNav" aria-label="Open menu">
+      <span class="menu-toggle__bar"></span><span class="menu-toggle__bar"></span><span class="menu-toggle__bar"></span>
+    </button>
+    <nav class="primary-nav" id="primaryNav" aria-label="Primary">
+      <ul class="primary-nav__list">
+        <li><a href="/reviews/">Reviews</a></li>
+        <li><a href="/about/">About</a></li>
+        <li><a href="/my-faves/" aria-current="page">My Faves</a></li>
+      <li><a href="#contactDialog" data-open-contact aria-haspopup="dialog" aria-controls="contactDialog">Contact</a></li>
+      </ul>
+      <div class="nav-actions"><button class="btn btn-accent" type="button" data-open-dialog>Request a Review</button></div>
+    </nav>
+  </div>
+</header>
+<main id="main" class="reviews-page container">
+  <div id="reviewsResultsView">
+    <div class="reviews-page__header">
+<header class="inner-hero">
+  <div class="inner-hero__paper">
+    <p class="inner-hero__eyebrow">CurvyGirlReviews</p>
+    <h1 class="inner-hero__title">My Faves</h1>
+    <p class="inner-hero__intro">Explore Shandy’s favorite clothing reviews, with real-life fit notes and honest opinions from a size 16–18 perspective. Browse the favorites collection to find your next fit.</p>
+  </div>
+  <span class="inner-hero__note" aria-hidden="true">No pretending.</span>
+</header>
+      <form class="reviews-search" id="reviewsSearchForm" role="search" action="/my-faves/" method="get">
+        <label class="visually-hidden" for="reviewsSearchInput">Search favorite fashion reviews</label>
+        <input type="search" id="reviewsSearchInput" name="q" placeholder="Search favorite reviews" required />
+        <button class="btn btn-accent" type="submit">Search</button>
+      </form>
+    </div>
+
+    <nav class="reviews-category-bar" aria-label="Filter reviews by category">
+      <div class="reviews-category-buttons" id="desktopCategoryFilters"></div>
+    </nav>
+
+    <section class="reviews-controls" aria-label="Additional review filters and sorting">
+      <button class="filter-icon-btn reviews-mobile-filter" type="button" id="openReviewFilters" aria-haspopup="dialog" aria-label="Open filters">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 6h16M8 12h12M11 18h9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="4.5" cy="12" r="1.6" fill="currentColor"/><circle cx="7" cy="18" r="1.6" fill="currentColor"/></svg>
+        <span>Filters</span>
+      </button>
+      <div class="reviews-desktop-filters" id="desktopAttributeFilters"></div>
+      <div class="reviews-sort">
+        <label for="reviewSort">Sort</label>
+        <select class="filter-control" id="reviewSort" name="sort" aria-describedby="reviewSortNote">
+          <option value="newest">Newest first</option>
+        </select>
+      </div>
+    </section>
+
+    <p class="body-sm reviews-sort-note" id="reviewSortNote">Publication dates are not available yet. “Newest first” currently keeps source order.</p>
+
+    <div class="reviews-summary">
+      <p id="reviewsCount" tabindex="-1" role="status" aria-live="polite"></p>
+      <div class="active-filter-list" id="activeFilterChips" role="group" aria-label="Active filters"></div>
+      <button class="clear-filters" type="button" id="clearAllFilters" hidden>Clear all</button>
+    </div>
+
+    <noscript><p>Enable JavaScript to browse My Faves. You can also explore the full reviews archive.</p></noscript>
+    <ul class="review-grid reviews-grid" id="reviewsGrid"></ul>
+    <section class="reviews-empty" id="reviewsEmpty" hidden aria-labelledby="reviewsEmptyTitle">
+      <h2 id="reviewsEmptyTitle">No favorites found</h2>
+      <p>Try another search or clear the selected filters.</p>
+      <a class="archive-link" href="#reviewsSearchInput">Edit search</a>
+      <button class="btn btn-accent btn-sm" type="button" id="emptyClearFilters">Clear filters</button>
+      <a class="archive-link" href="/reviews/">Explore all reviews</a>
+    </section>
+    <nav class="reviews-pagination" id="reviewsPagination" aria-label="Review pages"></nav>
+  </div>
+  <section class="review-detail-view" id="reviewDetailView" hidden></section>
+  <section class="request-cta" aria-labelledby="requestCtaHeading">
+    <div>
+      <div class="request-banner">
+       
+        <span class="tape-corner tape-corner--bl" aria-hidden="true"></span>
+
+        <div class="request-banner__copy-wrap">
+          <h2 class="request-banner__title" id="requestCtaHeading">Your Wishlist. My Fitting Room.</h2>
+          <p class="request-banner__copy">Eyeing something? Send it my way.</p>
+          <div class="request-banner__actions">
+            <button class="btn btn-accent" data-open-dialog>
+              Request a Review
+            </button>
+          </div>
+        </div>
+
+        <div class="request-banner__art">
+          <img class="request-banner__photo" src="https://images.unsplash.com/photo-1445205170230-053b83016050?w=900&h=700&fit=crop&q=85&fm=jpg" alt="Clothes hanging together on a rack in a fitting room" width="900" height="700" loading="lazy" />
+        </div>
+         <span class="tape-corner tape-corner--br" aria-hidden="true"></span>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<dialog class="reviews-filter-dialog" id="mobileFiltersDialog" aria-labelledby="mobileFiltersTitle">
+  <form id="mobileFilterForm">
+    <header class="reviews-filter-dialog__header">
+      <h2 class="headline-md" id="mobileFiltersTitle">Filters</h2>
+      <button class="dialog-close" type="button" id="cancelReviewFilters" aria-label="Close filters">×</button>
+    </header>
+    <div class="mobile-review-categories reviews-category-buttons" id="mobileCategoryFilters"></div>
+    <div id="mobileAttributeFilters"></div>
+    <div class="reviews-filter-dialog__actions">
+      <button class="btn btn-accent" id="showReviewResults" type="button">Show results</button>
+    </div>
+  </form>
+</dialog>
+<footer class="site-footer reviews-footer">
+  <div class="container footer-bar">
+    <a class="wordmark wordmark--footer" href="/" aria-label="CurvyGirlReviews home"><img class="wordmark__icon" src="../img/curvy.png" alt="" />CurvyGirlReviews</a>
+    <p class="footer-pitch">Get new reviews, outfit finds, and honest takes in your inbox.</p>
+    <form class="newsletter__form" id="newsletterForm">
+      <label for="newsletterEmail" class="visually-hidden">Your email address</label>
+      <input type="email" id="newsletterEmail" name="email" placeholder="Your email address" required />
+      <button type="submit" class="btn btn-accent">Subscribe</button>
+    </form>
+    <ul class="social-links social-links--footer" aria-label="Social media">
+      <li><a href="https://instagram.com" target="_blank" rel="noopener" aria-label="CurvyGirlReviews on Instagram"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.6"/><circle cx="17.2" cy="6.8" r="1" fill="currentColor"/></svg></a></li>
+      <li><a href="https://pinterest.com" target="_blank" rel="noopener" aria-label="CurvyGirlReviews on Pinterest"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M11 21l2-8M10.6 12.6c-.4-2 .8-3.6 2.4-3.6 1.4 0 2.2 1 2.2 2.2 0 1.7-1 3-2.3 3-.7 0-1.2-.4-1.3-1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></a></li>
+      <li><a href="https://youtube.com" target="_blank" rel="noopener" aria-label="CurvyGirlReviews on YouTube"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2.5" y="5.5" width="19" height="13" rx="4" stroke="currentColor" stroke-width="1.6"/><path d="M10.5 9.5l4.5 2.5-4.5 2.5z" fill="currentColor"/></svg></a></li>
+      <li><a href="https://tiktok.com" target="_blank" rel="noopener" aria-label="CurvyGirlReviews on TikTok"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M16.6 5.82a4.28 4.28 0 0 1-3.35-3.32h-2.9v13.3a2.52 2.52 0 1 1-1.77-2.4V9.4a5.5 5.5 0 1 0 4.67 5.44V9.7a7.15 7.15 0 0 0 3.35.86V7.6a4.27 4.27 0 0 1-1-1.78z" fill="currentColor"/></svg></a></li>
+    </ul>
+  </div>
+  <p class="newsletter__status" id="newsletterStatus" role="status" aria-live="polite"></p>
+  <div class="container footer-base">
+    <p class="body-sm">© 2026 CurvyGirlReviews. Sample content for design review.</p>
+    <ul class="footer-base__links"><li><a href="/my-faves/" aria-current="page">My Faves</a></li><li><a href="/privacy/">Privacy</a></li><li><a href="/#about">Contact</a></li></ul>
+  </div>
+</footer>
+<div class="dialog-backdrop" id="dialogBackdrop" hidden>
+  <div class="dialog" id="requestDialog" role="dialog" aria-modal="true" aria-labelledby="dialogTitle">
+    <button class="dialog-close" id="dialogClose" aria-label="Close dialog">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+    <h2 id="dialogTitle" class="headline-md">Request a review</h2>
+    <p class="body-md dialog-intro">Tell me what you'd like reviewed. I read every request, though I can't promise every item gets reviewed.</p>
+
+    <form id="requestForm" novalidate>
+      <div class="form-row">
+        <label for="reqName">Name <span class="optional">(optional)</span></label>
+        <input type="text" id="reqName" name="name" />
+      </div>
+
+      <div class="form-row">
+        <label for="reqEmail">Email <span class="required">(required)</span></label>
+        <input type="email" id="reqEmail" name="email" required aria-describedby="reqEmailError" />
+        <span class="field-error" id="reqEmailError" role="alert"></span>
+      </div>
+
+      <div class="form-row">
+        <label for="reqProduct">Product name or link <span class="required">(required)</span></label>
+        <input type="text" id="reqProduct" name="product" required aria-describedby="reqProductError" />
+        <span class="field-error" id="reqProductError" role="alert"></span>
+      </div>
+
+      <div class="form-row">
+        <label for="reqNotes">Comments <span class="optional">(optional)</span></label>
+        <textarea id="reqNotes" name="notes" rows="3"></textarea>
+      </div>
+
+      <div class="dialog-actions">
+        <button type="submit" class="btn btn-accent">Send request</button>
+      </div>
+      <p class="form-status" id="requestStatus" role="status" aria-live="polite"></p>
+    </form>
+  </div>
+</div>
+
+<script src="../reviews-data.js?v=favorites-fix-9"></script>
+<script src="../review-cards.js?v=favorites-fix-9"></script>
+<script src="../site.js?v=menu-dismiss-17"></script>
+<script src="../reviews.js?v=favorites-fix-9"></script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+{
+  "name": "curvygirlreviews",
+  "version": "1.0.0",
+  "private": true,
+  "engines": {
+    "node": ">=22.12"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "node --import tsx --test tests/*.test.ts",
+    "test:browser": "playwright test",
+    "import:products": "node --env-file=.env.local --import tsx scripts/import-products.ts"
+  },
+  "dependencies": {
+    "@fontsource-variable/caveat": "^5.2.0",
+    "@fontsource-variable/manrope": "^5.2.0",
+    "@fontsource-variable/onest": "^5.2.0",
+    "@portabletext/react": "^6.0.0",
+    "@sanity/client": "^7.26.2",
+    "@sanity/image-url": "^2.0.0",
+    "next": "16.3.8",
+    "next-sanity": "13.3.4",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "sanity": "6.17.0",
+    "server-only": "^0.0.1",
+    "styled-components": "^6.1.19",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.10.0",
+    "@playwright/test": "^1.56.0",
+    "@tailwindcss/postcss": "^4.0.0",
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "eslint": "^9.0.0",
+    "eslint-config-next": "16.3.8",
+    "prettier": "3.9.9",
+    "tailwindcss": "^4.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.9.0"
+  },
+  "overrides": {
+    "adm-zip": "^0.6.1",
+    "undici": "^7.30.0",
+    "smol-toml": "^1.9.0",
+    "@vercel/frameworks": {
+      "js-yaml": "^3.15.2"
+    },
+    "typeid-js": {
+      "uuid": "^11.1.1"
+    }
+  }
+}

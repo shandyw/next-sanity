@@ -1,7 +1,13 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+node_modules/
 
-# dependencies
-/node_modules
+.env*
+!.env.example
+playwright-report/
+test-results/
+.DS_Store
+*.tsbuildinfo
+
+
 /.pnp
 .pnp.js
 
@@ -24,9 +30,6 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# local env files
-.env*.local
-.env
 
 # vercel
 .vercel

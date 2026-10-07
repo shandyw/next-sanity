@@ -1,0 +1,51 @@
+[
+  {
+    "path": "/",
+    "status": 200,
+    "demoDisabled": true
+  },
+  {
+    "path": "/about",
+    "status": 200,
+    "demoDisabled": true
+  },
+  {
+    "path": "/reviews",
+    "status": 200,
+    "demoDisabled": true
+  },
+  {
+    "path": "/blog",
+    "status": 200,
+    "demoDisabled": true
+  },
+  {
+    "path": "/shop",
+    "status": 200,
+    "demoDisabled": true
+  },
+  {
+    "path": "/privacy",
+    "status": 200,
+    "demoDisabled": true
+  },
+  {
+    "path": "/studio",
+    "status": 200,
+    "demoDisabled": true
+  },
+  {
+    "path": "/api/draft/enable",
+    "status": 503,
+    "noCookie": true
+  },
+  {
+    "path": "/reviews/t1",
+    "status": 404
+  },
+  {
+    "path": "/api/forms",
+    "status": 503,
+    "honestUnavailable": true
+  }
+]

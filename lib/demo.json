@@ -1,0 +1,68 @@
+[
+  {
+    "id": "t1",
+    "favorite": true,
+    "videoUrl": "https://cdn.rtrcdn.com/assets/imgs/OrganicHP_Hero_Desktop_081826.mp4",
+    "videoPoster": "",
+    "videoCaptionsUrl": "",
+    "videoTranscript": "",
+    "publishedAt": "2023-01-01",
+    "category": "jeans",
+    "brand": "Target",
+    "sizeTried": "16",
+    "color": "Blue",
+    "vintedUrl": "",
+    "title": "Jeans that pass the sit test",
+    "blurb": "Comfy, flattering, and they actually stay up.",
+    "url": "/reviews/?review=t1",
+    "fit": "worn",
+    "images": [
+      "https://images.unsplash.com/photo-1475178626620-a4d074967452?w=600&h=750&fit=crop&q=80&fm=jpg",
+      "https://images.unsplash.com/photo-1584370848010-d7fe6bc767ec?w=600&h=750&fit=crop&q=80&fm=jpg"
+    ]
+  },
+  {
+    "id": "t2",
+    "favorite": false,
+    "videoUrl": "https://cdn.rtrcdn.com/assets/imgs/OrganicHP_Hero_Desktop_081826.mp4",
+    "videoPoster": "",
+    "videoCaptionsUrl": "",
+    "videoTranscript": "",
+    "publishedAt": "2024-01-01",
+    "category": "dresses",
+    "brand": "SHEIN",
+    "sizeTried": "16",
+    "color": "Acidwash",
+    "vintedUrl": "https://www.vinted.com/items/10209516323-hollister-long-sleeve-henley-top",
+    "title": "The dress that catfished me",
+    "blurb": "Gorgeous online. Weird in real life.",
+    "url": "/reviews/?review=t2",
+    "fit": "worn",
+    "images": [
+      "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=600&h=750&fit=crop&q=80&fm=jpg",
+      "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=600&h=750&fit=crop&q=80&fm=jpg"
+    ]
+  },
+  {
+    "id": "t3",
+    "favorite": true,
+    "videoUrl": "https://cdn.rtrcdn.com/assets/imgs/OrganicHP_Hero_Desktop_081826.mp4",
+    "videoPoster": "",
+    "videoCaptionsUrl": "",
+    "videoTranscript": "",
+    "publishedAt": "2025-01-01",
+    "category": "tops",
+    "brand": "Temu",
+    "sizeTried": "XL",
+    "color": "Blue",
+    "vintedUrl": "https://www.vinted.com/items/10209516323-hollister-long-sleeve-henley-top?homepage_session_id=2578e1b7-02e5-4a7d-a26c-3a9f3ee41204",
+    "title": "Cute. With a few conditions.",
+    "blurb": "Love the look, but the sleeves are a whole situation.",
+    "url": "/reviews/?review=t3",
+    "fit": "worn",
+    "images": [
+      "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=600&h=750&fit=crop&q=80&fm=jpg",
+      "https://images.unsplash.com/photo-1520975954732-35dd22299614?w=600&h=750&fit=crop&q=80&fm=jpg"
+    ]
+  }
+]

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Replace https://your-public-site.example with the configured production origin before deployment. -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://your-public-site.example/</loc>
+  </url>
+  <url>
+    <loc>https://your-public-site.example/reviews/</loc>
+  </url>
+  <url>
+    <loc>https://your-public-site.example/about/</loc>
+  </url>
+  <url>
+    <loc>https://your-public-site.example/my-faves/</loc>
+  </url>
+  <url>
+    <loc>https://your-public-site.example/privacy/</loc>
+  </url>
+</urlset>
