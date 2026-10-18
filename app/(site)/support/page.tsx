@@ -1,8 +1,8 @@
+import { ExternalLinkIcon } from '@/components/ExternalLinkIcon';
 import { getSettings } from '@/lib/content';
 import { safeExternal } from '@/lib/urls';
 import { pageMetadata } from '@/lib/seo';
-import { InnerHero } from '@/components/InnerHero';
-import Image from 'next/image';
+import { EditorialHero } from '@/components/EditorialHero';
 
 export const metadata = pageMetadata(
   'Support the Reviews',
@@ -14,48 +14,66 @@ export default async function Page() {
   const wishlist = safeExternal(settings.reviewWishlistUrl);
   return (
     <main id="main" className="container">
-      <InnerHero title="Support the Reviews" intro="Help choose what I try next." />
-      <div className="review-detail__top">
-        <section aria-labelledby="review-gifts-title">
-          <h2 id="review-gifts-title" className="headline-md">
-            Send me something to review
-          </h2>
-          <p>
-            Want to send me something to try? Choose an item from my review wishlist. Gifts are
-            optional, and receiving an item doesn’t guarantee a review or a positive opinion.
-          </p>
-          {wishlist ? (
-            <a className="btn btn-accent" href={wishlist} target="_blank" rel="noopener noreferrer">
-              Shop My Review Wishlist<span className="visually-hidden"> (opens in a new tab)</span>
-            </a>
-          ) : (
-            <p>My review gift list will be available here soon.</p>
-          )}
-          <p>
-            Check the exact size, color, and recipient at checkout. Purchases and delivery are
-            handled by the wishlist provider.
-          </p>
-          <p>
-            For an item outside my list, send its link first. Please wait until I confirm the item,
-            size, and color before purchasing.
-          </p>
-          <button className="btn btn-ghost" data-open-dialog>
-            Request a Review
-          </button>
-          <p className="body-sm">
-            This gift list supplies future try-ons. Your visitor wishlist saves items you may want
-            to shop for yourself.
-          </p>
-        </section>
-        <figure className="polaroid polaroid--dialog" aria-hidden="true">
-          <Image
-            src="/img/mirror.jpg"
-            alt=""
-            width={4514}
-            height={3009}
-            sizes="(max-width: 799px) 80vw, 320px"
-          />
-        </figure>
+      <EditorialHero title="Support the Reviews" intro="Help choose what I try on next." />
+      <div className="support-board">
+        <p className="support-board__note">
+          <span>You pick. I try.</span>
+        </p>
+        <div className="support-choices">
+          <section
+            className="support-choice support-choice--gift"
+            aria-labelledby="review-gifts-title"
+          >
+            <div className="support-choice__content">
+              <h2 id="review-gifts-title" className="support-choice__title">
+                Send me something to review
+              </h2>
+              <p className="support-choice__copy">
+                Choose something from my Amazon Wishlist and help decide what I try next.
+              </p>
+              {wishlist ? (
+                <a
+                  className="btn btn-accent support-choice__button"
+                  href={wishlist}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  View Wishlist
+                  <ExternalLinkIcon />
+                  <span className="visually-hidden"> (opens in a new tab)</span>
+                </a>
+              ) : (
+                <p className="support-choice__unavailable">
+                  My review gift list will be available here soon.
+                </p>
+              )}
+            </div>
+          </section>
+          <section
+            className="support-choice support-choice--request"
+            aria-labelledby="request-review-title"
+          >
+            <div className="support-choice__content">
+              <h2 id="request-review-title" className="support-choice__title">
+                Request a review
+              </h2>
+              <p className="support-choice__copy">
+                Got your eye on something? Send me the link and tell me what you want to know.
+              </p>
+              <button
+                className="btn btn-accent support-choice__button"
+                type="button"
+                data-open-dialog
+                aria-haspopup="dialog"
+              >
+                Request a Review
+              </button>
+            </div>
+          </section>
+        </div>
+        <p className="support-board__disclaimer">
+          <span>Gifts are optional and don’t guarantee a review or a positive opinion.</span>
+        </p>
       </div>
     </main>
   );

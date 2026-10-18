@@ -1,8 +1,7 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
-import type { Settings } from '@/lib/types';
-import { SocialLinks } from './SocialLinks';
-export function Header({ settings }: { settings: Settings }) {
+import { SavedFindsLink } from './SavedFindsLink';
+export function Header({ mobileSocials }: { mobileSocials?: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -59,12 +58,7 @@ export function Header({ settings }: { settings: Settings }) {
               <li>
                 <a href="/about/">About</a>
               </li>
-              <li>
-                <a href="/my-faves/">My Faves</a>
-              </li>
-              <li>
-                <a href="/wishlist">Wishlist</a>
-              </li>
+
               <li>
                 <a
                   href="#contactDialog"
@@ -78,11 +72,12 @@ export function Header({ settings }: { settings: Settings }) {
             </ul>
 
             <div className="nav-actions">
-              <SocialLinks settings={settings} header />
+              <SavedFindsLink />
               <button className="btn btn-accent" data-open-dialog>
                 Request a Review
               </button>
             </div>
+            {mobileSocials}
           </nav>
         </div>
       </header>

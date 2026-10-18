@@ -25,3 +25,10 @@ export function sectionProducts(all: DocumentContent[], section: ShoppingSection
       listingPrice: shoppingPrice(product),
     }));
 }
+
+export function closetPlatform(product: DocumentContent): 'vinted' | 'poshmark' {
+  return stegaClean(product.closetPlatform) === 'poshmark' ? 'poshmark' : 'vinted';
+}
+export function closetPlatformName(product: DocumentContent) {
+  return closetPlatform(product) === 'poshmark' ? 'Poshmark' : 'Vinted';
+}

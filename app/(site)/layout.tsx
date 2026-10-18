@@ -2,7 +2,11 @@ import { draftMode } from 'next/headers';
 import { VisualEditing } from 'next-sanity/visual-editing';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import { SocialTab } from '@/components/SocialTab';
+import { SocialLinks } from '@/components/SocialLinks';
 import { Dialogs } from '@/components/Dialogs';
+import { LeadModal } from '@/components/LeadModal';
+import { ContentImage } from '@/components/ContentImage';
 import { getSettings, demoEnabled } from '@/lib/content';
 export async function generateMetadata() {
   const preview = (await draftMode()).isEnabled;
@@ -20,7 +24,10 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       <a className="skip-link" href="#main">
         Skip to content
       </a>
-      <Header settings={settings} />
+      <Header
+        mobileSocials={<SocialLinks settings={settings} className="social-links--mobile-nav" />}
+      />
+      <SocialTab settings={settings} />
       {preview && (
         <aside className="preview-notice">
           Draft preview · <a href="/api/draft/disable">Exit preview</a>
@@ -32,8 +39,14 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
           Design preview: sample reviews and placeholder photography.
         </aside>
       )}
-      <Footer settings={settings} demo={demoEnabled} />
+      <Footer demo={demoEnabled} settings={settings} />
       <Dialogs settings={settings} />
+      {settings.leadModal?.enabled && settings.leadModal.image && !preview && (
+        <LeadModal
+          content={settings.leadModal}
+          image={<ContentImage image={settings.leadModal.image} width={800} height={1000} />}
+        />
+      )}
       {preview && <VisualEditing />}
     </>
   );

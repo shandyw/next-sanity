@@ -2,6 +2,7 @@ import type { NextConfig } from 'next';
 const config: NextConfig = {
   devIndicators: false,
   images: { remotePatterns: [{ protocol: 'https', hostname: 'cdn.sanity.io' }] },
+  outputFileTracingIncludes: { '/*': ['./public/img/hero/**/*'] },
   async redirects() {
     return [{ source: '/:path*/index.html', destination: '/:path*', permanent: true }];
   },

@@ -1,6 +1,7 @@
 import { getContent, demoEnabled } from '@/lib/content';
 import { ContentImage } from '@/components/ContentImage';
-import { InnerHero } from '@/components/InnerHero';
+import { EditorialHero } from '@/components/EditorialHero';
+import { Shannequin } from '@/components/Shannequin';
 import { RequestBanner } from '@/components/RequestBanner';
 import { pageMetadata } from '@/lib/seo';
 export const metadata = pageMetadata(
@@ -21,7 +22,7 @@ export default async function About() {
   return (
     <main id="main" className="about-page__main">
       <div className="container">
-        <InnerHero
+        <EditorialHero
           title={content.title || 'About CurvyGirlReviews'}
           intro={
             content.intro ||
@@ -31,6 +32,20 @@ export default async function About() {
         />
       </div>
       <section className="container about-page__intro" aria-labelledby="aboutIntroTitle">
+        <figure className="about-page__portrait">
+          <div className="about-page__photo-frame">
+            <ContentImage
+              image={content.portrait}
+              demoSrc="https://images.unsplash.com/photo-1475178626620-a4d074967452?w=680&amp;h=680&amp;fit=crop&amp;q=80&amp;fm=jpg"
+              width={680}
+              height={680}
+              priority
+            />
+          </div>
+          {demoEnabled && !content.portrait && (
+            <figcaption>Placeholder photo — not Shandy.</figcaption>
+          )}
+        </figure>
         <div className="about-page__copy">
           <p className="about-page__eyebrow">{content.eyebrow || 'HEY, I’M SHANDY'}</p>
           <h2 className="headline-lg" id="aboutIntroTitle">
@@ -48,30 +63,6 @@ export default async function About() {
             </p>
           ))}
         </div>
-        <figure className="about-page__portrait">
-          <div className="about-page__photo-frame">
-            <ContentImage
-              image={content.portrait}
-              demoSrc="https://images.unsplash.com/photo-1475178626620-a4d074967452?w=680&amp;h=680&amp;fit=crop&amp;q=80&amp;fm=jpg"
-              width={680}
-              height={680}
-              priority
-            />
-          </div>
-          <span className="about-page__note">Keeping it real.</span>
-          <span className="about-page__annotation">Real body. Real opinions.</span>
-          <img
-            className="about-page__heart"
-            src="/img/hollow_pink_heart.svg"
-            alt=""
-            aria-hidden="true"
-            width="28"
-            height="32"
-          />
-          {demoEnabled && !content.portrait && (
-            <figcaption>Placeholder photo — not Shandy.</figcaption>
-          )}
-        </figure>
       </section>
       <section className="container about-page__promises" aria-labelledby="aboutPromisesTitle">
         <h2 className="headline-lg" id="aboutPromisesTitle">
@@ -88,15 +79,12 @@ export default async function About() {
             </li>
           ))}
         </ol>
-        <img
-          className="about-page__promise-heart"
-          src="/img/hollow_yellow_heart.svg"
-          alt=""
-          aria-hidden="true"
-          width="34"
-          height="38"
-        />
       </section>
+      <Shannequin
+        image={content.shannequinImage}
+        measurements={content.shannequinMeasurements}
+        about
+      />
       <RequestBanner content={content} />
     </main>
   );

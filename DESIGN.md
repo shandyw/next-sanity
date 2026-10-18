@@ -1,132 +1,173 @@
 ---
-version: alpha
+version: warm-editorial-2026-10-13
 name: CurvyGirlReviews
-description: A warm, photo-led fashion review site with bold type, handwritten accents, and turquoise details.
-colors:
-  primary: '#35E0DE'
-  primary-ink: '#06302E'
-  primary-deep: '#00706F'
-  tertiary: '#F5417B'
-  highlight: '#FFE86B'
-  neutral: '#FCFAF7'
-  surface: '#FFFFFF'
-  on-surface: '#0C0D10'
-  text-secondary: '#4A505C'
-  border: '#E2E0DA'
-  border-control: '#6F7885'
-  error: '#FF3333'
-  focus: '#00706F'
-  transparent: 'transparent'
-typography:
-  display:
-    fontFamily: Onest
-    fontSize: 76px
-    fontWeight: 900
-    lineHeight: 0.98
-  body:
-    fontFamily: Manrope
-    fontSize: 16px
-    fontWeight: 400
-    lineHeight: 1.65
-  handwritten:
-    fontFamily: Caveat
-    fontSize: 22px
-    fontWeight: 600
-    lineHeight: 1.1
-rounded:
-  none: 0px
-  sm: 8px
-  md: 12px
-  lg: 18px
-  xl: 24px
-  full: 9999px
-spacing:
-  xs: 4px
-  sm: 8px
-  md: 16px
-  lg: 24px
-  xl: 32px
-  xxl: 48px
-  section: 64px
-  section-compact: 28px
-  page-desktop: 48px
-  page-tablet: 32px
-  page-mobile: 20px
-  content-max: 1344px
-  grid-gutter: 24px
-  control-height: 52px
-components:
-  button-accent:
-    backgroundColor: '{colors.primary}'
-    textColor: '{colors.primary-ink}'
-    rounded: '{rounded.full}'
-    height: '{spacing.control-height}'
-  review-card:
-    backgroundColor: '{colors.transparent}'
-    textColor: '{colors.on-surface}'
-    rounded: '{rounded.none}'
-  review-image:
-    rounded: '{rounded.none}'
-  sale-badge:
-    backgroundColor: '{colors.on-surface}'
-    textColor: '{colors.surface}'
-  request-banner:
-    backgroundColor: '{colors.surface}'
-    textColor: '{colors.on-surface}'
-    style: torn paper with turquoise tape details
-  dialog:
-    backgroundColor: '{colors.surface}'
-    textColor: '{colors.on-surface}'
-    rounded: '{rounded.xl}'
-    padding: '{spacing.xl}'
+description: Honest, sassy, fashionable, real. Warm editorial fashion with strong serif typography, restrained script and clean photography.
 ---
 
-# CurvyGirlReviews approved implementation
+# CurvyGirlReviews design specification
 
-The migrated visual source of truth is the implemented prototype preserved in `legacy/`, captured on October 4, 2026, rather than older mockup notes. This is a technical migration into Next.js App Router, strict TypeScript, Tailwind CSS, and Sanity. `app/globals.css` retains the source CSS cascade and responsive rules; Tailwind utilities share the same CSS design tokens and do not introduce a competing reset. Existing assets are copied byte-for-byte into `public/img/`.
+This is the canonical specification for the current Next.js site. The October 13 homepage reference supplies composition; its sample photographs and review claims are illustrative. Written requirements and the semantic tokens below override conflicting screenshot details. Historical documents in `legacy/` are archived references, not competing design defaults.
 
-## Typography and assets
+## Voice and visual direction
 
-Onest variable (headlines, including 900), Manrope variable (body/UI, 400–800), Caveat variable (handwriting, 500–700). The source referenced Google Fonts and Cloudflare font URLs but contained no actual font files; these same families are bundled as licensed WOFF2 through Fontsource and served locally. No generic replacement typeface is used. Existing weights and overrides are retained, including the final 900 display rules.
+Write honestly and directly, with personality and practical fit questions. Firsthand reviews describe items actually tried. Curated Finds and research must identify their evidence and must not imply firsthand experience. Never fabricate try-ons, sizes, testimonials, measurements, ratings or discounts to fill a layout.
 
-The pink hanger logo, hearts, `torn.png`, and other local images are preserved. Hero prints keep their rotations, white frames, notes, tape, drawn arrow, and yellow tag. The homepage/about/request photography from the prototype is illustrative remote stock content, available only with the development demo switch; production uses owned Sanity assets and reserves their dimensions. Upload authorized homepage video with transcript/captions to enable the preserved video section. The uncaptained third-party prototype video is not presented as owned editorial content.
+Use strong editorial serif headings, short flowing script accents, clean sans-serif copy, straight photographs and berry/pink emphasis. Photography does the visual work. Avoid decoration that obscures garments or implies that noninteractive photographs are links.
 
-## Colors and layout
+## Shared tokens and permitted color pairings
 
-Primary turquoise #35E0DE with dark #06302E ink; focus/accent links #00706F; pink #F5417B; yellow #FFE86B; warm-white #FCFAF7; ink #0C0D10; secondary #4A505C; borders #E2E0DA and #6F7885. Colors and spacing come from the final CSS, including its 24px base grid gutter and 20px archive gutter. Content maximum 1344px; 48px desktop / 32px tablet / 20px mobile insets. Preserve compact editorial layout, responsive header, turquoise pill controls, unframed cards, scrapbook collage, wide About photo, torn-paper request strip, and joined newsletter field/button.
+`app/globals.css` owns the semantic palette. Tailwind 4 uses the existing `@theme inline` aliases. Compatibility names resolve to these same tokens, not to a parallel theme.
 
-The header retains Reviews, About, My Faves, Contact, and Request a Review. Real social links are configurable; generic YouTube/TikTok homepages are not represented as verified profiles. Footer adds restrained Blog and Shop My Closet links to make new routes discoverable. Contact and request use accessible dialogs. Studio is never in public navigation.
+| Token                                         | Value     | Role                                         |
+| --------------------------------------------- | --------- | -------------------------------------------- |
+| `--color-page-background` / `--color-neutral` | `#FFFBF8` | Warm page background                         |
+| `--color-surface`                             | `#FFFFFF` | Fields and modal surfaces                    |
+| `--color-on-surface`                          | `#211A1D` | Headings and primary ink                     |
+| `--color-text-secondary`                      | `#4B4348` | Body, supporting copy and placeholders       |
+| `--color-primary` / `--color-link`            | `#7A2345` | Berry actions and text links                 |
+| `--color-primary-ink`                         | `#FFFFFF` | Labels on berry backgrounds                  |
+| `--color-brand-pink` / `--color-pink`         | `#F5C1CB` | Selected editorial text highlights           |
+| `--color-secondary-action`                    | `#E87CA5` | Optional secondary pink fill with ink labels |
+| `--color-cream`                               | `#F7ECDD` | Compact coming-soon panel                    |
+| `--color-blush`                               | `#FCE6EA` | Wishlist banner, gifting and soft panels     |
+| `--color-border-control`                      | `#767076` | Meaningful input/control edges               |
+| `--color-focus`                               | `#211A1D` | Visible focus outline                        |
+| `--color-border`                              | `#E2E0DA` | Decorative separators only                   |
+| `--color-success`                             | `#187441` | Valid-format tick                            |
+| `--color-error-text`                          | `#B4232C` | Error text                                   |
 
-No Win/Fail/Mixed badges exist. “Sale” in the original implementation meant an explicit discount with supplied sale price; availability is never a Sale badge. No discount records were supplied, so none are fabricated. Current listing prices and historical review prices remain separate.
+The invalid-email boundary retains `#C74D58`; selected wishlist hearts retain red `#FF3333` as an interaction state. Yellow preview notices are semantic warnings, not brand actions. Do not use low-opacity body text or gradients on buttons.
 
-## Content and browsing
+Required reference pairings are white on berry (about 8.77:1), berry on page (about 8.52:1), ink on pink highlight (about 10.10:1), and ink on secondary pink (about 6.39:1). Check actual computed states, including hover, active, selected and focus. Control edges and meaningful icons require at least 3:1; normal text requires 4.5:1. Decorative separators need not be mistaken for input outlines.
 
-The three existing sample reviews are isolated in `lib/demo.json`. `ENABLE_DEMO_CONTENT=true` permits a labeled local design preview only; production always disables them. Actual public reviews/posts require a slug and publication date no later than now. The Latest Verdicts section always displays up to three most recent published reviews independently of search state. Homepage search submits to the review archive and has no homepage filters.
+## Fonts and responsive typography
 
-The shop uses the established archive and card layout. An empty local closet can display 16 labeled product fixtures from `lib/demo-products.ts` with the existing pink hanger as placeholder artwork. Sample prices and all four availability states support browsing tests; sample purchase buttons are disabled. Real products take precedence, and production never displays these fixtures.
+- **Headings and review titles:** Lora Semibold, genuine weight 600, self-hosted and preloaded with `next/font/local`. The Latin WOFF2 and OFL license are in `public/fonts/lora/` (Fontsource 5.2.8). `--font-display` references `--font-editorial-serif` directly, without a duplicated Georgia/Times font stack. Next.js provides a metric-adjusted serif loading fallback and generic serif recovery if the font cannot load. No external font service is contacted by visitors or builds.
+- **Large display numbers:** Use Lora Semibold (600) through the shared `--font-display` token, with lining proportional numerals and tight `-0.09em` spacing. There is no separate number-font token. Use this for decorative numbers such as Shannequin’s “18”; ordinary prices, counts and metadata retain the body font.
+- **Body, navigation, forms, buttons and metadata:** existing licensed Manrope Variable, weights 400–800, self-hosted through the installed Fontsource package.
+- **Short large accents:** Dancing Script Variable, genuine weight 600, self-hosted with `next/font/local` and loaded when used. Preloading is disabled for this occasional accent font so routes without script text do not preload an unused font. Source: Fontsource 5.3.0; WOFF2 and OFL license are in `public/fonts/dancing-script/`. No external Google Fonts request or outlined imitation weight is used.
 
-Archive controls follow the approved empty-search, search-only, and open-dropdown reference images: a joined search field/button, an outlined Clear search/filters ghost action when state exists, and pill disclosures for Category, Size, Brand, Price, plus review Format controls and a native Sort select. Selected filters leave the search input inactive; only keyboard/input focus outlines the search field. Selected disclosures keep their light border and use an outer outline matching the search focus ring, with a screen-reader selection announcement. Native checkboxes permit multiple values. Clicking or tapping outside a disclosure closes it. Escape closes a disclosure and returns focus to its summary; keyboard focus stays visible. Desktop panels overlay results, while narrow screens use two columns and panels in normal document flow to avoid clipping. Price has labeled number inputs and minimum/maximum sliders with an explicit Apply price action. Progressively enhanced Next.js GET forms update results through client navigation without reloading or scrolling to the top. Dropdowns and keyboard focus remain in place. Reset and pagination also use client navigation. Controls synchronize with URL state through refresh/back/forward, and submissions reset pagination. Matching occurs over the complete collection before sorting and 12-item pagination. Price filters appear only for a single known currency. Query/filter routes are noindex with clean archive canonicals. Review and shop search operate on distinct document types.
+`--font-display` / `--font-heading` resolve to the local Lora font variable. Serif heading rules use weight 600. `--font-body` is Manrope. `--font-script` is the local script variable. The compatibility `--font-hand` resolves to script but must not be used for ordinary UI.
 
-Review cards preserve multiple-photo scrolling and image dots; controls have at least 24px hit areas while retaining the small dot artwork. Article pages use the existing equal-column review/gallery pattern, image thumbnail selection, Portable Text content, optional captioned video/transcript, and relevant closet products. Blog templates extend these same patterns. My Faves remains a review collection. Sold/reserved products keep their review association and display state rather than a purchase action. Old or absent check timestamps show a conservative availability note.
+Hero headings use approximately 42–76px on wide screens and 32–64px on small screens, with natural wrapping and a tight serif line height around 1.08. Section headings are approximately 30–58px; preview titles are 28–38px. Body copy is generally 16–18px at 1.5–1.65 line height. Supporting text is at least 14px. Script uses generous line space, genuine 600 strokes and no clipping; it is restricted to “Questionable” and the short Shannequin accent. Never use script in controls, paragraphs or metadata.
 
-## Accessibility and verification
+Use real selectable HTML text, one H1 per page and logical heading levels. Reading copy generally caps at 60–70ch where appropriate; do not impose a universal width on every paragraph.
 
-Product images include a 44px wishlist toggle at their top-right corner. Its heart is outlined at rest and filled red on hover, press, keyboard focus, or when saved. The icon has an accessible save/remove label, a pressed state, a visible focus ring, live save feedback, and visible storage errors. Wishlist is separate from editorial My Faves and uses the same hero, typography, and product cards. Saved IDs live only in the visitor's browser; no account is required. Removing an item returns focus to the wishlist heading. The page explains browser-only persistence and that saving does not reserve a product.
+## Containers, grids, spacing and photography
 
-Semantic landmarks, skip link, one H1, logical article headings, labeled forms, live submission statuses, keyboard dialogs/carousels, focus outlines, reserved image ratios, reduced motion, and narrow reflow are included. Decorative marks are hidden from assistive technology. Automated accessibility and keyboard checks supplement desktop/mobile screenshot review; they do not constitute a WCAG certification. Real authored content, imagery, video captions, and external providers still require editorial/accessibility review.
+The existing container caps at 1200px including gutters: 48px desktop, 32px below 1200px and 20px below 768px. Use the 4px/8px spacing scale. Major sections are roughly 64–96px apart on desktop and 40–56px on mobile; compact homepage groups may sit closer.
 
-See `docs/verification/` for before/after screenshots and observations. Expected differences are honest demo labeling, removal of unverified generic social destinations and an uncaptained video until an authorized asset is supplied, CMS-driven text/photos, accessible filter controls, and new blog/shop footer links. The original design geometry and artwork remain intact.
+The hero is a two-column text/photo grid above 768px and a stacked composition below. Review grids use three columns, two below 900px, and one below 600px. About and Shannequin use balanced two-column layouts that stack below 768px. Controls use the shared 52px height; large primary CTAs use 58px. Aim for 44×44px interactive hit areas.
 
-Technical setup, Studio, previews, caching, forms, importing, and deployment preparation are documented in `README.md` and `docs/IMPORTING.md`. The full historical design document remains in `legacy/DESIGN.md` for reference.
+Reserve image dimensions, use responsive `sizes`, and preserve Sanity crop/hotspot data through `ContentImage`. Review photographs are normally 4:5; About uses a straight landscape crop. Shannequin’s full-body image uses `ContentImage` with `preserveFullImage`: the original asset is resized with Sanity `fit=max`, bypassing crop/hotspot metadata and reserving its actual aspect ratio. CSS `contain` keeps feet and silhouette visible. Hero outfit/detail images use coordinated 3:5 portrait crops, overlapping grid columns and staggered top/bottom edges. The smaller frame sits above the main frame with its stronger approved shadow. Do not force unrelated stock imagery to represent the owner, a tested item or Shannequin.
 
-Clear wishlist and Clear search/filters share the `btn-ghost` pill style: transparent with an outline at rest, primary turquoise with black text on hover, press, or focus, and a visible keyboard focus ring.
+## Buttons, links, forms and dialogs
 
-When the displayed product IDs or order change, the results grid fades in with a restrained 6px upward motion over 220ms. Existing cards retain their DOM identity. Initial content remains visible in server-rendered HTML, and reduced-motion preferences disable this transition.
+Primary pill buttons use solid berry with white labels in every state. Hover/active adds a restrained ink inset boundary; labels stay stationary. Ghost actions use ink outlines and ink text, with blush fill on hover/focus. Optional secondary pink actions use ink labels. Disabled controls remain readable, with secondary text on blush; the header saved-finds heart remains an active link to `/wishlist` even when empty or browser storage is unavailable. Its count appears only when greater than zero.
 
-The Request a Review dialog keeps its existing form under “Suggest an item” and adds a restrained “Send an item to review” section when Site settings has a review wishlist URL. Its turquoise pill link opens the separate Support the Reviews page; the external gift-list link lives there. Gift expectations and off-list approval instructions distinguish My Review Wishlist from visitors’ saved items.
+Text links are berry and visibly underlined. Navigation/title hover underlines retain the center-growing animation and independent focus ring. Focus uses 3px ink with approximately 3px offset. Navigation CTAs (Explore the Reviews, Learn More, Read the review, Browse My Closet and About links) end with the shared 24px ArrowIcon. On hover only the arrow translates 4px over 180ms; reduced motion disables it. External shopping/closet/gift-list CTAs use the shared 24px ExternalLinkIcon without the forward-arrow animation. Submissions, search/reset/clear controls and dialog-opening Request a Review buttons have no directional icon. Icons are decorative, hidden from assistive technology, and placed after the label with 8px spacing. Keep ordinary navigation, image links and social icons free of extra CTA arrows.
 
-Product card images link to `/shop/[slug]` across the closet, related items, and visitor wishlist. The wishlist heart remains a separate button outside the image link. Item detail pages reuse the existing hero, responsive two-column gallery, metadata, and Vinted actions, retain sold/reserved items and related reviews, and include unique metadata. Published item pages are included in the sitemap; local samples remain noindex.
+Fields use visible labels, white surfaces, small rectangular corners, secondary placeholders and control borders. Newsletter/search bars preserve joined pill geometry. Focusing either half shows a continuous outer focus ring across the input and button, with no internal focus edge at the join. Labels and validation feedback stay outside the ring; keyboard-focused submit buttons are also underlined. Stacked lead-modal controls retain individual focus rings. Email format feedback has a green tick or subtle red boundary plus accessible explanation; it does not claim delivery or that an address exists. Keep server validation, honeypots, pending/error states and provider-confirmed acceptance. Never show successful signup without real acceptance.
 
-Request a Review uses a wider 960px dialog when a review wishlist is configured, with the suggestion form and gifting section side by side at 800px and above. Below 800px the sections stack, retaining dialog scrolling and keyboard controls.
+Site modals share white surfaces, 8px panel corners, dark backdrops, serif headings and 44px close controls. The request dialog is limited to 660px: item/link, fit notes, name/email side by side (stacked below 480px), expectation copy and a full-width berry submit button. The configured review wishlist appears in a blush panel below. Lead/filter dialogs retain their functional content layouts. Preserve focus boundaries, Escape dismissal, outside-click dismissal where supported, and focus restoration.
 
-Shopping is grouped by My Vinted Closet and Curated Finds above the existing clothing filters. Prominent two-section links use the turquoise active state and stack on mobile. Category options derive from the selected section. Curated items carry explicit personal-experience text and disclosures beside affiliate purchase links. Existing closet content and URLs remain valid. Amazon gifting is presented at `/support`, separate from shop sections and visitor wishlists; the request dialog links there.
+## Hero
+
+Every public page reuses `EditorialHero` with page-specific text and optional photos, CTA and disclaimer. The shared photo collage uses overlapping straight photo frames with 7px warm-white (#FFFDFA) borders and soft warm shadows. A blush measuring tape is layered behind the photos and a separate front piece crosses their lower edge; both are decorative, hidden from assistive technology and ignore pointer events. There are no photo tilts, captions, torn paper, adhesive tape, or AI labels. The homepage preserves “Big opinions. Questionable sizing.”, the size 16–18 introduction and “Explore the Reviews” linking to `/reviews`. “Questionable” alone uses the script accent in the primary berry color, without a background highlight or highlight-reveal animation; “sizing.” stays serif. Shared hero emphasis uses the primary text color with no colored backing. Other headlines use plain serif or optional editorial emphasis.
+
+The reusable local image pool remains in `public/img/hero/`, cached for five minutes per page identity so filter changes do not reshuffle it. Homepage Sanity outfit/detail overrides take precedence. Publish owned, suitable photos in Studio; pool images are decorative project imagery and are not evidence of a review. Empty pools display neutral placeholders. Supported formats are JPEG, PNG, WebP and AVIF; deployments trace these assets.
+
+Entrance animation is progressive enhancement: coordinated brief fades/upward movement with no rotation, bouncing, replay on ordinary rerenders or loops. Below 768px use a 300ms fade. Reduced motion and JavaScript-disabled browsing show a complete static hero immediately. Main images load eagerly; observers and animations clean up on unmount. Focus cancels unfinished entrance animation so the CTA is immediately usable.
+
+## Default review preview
+
+`ReviewPreview` is the shared component for the homepage, reviews archive, blog cards and related reviews:
+
+1. Borderless 4:5 photograph with carousel dots centered 10px from the bottom, matching shopping cards.
+2. Brand above the title when supplied, using the same small uppercase primary-color styling as shopping cards. Omit empty brands; no category is displayed above the image.
+3. Large serif title beneath the photograph and brand, with natural wrapping and no background highlight.
+4. Real excerpt, then actual size-tried metadata when supplied.
+5. Underlined berry “Read the review →” with a descriptive accessible name.
+
+No enclosing card panel, fixed title heights, drop shadow or rounded photo. Titles wrap and grow naturally. Review titles render as plain text without colored highlights or mark elements. Existing titleHighlight content is retained but not applied. Never inject HTML into titles.
+
+Image-carousel controls remain independent and keyboard accessible. Title and reading links remain real links. Product cards retain their product metadata and wishlist hearts. The primary “Learn More” button links to the product detail page, where marketplace purchase actions remain available. Card descriptions display at most three lines with an ellipsis when clipped; full descriptions remain on detail pages. Unavailable closet-link placeholder text is hidden; configured closet profile links remain available. Cards share typography and spacing without adopting review claims.
+
+## Homepage order and sections
+
+1. Existing approved logo/navigation, request action and saved-finds heart; socials tab.
+2. Borderless staggered-photo hero.
+3. Latest Verdicts: up to the three newest published reviews, independently of archive search. No homepage search input. Keep the archive CTA. When empty, use a compact warm-cream panel: Coming soon / Real try-ons are on their way. / Honest fit notes. No sugarcoating.
+4. Small typographic “On my review checklist”: 01 Fit, 02 Fabric, 03 Comfort. Berry numbers, dark text. These are planned criteria, not completed tests or statistics.
+5. About introduction: preserve the copy, straight photograph, “Size 16–18. Zero sugarcoating.” and `/about` link.
+6. Meet Shannequin, immediately before the wishlist banner (any configured homepage video remains before Shannequin).
+7. “Your Wishlist. My Fitting Room.”: clean blush split panel, straight clothing photo, working request-modal action and CMS overrides.
+8. Existing footer, newsletter, links and required disclosures.
+
+The socials tab uses configured profiles and accessible 44px targets. At 1280px and wider it is a left-side rail. From 1024–1279px the same links become a compact **in-flow** horizontal treatment. Below 1024px, the tab is hidden and the configured social icons appear inside the mobile navigation dropdown beneath its saved-finds / Request a Review row. The mobile-only links are hidden on desktop and remain keyboard accessible when the menu is open. Preserve the existing logo; do not substitute an illustrative screenshot wordmark.
+
+## Shannequin and empty states
+
+Homepage Shannequin copy is exactly the supplied facts: a full-body size-18 mannequin offers another look at how a piece hangs when it fits more like an 18 than a 16. She does not assess comfort or movement, and no measurements are invented. Use “My size-18 sidekick”, “Meet Shannequin”, the supplied body and optional “She brings the curves. I bring the commentary.” accent. CTA links to `/about#shannequin`, whose destination heading exists and has scroll clearance.
+
+The pink rectangular backing and large berry “18” are persistent decorative layers behind the photograph, including after an image is published. Use a transparent PNG/WebP cutout to reveal these layers through the silhouette; opaque photographs keep their own background. These layers are hidden from assistive technology.
+
+`aboutPage.shannequinImage` is the single image source for both introductions; editors do not maintain duplicate image fields. No approved mannequin asset was found during implementation. Development shows an explicitly identified placeholder; production shows a neutral photograph-coming-soon treatment until an image is published. Do not fabricate a mannequin photograph from the reference.
+
+Preserve useful existing wishlist/reviews empty illustrations, helpful copy and reset actions. No fake reviews appear to fill grids. Saved IDs unavailable in the current catalog remain clearable. Empty states use the shared serif/berry styling, not scrapbook clusters.
+
+## Preserved workflows, SEO and accessibility
+
+Keep Next.js App Router, strict TypeScript, Tailwind 4 and official next-sanity. Authenticated Studio, Inventory/pricing tools and draft/publish workflows remain separate from public styling. Never expose read/write/provider credentials. Do not migrate data or republish documents as part of a visual change.
+
+Preserve search/filter/sort/pagination over the full matching dataset, URL state, back/forward, enhanced navigation without page jumps and reduced-motion result transitions. Archive search and shopping remain distinct. Browser wishlists retain storage error handling, cross-tab synchronization, independent heart actions and unavailable-ID cleanup. They never reserve items or require accounts.
+
+Keep closet/Curated Finds classification, Vinted/retailer destinations, affiliate disclosures and personal-experience labels. Sold items retain reviews. Listing price stays separate from price when reviewed. “Sale” requires a real discount; no Win/Fail/Mixed badges, cart, checkout or Vinted synchronization.
+
+Public reviews/posts require published slugs and dates not in the future. Draft previews remain authenticated and noindex; Studio stays outside public navigation. Preserve canonical URLs, metadata, truthful structured data, sitemap and noindex rules for searches/filters. Content remains server-rendered. Keep the existing five-minute content-refresh strategy. Isolated development fixtures remain disabled in production by default. Integrations/importing/deployment are documented in README and `docs/`.
+
+Target WCAG 2.2 AA: semantic landmarks, skip link, logical headings, visible labels, alt descriptions, usable keyboard order and unobscured focus. Verify rest/hover/active/focus/error contrast, 320px reflow, 200%/400% zoom, natural title wrapping and script clearance. Keep content available without JavaScript; respect reduced motion. A labeled wishlist table region may scroll internally. Automated scans supplement keyboard/layout checks; they do not establish complete compliance. Provider delivery, authored descriptions and video accessibility still need editorial review.
+
+## Retired styles
+
+Chunky Onest display headings, turquoise actions, bright-pink primary buttons with black labels, Polaroids, photo captions, handwritten UI, torn-paper heroes/sections, adhesive tape/doodles/hearts, photo tilt, floating quotes, bell-curve/statistical graphics and homepage review search must not return. Hearts are reserved for visitor wishlist controls. Historical assets/dependencies remain available for archived references and are not destructively deleted.
+
+## Shopping image specification
+
+Shopping cards and product detail photographs use **4:5 portrait**, with 1080 × 1350 CDN requests and responsive Next.js delivery. Wishlist thumbnails retain 4:5. Studio product Photos have crop/hotspot controls with a named **Product card — 4:5 portrait** preview; saved crop/hotspot values are honored by the frontend. The source upload is preserved. Crop dimensions below 800 × 1000 produce a nonblocking warning; 1080 × 1350 is recommended. Asset-size validation blocks publishing photographs over 20 MB, after upload; this is not a custom upload-time size gate. Existing smaller photos remain editable/publishable with a warning and are not migrated.
+
+JPEG and PNG are recommended. WebP remains supported for existing optimized photography; the picker also accepts HEIC/HEIF, which Sanity supports as uploads in the HEIF family. HEIC conversion/rendering depends on the asset pipeline; export to JPEG/PNG if needed before upload. No browser HEIC decoder or automatic client conversion was added. Review previews keep their own 4:5 specification; full-body Shannequin images retain the uncropped full-asset behavior.
+
+## Closet marketplaces and shop links
+
+“My Closet” contains owned resale items from Vinted or Poshmark, selected via `product.closetPlatform`. Legacy items remain Vinted. Clothing categories and Curated Finds stay separate from marketplace selection. Public closet asking-price text is replaced by an underlined link to the matching configured closet profile on cards, detail pages and wishlist. The wishlist column is “Shop”; retailer finds use their retailer link with affiliate disclosure. Purchase buttons still lead to individual listings, identify the selected marketplace and respect sold/reserved states. Inventory/pricing tools retain listing prices. URL state, filtering, browser saves and existing routes are preserved. Poshmark CSV importing is local and authorized; no scraper or page-request synchronization is added.
+
+### Studio master inventory CSV import
+
+Inventory includes a Sanity UI master inventory import dialog with labeled CSV/currency/photo-file controls, a paginated semantic preview table and explicit confirmation. It reads SKU, STATUS, NAME, DESCRIPTION, BRAND, SIZE, IMAGES, POSHMARK and VINTED plus optional URL, storing one item with separate marketplace prices. Photo filenames separated by | define gallery order. Existing uploaded images are reused by saved filename associations or an unambiguous original filename. The preview lists only missing or ambiguous files; crop and edited alt text are retained. Blank optional cells preserve existing fields. Table scrolling is labeled and keyboard accessible on narrow screens. Status and error feedback announce actual import outcomes. Product imports create/update drafts only. Filled master product fields and status are authoritative after confirmation; unrelated editorial content remains intact. A filled URL sets the listing purchase link and primary marketplace; blank URL cells keep existing links. New shared brand and clothing category labels are created after confirmation. Optional CATEGORY and CONDITION CSV columns map to existing product fields; blank cells preserve current values. Archive category, brand and condition options derive from all products in the selected section before pagination. No price range dropdown is shown, and legacy price range URL parameters are ignored. No scraping is used. This admin feature does not alter the public design.
+
+Inventory rows show explicit Draft/Published text and a contextual Publish/Set to Draft action. Sanity UI confirmation dialogs explain the public effect and preserve keyboard focus; actions disable during saves and announce the confirmed result. Publish runs schema validation; Set to Draft unpublishes while retaining editable content.
+
+Inventory price cells show per-marketplace master prices when present. The main asking price and inventory value continue to use the selected primary marketplace, counting each SKU once. Both listing URL fields are available in the product editor. The master importer changes no public shop layouts or purchase-button behavior.
+
+Product card photography uses the shared ImageCarousel: the main photo plus at most four additional photos (five total), in Studio gallery order. Dots use at least 24px targets, pressed states and descriptive labels. Native horizontal swipe, Left/Right and Home/End navigation from either the image area or a photo dot, visible inset focus rings, active-image announcements and reduced-motion scrolling are supported. Each active photo links to the item detail page; the wishlist heart and photo controls act independently. No autoplay. Cards retain the 4:5 crop and reserved dimensions; item details retain the full gallery.
+
+Custom native-select chevrons apply only to public `select.filter-control` elements. Sanity UI supplies Studio select arrows, spacing and appearance; public dropdown backgrounds must not add another arrow inside Studio.
+
+## Review detail editorial layout
+
+`ReviewArticle` renders review documents independently of the generic blog article. It follows the approved October 15 reference: restrained editorial kicker/rule, category, large Lora headline with an optional berry Dancing Script ending, publication date/byline, and an outlined size-worn pill. The main desktop area pairs a portrait media column with four numbered text sections. The fixed section slots are First Impression, Fit / Comfort, Who might like this?, and Final Take; each heading and Portable Text copy is independently editable. Legacy article copy remains visible when structured content is missing. No automatic data migration occurs.
+
+Media uses a featured image, additional images with optional captions, an authorized video, or both. Thumbnails and the optional Watch my try-on overlay are semantic buttons with pressed state, labels and visible focus. Switching media pauses any video, never autoplays, and announces the current selection. Video keeps native controls, captions and an optional transcript. The no-JavaScript view displays every media item. Mobile stacks the media above the numbered sections; headings and copy reflow naturally.
+
+The optional Shannequin quote panel has a blush background, a pink rectangle behind the shared full-body image, script eyebrow, serif quote and Meet Shannequin link. Decorative quotation marks are oversized (2.2em) and light pink #F5C1CB, with a hanging opening mark and an inline closing mark; the quote, attribution and link align within a shared inset. It uses Homepage’s existing shannequinImage for every review, preserves the full asset, and has no oversized decorative number. The per-review quote is authored; no quote is invented. The panel is omitted when no quote is entered. An optional selected product CTA below the review accepts either a closet item or Curated Find and links to its detail page; it never implies purchase availability. Related reviews retain their existing relationships and cards. Site header, footer, public shop behavior, draft boundaries and existing routes remain intact.
+
+The shared `RequestBanner` is used by the homepage and About page and can be reused as `<RequestBanner />` with default copy or `<RequestBanner content={content} />` for existing CMS title/intro overrides. It always uses the local `/img/closet.jpg` photograph (900 × 601), optimized with responsive Next.js Image and available in production. Its heading IDs are unique per instance; the CTA opens the existing Request a Review dialog. The original requestImage content remains stored but is no longer used by this banner.
+
+The hero measuring-tape assets are `/img/tape-behind.png` (774 × 509, transparent) and `/img/tape-front.png` (223 × 220, transparent). Keep the original files intact. Both tape pieces use their native transparency without blend modes. Layer order is behind tape (0), main frame (1), smaller frame (2), front tape (3). The responsive grid reserves photo dimensions and room for the lower frame; decorations never become interactive and do not add animation or autoplay. The border and main shadow use 0 3px 8px rgb(64 39 30 / 6%), 0 14px 28px -8px rgb(64 39 30 / 18%); the smaller photo uses 0 4px 10px rgb(64 39 30 / 8%), 0 20px 36px -12px rgb(64 39 30 / 24%).
+
+## About-page Shannequin measurements
+
+The About section keeps its existing introduction and script tagline, with the uncropped headless mannequin on the right and a blush rectangle behind it. Omit the decorative 18 on About only. Six stable measurement keys (chest, waist, hips, arm, wrist, inseam) live in About page → Shannequin measurements. Each stores a label, one positive source value, its source unit (in/cm), and a short description; clarify arm length versus upper-arm circumference. Never seed real content with example values. Missing or invalid values say “Measurement coming soon.” Convert with 2.54 cm/in, display one decimal at most, and remove trailing zeros.
+
+Hotspots share percentage coordinates relative to the actual full image bounds. Keep that image uncropped at its natural ratio with no letterboxing. Burgundy plus/minus circles have white borders and at least 44px effective targets, subtle static active halos, decorative labels/connectors, and visible keyboard focus. Hover/focus previews one area; click/tap pins it, a second activation closes it. Escape and outside pointer presses dismiss. A short pointer grace period lets users enter the popup without losing it; touch does not trigger hover changes. Warm-white panels use blush borders and warm shadows. Keep floating panels within the figure on desktop; below 1200px use a panel under the mannequin so narrow columns cannot obscure the controls. Reduce movement for reduced motion. A native “View all measurements” disclosure sits below the measurement introduction in the left copy column, remains available without JavaScript, and lists the same data; controls are hidden without JavaScript. Homepage and review mannequin compositions stay unchanged.

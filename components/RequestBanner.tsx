@@ -1,34 +1,42 @@
 import type { PageContent } from '@/lib/types';
-import { ContentImage } from './ContentImage';
-export function RequestBanner({ content }: { content: PageContent }) {
+import Image from 'next/image';
+import { useId } from 'react';
+export function RequestBanner({
+  content = {},
+}: { content?: Pick<PageContent, 'requestTitle' | 'requestIntro'> } = {}) {
+  const headingId = `request-cta-${useId()}`;
   return (
-    <section className="request-cta" aria-labelledby="requestCtaHeading">
+    <section className="request-cta" aria-labelledby={headingId}>
       <div className="container">
         <div className="request-banner">
-          <span className="tape-corner tape-corner--bl" aria-hidden="true" />
           <div className="request-banner__copy-wrap">
-            <h2 className="request-banner__title" id="requestCtaHeading">
+            <h2 className="request-banner__title" id={headingId}>
               {content.requestTitle || 'Your Wishlist. My Fitting Room.'}
             </h2>
             <p className="request-banner__copy">
               {content.requestIntro || 'Eyeing something? Send it my way.'}
             </p>
             <div className="request-banner__actions">
-              <button className="btn btn-accent" data-open-dialog>
+              <button
+                className="btn btn-accent"
+                type="button"
+                data-open-dialog
+                aria-haspopup="dialog"
+              >
                 Request a Review
               </button>
             </div>
           </div>
           <div className="request-banner__art">
-            <ContentImage
+            <Image
               className="request-banner__photo"
-              image={content.requestImage}
-              demoSrc="https://images.unsplash.com/photo-1445205170230-053b83016050?w=900&h=700&fit=crop&q=85&fm=jpg"
+              src="/img/closet.jpg"
+              alt="Clothes hanging on a closet rail beside shelves and handbags"
+              sizes="(max-width: 767px) 90vw, 45vw"
               width={900}
-              height={700}
+              height={601}
             />
           </div>
-          <span className="tape-corner tape-corner--br" aria-hidden="true" />
         </div>
       </div>
     </section>

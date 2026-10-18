@@ -30,7 +30,7 @@ for (const width of [1440, 390]) {
 }
 test('search and filters survive refresh and browser navigation', async ({ page }) => {
   await page.goto('/');
-  await page.getByLabel('Search fashion reviews', { exact: true }).fill('jeans');
+  await page.getByLabel('Search reviews', { exact: true }).fill('jeans');
   await page.getByRole('button', { name: 'Search', exact: true }).click();
   await expect(page).toHaveURL(/\/reviews\?q=jeans/);
   await expect(page.getByRole('status').filter({ hasText: '1 reviews found' })).toBeVisible();
@@ -41,7 +41,7 @@ test('search and filters survive refresh and browser navigation', async ({ page 
   await page.goBack();
   await expect(page.locator('#archiveSearch')).toHaveValue('jeans');
   await page.goto('/reviews?q=no-such-review');
-  await expect(page.getByRole('heading', { name: 'No articles found' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Nothing fits this search.' })).toBeVisible();
 });
 test('request dialog traps keyboard focus, closes with Escape and restores focus', async ({
   page,

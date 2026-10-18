@@ -1,4 +1,5 @@
 import { pageMetadata } from '@/lib/seo';
+import { EditorialHero } from '@/components/EditorialHero';
 export const metadata = pageMetadata(
   'Privacy Policy',
   'How CurvyGirlReviews handles your information.',
@@ -7,19 +8,10 @@ export const metadata = pageMetadata(
 export default function Privacy() {
   return (
     <main id="main" className="privacy-page__main container">
-      <header className="inner-hero">
-        <div className="inner-hero__paper">
-          <p className="inner-hero__eyebrow">CurvyGirlReviews</p>
-          <h1 className="inner-hero__title">Privacy Policy</h1>
-          <p className="inner-hero__intro">
-            How Curvy Girl Reviews collects, uses, and protects personal information, and how to
-            contact us about your privacy.
-          </p>
-        </div>
-        <span className="inner-hero__note" aria-hidden="true">
-          No pretending.
-        </span>
-      </header>
+      <EditorialHero
+        title="Privacy Policy"
+        intro="How Curvy Girl Reviews collects, uses, and protects personal information, and how to contact us about your privacy."
+      />
       <article className="privacy-content" aria-label="Privacy policy details">
         <p className="privacy-effective">
           Effective Date: <time dateTime="2026-10-03">October 3, 2026</time>
@@ -73,6 +65,12 @@ export default function Privacy() {
             If you use the wishlist, saved item IDs are stored only in your browser. No account is
             created. You can remove them using Clear wishlist or by clearing this site’s browser
             data. The list does not sync across devices or reserve items.
+          </p>
+          <p>
+            The optional signup offer uses browser storage to remember when you dismiss it for the
+            session or successfully subscribe. These flags do not contain your email address.
+            Clearing this site’s browser data removes them. Email signups are sent to our configured
+            newsletter provider.
           </p>
         </section>
         <section aria-labelledby="privacy-section-5">

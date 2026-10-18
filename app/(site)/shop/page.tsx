@@ -4,7 +4,7 @@ import type { SearchParams } from '@/lib/types';
 import { pageMetadata } from '@/lib/seo';
 export async function generateMetadata({ searchParams }: { searchParams: Promise<SearchParams> }) {
   return pageMetadata(
-    'My Vinted Closet',
+    'My Closet',
     'Browse CurvyGirlReviews.',
     '/shop',
     Object.keys(await searchParams).length > 0,
@@ -14,5 +14,13 @@ export default async function Page({ searchParams }: { searchParams: Promise<Sea
   const params = await searchParams;
   const all = await getDocuments('product');
   const settings = await getSettings();
-  return <Archive all={all} params={params} kind="product" shopUrl={settings.vintedShopUrl} />;
+  return (
+    <Archive
+      all={all}
+      params={params}
+      kind="product"
+      shopUrl={settings.vintedShopUrl}
+      settings={settings}
+    />
+  );
 }

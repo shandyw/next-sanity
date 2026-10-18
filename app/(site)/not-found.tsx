@@ -1,11 +1,13 @@
+import { EditorialHero } from '@/components/EditorialHero';
+
 export default function NotFound() {
   return (
-    <main id="main" className="container">
-      <h1 className="headline-lg">Page not found</h1>
-      <p>This article may not be published yet.</p>
-      <a className="btn btn-accent" href="/reviews">
-        Browse reviews
-      </a>
+    <main id="main">
+      <EditorialHero
+        title="Page not found"
+        intro="This article may not be published yet."
+        cta={{ label: 'Browse reviews', href: '/reviews' }}
+      />
     </main>
   );
 }

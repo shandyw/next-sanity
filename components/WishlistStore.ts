@@ -35,6 +35,26 @@ function subscribe(callback: () => void) {
 export function useWishlist() {
   return useSyncExternalStore(subscribe, getSnapshot, () => serverSnapshot);
 }
+export function removeWishlistItems(idsToRemove: readonly string[]): {
+  ok: boolean;
+  message: string;
+} {
+  try {
+    const ids = parseWishlist(window.localStorage.getItem(wishlistKey));
+    const removedIds = new Set(idsToRemove);
+    const remaining = ids.filter((id) => !removedIds.has(id));
+    if (remaining.length)
+      window.localStorage.setItem(wishlistKey, JSON.stringify({ version: 1, ids: remaining }));
+    else window.localStorage.removeItem(wishlistKey);
+    window.dispatchEvent(new Event(eventName));
+    return { ok: true, message: 'Unavailable saved items cleared.' };
+  } catch {
+    return {
+      ok: false,
+      message: 'Your browser could not clear these items. Please allow site storage and try again.',
+    };
+  }
+}
 export function changeWishlist(id?: string): { ok: boolean; message: string } {
   try {
     const ids = parseWishlist(window.localStorage.getItem(wishlistKey));

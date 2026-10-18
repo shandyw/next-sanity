@@ -1,0 +1,4 @@
+SKU,STATUS,NAME,DESCRIPTION,BRAND,SIZE,IMAGES,POSHMARK,VINTED,URL,CATEGORY,CONDITION
+EXAMPLE-001,Available,Example closet item,"First paragraph.
+Second paragraph.",Example brand,18,EXAMPLE-001-front.jpg | EXAMPLE-001-back.jpg,$54,$49,https://www.vinted.com/items/1234567890-example-item,Shoes,Excellent
+EXAMPLE-002,Sold,Another example item,,,,,$40,,,Shoes,Excellent

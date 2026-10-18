@@ -22,6 +22,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Sea
       section="finds"
       shopBase="/shop/finds"
       shopUrl={settings.vintedShopUrl}
+      settings={settings}
     />
   );
 }

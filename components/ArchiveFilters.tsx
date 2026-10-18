@@ -1,7 +1,5 @@
 'use client';
 
-import { stegaClean } from 'next-sanity';
-
 import { useEffect, useRef, useState } from 'react';
 import Form from 'next/form';
 import Link from 'next/link';
@@ -61,7 +59,7 @@ export function ArchiveFilters({
   query,
   filters,
   sort,
-  price,
+  priceSortable,
   stateKey,
   curated = false,
 }: {
@@ -72,13 +70,11 @@ export function ArchiveFilters({
   query: string;
   filters: ArchiveFilter[];
   sort: string;
-  price?: { currency: string; ceiling: number; min: string; max: string };
+  priceSortable: boolean;
 }) {
   const [previousStateKey, setPreviousStateKey] = useState(stateKey);
   const [selectedSort, setSelectedSort] = useState(sort || 'newest');
   const [search, setSearch] = useState(query);
-  const [min, setMin] = useState(price?.min || '');
-  const [max, setMax] = useState(price?.max || '');
   const [selected, setSelected] = useState<Record<string, string[]>>(
     Object.fromEntries(
       filters.map((filter) => [
@@ -93,8 +89,6 @@ export function ArchiveFilters({
   if (previousStateKey !== stateKey) {
     setPreviousStateKey(stateKey);
     setSearch(query);
-    setMin(price?.min || '');
-    setMax(price?.max || '');
     setSelectedSort(sort || 'newest');
     setSelected(
       Object.fromEntries(
@@ -107,16 +101,15 @@ export function ArchiveFilters({
       ),
     );
   }
-  const hasFilters =
-    Object.values(selected).some((values) => values.length > 0) || Boolean(min || max);
+  const hasFilters = Object.values(selected).some((values) => values.length > 0);
   const hasState = Boolean(search.trim()) || hasFilters || selectedSort !== 'newest';
   return (
     <Form action={base} scroll={false} className="archive-filter-form">
+      <label className="archive-search-label" htmlFor="archiveSearch">
+        {shop ? 'Search items' : 'Search published articles'}
+      </label>
       <div className="archive-search-row">
         <div className="reviews-search" role="search">
-          <label className="visually-hidden" htmlFor="archiveSearch">
-            {shop ? 'Search items' : 'Search published articles'}
-          </label>
           <input
             id="archiveSearch"
             type="search"
@@ -131,7 +124,7 @@ export function ArchiveFilters({
             value={search}
             onChange={(event) => setSearch(event.target.value)}
           />
-          <button className="btn btn-accent" type="submit">
+          <button className="btn btn-accent joined" type="submit">
             Search
           </button>
         </div>
@@ -142,8 +135,6 @@ export function ArchiveFilters({
             scroll={false}
             onNavigate={() => {
               setSearch('');
-              setMin('');
-              setMax('');
               setSelectedSort('newest');
               setSelected(Object.fromEntries(filters.map((filter) => [filter.name, []])));
             }}
@@ -194,92 +185,12 @@ export function ArchiveFilters({
             </fieldset>
           </Dropdown>
         ))}
-        {price && (
-          <Dropdown label="Price" active={Boolean(min || max)}>
-            <fieldset className="archive-price">
-              <legend className="visually-hidden">
-                {shop ? 'Listing price' : 'Price when reviewed'} ({price.currency})
-              </legend>
-              <div className="archive-price__inputs">
-                <label>
-                  <span className="visually-hidden">Minimum price ({price.currency})</span>
-                  <input
-                    type="number"
-                    name="min_price"
-                    min="0"
-                    step="0.01"
-                    placeholder="0"
-                    value={min}
-                    onChange={(event) => setMin(event.target.value)}
-                  />
-                </label>
-                <label>
-                  <span className="visually-hidden">Maximum price ({price.currency})</span>
-                  <input
-                    type="number"
-                    name="max_price"
-                    min={min || '0'}
-                    step="0.01"
-                    placeholder={String(price.ceiling)}
-                    value={max}
-                    onChange={(event) => setMax(event.target.value)}
-                  />
-                </label>
-              </div>
-              <label className="archive-price__range">
-                <span className="visually-hidden">Minimum price slider ({price.currency})</span>
-                <input
-                  type="range"
-                  min="0"
-                  max={price.ceiling}
-                  step="0.5"
-                  value={min || 0}
-                  onChange={(event) => {
-                    setMin(event.target.value);
-                    if (max && Number(max) < Number(event.target.value)) setMax(event.target.value);
-                  }}
-                />
-              </label>
-              <label className="archive-price__range">
-                <span className="visually-hidden">Maximum price slider ({price.currency})</span>
-                <input
-                  type="range"
-                  min="0"
-                  max={price.ceiling}
-                  step="0.5"
-                  value={max || price.ceiling}
-                  onChange={(event) => {
-                    setMax(event.target.value);
-                    if (min && Number(min) > Number(event.target.value)) setMin(event.target.value);
-                  }}
-                />
-              </label>
-              <p>
-                Price:{' '}
-                {new Intl.NumberFormat('en', {
-                  style: 'currency',
-                  currency: stegaClean(price.currency),
-                  maximumFractionDigits: 2,
-                }).format(Number(min || 0))}{' '}
-                –{' '}
-                {new Intl.NumberFormat('en', {
-                  style: 'currency',
-                  currency: stegaClean(price.currency),
-                  maximumFractionDigits: 2,
-                }).format(Number(max || price.ceiling))}
-              </p>
-              <button type="submit" className="btn btn-accent">
-                Apply price
-              </button>
-            </fieldset>
-          </Dropdown>
-        )}
         <div className="reviews-sort">
           <label htmlFor="archiveSort">Sort</label>
           <SortSelect
             selected={selectedSort}
             onChange={setSelectedSort}
-            priceSortable={Boolean(price)}
+            priceSortable={priceSortable}
           />
         </div>
       </div>

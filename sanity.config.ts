@@ -3,12 +3,16 @@ import { defineConfig } from 'sanity';
 import { presentationTool } from 'sanity/presentation';
 import { structureTool } from 'sanity/structure';
 import { schemaTypes, singletonTypes } from './sanity/schema';
+import { InventoryTool } from './sanity/inventory/InventoryTool';
+import { PriceDocumentAction } from './sanity/pricing/PricingPanel';
 export default defineConfig({
   name: 'curvygirlreviews',
   title: 'CurvyGirlReviews',
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || '',
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || '',
   basePath: '/studio',
+  auth: { loginMethod: 'token' },
+  tools: [{ name: 'inventory', title: 'Inventory', component: InventoryTool }],
   plugins: [
     presentationTool({
       previewUrl: {
@@ -43,6 +47,8 @@ export default defineConfig({
     actions: (actions, context) =>
       singletonTypes.has(context.schemaType)
         ? actions.filter((a) => !['delete', 'duplicate', 'unpublish'].includes(a.action || ''))
-        : actions,
+        : context.schemaType === 'product'
+          ? [...actions, PriceDocumentAction]
+          : actions,
   },
 });

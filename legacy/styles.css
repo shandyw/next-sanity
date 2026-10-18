@@ -49,7 +49,7 @@
 
   --font-display: 'Onest', sans-serif;
   --font-body: 'Manrope', 'Helvetica Neue', Arial, sans-serif;
-  --font-hand: 'Caveat', 'Segoe Script', cursive;
+  --font-hand: Georgia, 'Times New Roman', serif;
   --transition: 180ms ease;
   --box-shadow: 75ms ease;
 }
@@ -178,7 +178,7 @@ h1, h2, h3 { color: var(--color-on-surface); }
 .doodle--note,
 .doodle--scribble {
   font-family: var(--font-hand);
-  font-weight: 600;
+  font-weight: 400;
   line-height: 1.1;
   color: var(--color-on-surface);
 }
@@ -452,7 +452,7 @@ h1, h2, h3 { color: var(--color-on-surface); }
   color: var(--color-yellow-ink);
   font-family: var(--font-hand);
   font-size: 19px;
-  font-weight: 700;
+  font-weight: 400;
   line-height: 1.05;
   padding: 10px 14px;
   transform: rotate(6deg);
@@ -1387,8 +1387,8 @@ body, .site-header, .site-footer { background: var(--color-neutral); }
 .about-page__portrait { position: relative; width: 100%; max-width: 440px; justify-self: center; margin: 16px 0 0; }
 .about-page__photo-frame { padding: 8px 8px 10px; background: var(--color-surface); box-shadow: 0 8px 22px #0C0D1021; transform: rotate(-2deg); }
 .about-page__photo-frame img { width: 100%; height: auto; aspect-ratio: 1; object-fit: cover; object-position: center; }
-.about-page__note { position: absolute; top: -14px; right: 0; width: 5.5em; max-width: 55%; padding: 12px; background: var(--color-yellow); color: var(--color-on-surface); transform: rotate(6deg); font: 600 26px/1.05 var(--font-hand); }
-.about-page__annotation { position: relative; display: block; width: fit-content; max-width: min(100%, 12ch); margin: -12px 0 0 10px; padding: 8px 14px; color: var(--color-on-surface); background: var(--color-surface); font: 600 25px/1.05 var(--font-hand); transform: rotate(-5deg); clip-path: polygon(0 5%, 97% 0, 100% 93%, 3% 100%); }
+.about-page__note { position: absolute; top: -14px; right: 0; width: 5.5em; max-width: 55%; padding: 12px; background: var(--color-yellow); color: var(--color-on-surface); transform: rotate(6deg); font: 400 26px/1.05 var(--font-hand); }
+.about-page__annotation { position: relative; display: block; width: fit-content; max-width: min(100%, 12ch); margin: -12px 0 0 10px; padding: 8px 14px; color: var(--color-on-surface); background: var(--color-surface); font: 400 25px/1.05 var(--font-hand); transform: rotate(-5deg); clip-path: polygon(0 5%, 97% 0, 100% 93%, 3% 100%); }
 .about-page__heart { position: absolute; right: -8px; top: 66%; }
 .about-page__portrait figcaption { margin-top: 12px; text-align: center; font-size: 13px; color: var(--color-text-secondary); }
 .about-page__promises { position: relative; padding-block: 24px 32px; }
@@ -1515,7 +1515,7 @@ select:not([multiple])[size="1"] {
 .inner-hero__eyebrow { margin: 0 0 16px; font-size: 13px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; }
 .inner-hero__title { margin: 0; font: 900 clamp(36px, 4.6vw, 66px)/0.98 var(--font-display); letter-spacing: -0.05em; overflow-wrap: anywhere; }
 .inner-hero__intro { max-width: 58ch; margin: 22px auto 0; font-size: clamp(16px, 1.4vw, 19px); line-height: 1.6; color: var(--color-text-secondary); }
-.inner-hero__note { position: absolute; right: 8px; top: 4px; width: 104px; padding: 12px; background: var(--color-yellow); color: var(--color-on-surface); font: 600 25px/1.1 var(--font-hand); transform: rotate(6deg); }
+.inner-hero__note { position: absolute; right: 8px; top: 4px; width: 104px; padding: 12px; background: var(--color-yellow); color: var(--color-on-surface); font: 400 25px/1.1 var(--font-hand); transform: rotate(6deg); }
 .reviews-page { padding-top: 24px; }
 .about-page__main > .container > .inner-hero { margin-top: 24px; }
 .about-page__intro { padding-top: 8px; }

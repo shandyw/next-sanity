@@ -1,14 +1,17 @@
+import { ReviewArticle } from './ReviewArticle';
 import { stegaClean } from 'next-sanity';
 import { PortableText } from '@portabletext/react';
 import type { DocumentContent, ContentPhoto } from '@/lib/types';
 import { ContentImage } from './ContentImage';
 import { PhotoGallery } from './PhotoGallery';
-import { InnerHero } from './InnerHero';
+import { EditorialHero } from './EditorialHero';
 import { Video } from './Video';
+import { CardGrid } from './CardGrid';
+import { getDocuments, getSettings } from '@/lib/content';
 import { ProductGrid } from './ProductGrid';
 import { safeExternal } from '@/lib/urls';
 import { siteUrl } from '@/lib/seo';
-export function Article({
+export async function Article({
   document: d,
   returnTo,
   base,
@@ -17,12 +20,20 @@ export function Article({
   returnTo: string;
   base: string;
 }) {
+  if (d._type === 'review') return <ReviewArticle document={d} returnTo={returnTo} />;
+  const relatedSlugs = new Set(d.relatedReviews?.map((review) => review.slug) || []);
+  const related = relatedSlugs.size
+    ? (await getDocuments('review')).filter(
+        (review) => relatedSlugs.has(review.slug) && review._id !== d._id,
+      )
+    : [];
+  const settings = await getSettings();
   const root = siteUrl();
   const structured =
     root && !d.demo
       ? {
           '@context': 'https://schema.org',
-          '@type': d._type === 'review' ? 'Article' : 'BlogPosting',
+          '@type': 'BlogPosting',
           headline: d.title,
           description: d.excerpt,
           datePublished: d.publishedAt,
@@ -36,7 +47,7 @@ export function Article({
         <a href="/">Home</a> / <a href={returnTo}>{base === '/blog' ? 'Blog' : 'Reviews'}</a> /{' '}
         <span aria-current="page">{d.title}</span>
       </nav>
-      <InnerHero title={d.title} intro={d.excerpt || ''} />
+      <EditorialHero title={d.title} intro={d.excerpt || ''} />
       {d.author && (
         <p>
           By {d.author.name}
@@ -71,7 +82,10 @@ export function Article({
             </p>
           )}
           {d.demo && (
-            <p>Illustrative design sample. A complete editorial article has not been supplied.</p>
+            <p className="demo-notice">
+              Illustrative design sample — fictional review copy and placeholder photographs, not a
+              real product test.
+            </p>
           )}
         </div>
         <PhotoGallery
@@ -119,22 +133,19 @@ export function Article({
           <Video url={d.videoUrl} transcript={d.transcript} captions={d.videoCaptionsUrl} />
         )}
       </article>
-      {d.relatedReviews?.length ? (
+      {related.length ? (
         <section>
           <h2 className="headline-lg">Related reviews</h2>
-          <ul>
-            {d.relatedReviews.map((r) => (
-              <li key={r.slug}>
-                <a href={`/reviews/${r.slug}`}>{r.title}</a>
-              </li>
-            ))}
-          </ul>
+          <CardGrid items={related} homepage />
         </section>
       ) : null}
       {d.products?.length || d.relatedProducts?.length ? (
         <section>
           <h2 className="headline-lg">In my closet</h2>
-          <ProductGrid items={d.products?.length ? d.products : d.relatedProducts || []} />
+          <ProductGrid
+            items={d.products?.length ? d.products : d.relatedProducts || []}
+            settings={settings}
+          />
         </section>
       ) : null}
       {structured && (

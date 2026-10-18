@@ -1,41 +1,8 @@
-import { z } from 'zod';
 import { createHash } from 'node:crypto';
-import { vintedUrl } from './urls';
-export const importRecordSchema = z
-  .object({
-    externalListingId: z.string().regex(/^[A-Za-z0-9_-]{1,100}$/),
-    title: z.string().trim().min(1).max(160),
-    description: z.string().max(5000).optional(),
-    size: z.string().max(60).optional(),
-    condition: z
-      .enum(['New with tags', 'New without tags', 'Very good', 'Good', 'Satisfactory'])
-      .optional(),
-    listingPrice: z.number().finite().nonnegative(),
-    currency: z.enum(['USD', 'GBP', 'EUR', 'CAD', 'AUD', 'PLN', 'CZK', 'SEK', 'DKK']),
-    availability: z.enum(['available', 'reserved', 'sold', 'unknown']),
-    vintedUrl: z.string().refine((v) => Boolean(vintedUrl(v)), 'Use an HTTPS Vinted item URL'),
-    lastSuccessfullyCheckedAt: z.iso
-      .datetime({ offset: true })
-      .refine((v) => Date.parse(v) <= Date.now(), 'Check timestamps cannot be in the future'),
-    photoAssetRefs: z
-      .array(
-        z.object({
-          assetRef: z.string().regex(/^image-[a-f0-9]+-\d+x\d+-(jpg|png|webp|gif|avif)$/),
-          alt: z.string().min(1).max(500),
-        }),
-      )
-      .max(20)
-      .optional(),
-  })
-  .strict();
-export const importEnvelopeSchema = z
-  .object({
-    version: z.literal(1),
-    source: z.string().regex(/^[a-z0-9][a-z0-9_-]{0,63}$/),
-    products: z.array(z.unknown()).max(10000),
-  })
-  .strict();
-export type ImportRecord = z.infer<typeof importRecordSchema>;
+import { vintedUrl, poshmarkUrl } from './urls';
+import { type ImportRecord } from './product-import-schema';
+export { importRecordSchema, importEnvelopeSchema } from './product-import-schema';
+export type { ImportRecord } from './product-import-schema';
 export interface ExistingProduct {
   _id: string;
   _rev: string;
@@ -44,6 +11,8 @@ export interface ExistingProduct {
   externalListingId?: string;
   importEnabled?: boolean;
   shoppingSection?: string;
+  closetPlatform?: string;
+  saleStatus?: string;
   lastSuccessfullyCheckedAt?: string;
 }
 export function stableProductId(source: string, id: string) {
@@ -57,6 +26,8 @@ export function createProduct(source: string, r: ImportRecord) {
     _id,
     _type: 'product',
     dataSource: 'import',
+    shoppingSection: 'closet',
+    closetPlatform: r.closetPlatform || 'vinted',
     importSource: source,
     externalListingId: r.externalListingId,
     importEnabled: true,
@@ -83,12 +54,16 @@ export function createProduct(source: string, r: ImportRecord) {
     })),
   };
 }
-export function listingUpdate(r: ImportRecord) {
+export function listingUpdate(r: ImportRecord, existing?: ExistingProduct) {
   return {
     listingPrice: r.listingPrice,
     currency: r.currency,
-    availability: r.availability,
-    vintedUrl: vintedUrl(r.vintedUrl)!,
+    ...(existing?.saleStatus === 'available' || existing?.saleStatus === 'sold'
+      ? {}
+      : { availability: r.availability }),
+    ...(r.closetPlatform === 'poshmark'
+      ? { poshmarkUrl: poshmarkUrl(r.poshmarkUrl)! }
+      : { vintedUrl: vintedUrl(r.vintedUrl)! }),
     lastSuccessfullyCheckedAt: r.lastSuccessfullyCheckedAt,
   };
 }
@@ -100,6 +75,8 @@ export function updateDecision(existing: ExistingProduct, source: string, r: Imp
     existing.externalListingId !== r.externalListingId
   )
     return 'identity mismatch';
+  if ((existing.closetPlatform || 'vinted') !== (r.closetPlatform || 'vinted'))
+    return 'marketplace is editorially managed';
   if (!existing.importEnabled) return 'manual ownership';
   if (
     existing.lastSuccessfullyCheckedAt &&

@@ -1,9 +1,9 @@
 'use client';
 import { useEffect, useRef } from 'react';
-import Link from 'next/link';
 import type { Settings } from '@/lib/types';
 import { SubmissionForm } from './SubmissionForm';
 import { safeExternal } from '@/lib/urls';
+import { ExternalLinkIcon } from './ExternalLinkIcon';
 export function Dialogs({ settings }: { settings: Settings }) {
   const wishlistUrl = safeExternal(settings.reviewWishlistUrl);
   const request = useRef<HTMLDialogElement>(null);
@@ -44,13 +44,21 @@ export function Dialogs({ settings }: { settings: Settings }) {
   return (
     <>
       <dialog
-        className={`dialog native-dialog request-dialog${wishlistUrl ? ' request-dialog--with-gifting' : ''}`}
+        className="dialog native-dialog request-dialog"
         ref={request}
         aria-labelledby="dialogTitle"
         onClose={restore}
         onKeyDown={trap}
         onClick={(e) => {
-          if (e.target === e.currentTarget) e.currentTarget.close();
+          if (e.target !== e.currentTarget) return;
+          const bounds = e.currentTarget.getBoundingClientRect();
+          if (
+            e.clientX < bounds.left ||
+            e.clientX > bounds.right ||
+            e.clientY < bounds.top ||
+            e.clientY > bounds.bottom
+          )
+            e.currentTarget.close();
         }}
       >
         <button
@@ -65,39 +73,30 @@ export function Dialogs({ settings }: { settings: Settings }) {
           Request a review
         </h2>
         <p className="body-md dialog-intro">
-          Tell me what you&apos;d like reviewed. I read every request, though I can&apos;t promise
-          every item gets reviewed.
+          Eyeing something? Send me the link and tell me what you want to know about the fit.
         </p>
-        <div className="request-dialog__columns">
-          <section aria-labelledby="suggest-review-title">
-            <h3 id="suggest-review-title" className="headline-sm">
-              Suggest an item
+        <SubmissionForm kind="request" />
+        {wishlistUrl && (
+          <section className="review-gifting" aria-labelledby="send-review-title">
+            <h3 id="send-review-title" className="headline-sm">
+              Want to send something my way?
             </h3>
-            <p className="body-sm">
-              Have something in mind? Send its link below. If you want to buy it for me, please wait
-              until I confirm the item, size, and color and add it to my review wishlist.
+            <p>Choose from my review wishlist so the item, size, and color are right.</p>
+            <a
+              className="review-gifting__link"
+              href={wishlistUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Browse the review wishlist <ExternalLinkIcon />
+              <span className="visually-hidden"> (opens in a new tab)</span>
+            </a>
+            <p className="review-gifting__disclaimer">
+              Suggesting something else? Wait for my confirmation before buying. Gifts are optional
+              and don’t guarantee a review or a positive opinion.
             </p>
-            <SubmissionForm kind="request" />
           </section>
-          {wishlistUrl && (
-            <section className="review-gifting" aria-labelledby="send-review-title">
-              <h3 id="send-review-title" className="headline-sm">
-                Send me something to review
-              </h3>
-              <p className="body-sm">
-                Want to send me something to try? Choose an item from my review wishlist. Gifts are
-                optional, and receiving an item doesn’t guarantee a review or a positive opinion.
-              </p>
-              <Link
-                className="btn btn-accent"
-                href="/support"
-                onClick={() => request.current?.close()}
-              >
-                Support the Reviews
-              </Link>
-            </section>
-          )}
-        </div>
+        )}
       </dialog>
       <dialog
         className="dialog native-dialog"
@@ -105,6 +104,17 @@ export function Dialogs({ settings }: { settings: Settings }) {
         aria-labelledby="contactTitle"
         onClose={restore}
         onKeyDown={trap}
+        onClick={(e) => {
+          if (e.target !== e.currentTarget) return;
+          const bounds = e.currentTarget.getBoundingClientRect();
+          if (
+            e.clientX < bounds.left ||
+            e.clientX > bounds.right ||
+            e.clientY < bounds.top ||
+            e.clientY > bounds.bottom
+          )
+            e.currentTarget.close();
+        }}
       >
         <button
           className="dialog-close"

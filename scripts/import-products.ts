@@ -65,7 +65,7 @@ async function main() {
       try {
         const existing = client
           ? await client.fetch<ExistingProduct[]>(
-              `*[_type=='product' && ( _id==$id || _id==$draftId || (dataSource=='import' && importSource==$source && externalListingId==$externalId))]{_id,_rev,dataSource,importSource,externalListingId,importEnabled,lastSuccessfullyCheckedAt,shoppingSection}`,
+              `*[_type=='product' && ( _id==$id || _id==$draftId || (dataSource=='import' && importSource==$source && externalListingId==$externalId))]{_id,_rev,dataSource,importSource,externalListingId,importEnabled,lastSuccessfullyCheckedAt,shoppingSection,saleStatus,closetPlatform}`,
               {
                 id,
                 draftId: 'drafts.' + id,
@@ -102,12 +102,15 @@ async function main() {
             await client!
               .patch(previous._id)
               .ifRevisionId(previous._rev)
-              .set(listingUpdate(r))
+              .set(listingUpdate(r, previous))
               .commit();
           summary.updated++;
         } else {
           if (!dryRun)
-            await client!.transaction().create(createProduct(envelope.source, r)).commit();
+            await client!
+              .transaction()
+              .create<ReturnType<typeof createProduct>>(createProduct(envelope.source, r))
+              .commit();
           summary.created++;
         }
       } catch (e) {

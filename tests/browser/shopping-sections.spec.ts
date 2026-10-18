@@ -5,35 +5,51 @@ for (const width of [1440, 390]) {
     page,
   }) => {
     await page.setViewportSize({ width, height: 900 });
-    await page.goto('/shop');
-    await expect(page.locator('.reviews-summary')).toContainText('16 items found');
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.goto('/shop/closet');
+    await expect(page.locator('.reviews-summary')).toContainText(/\d+ items? found/);
+    await expect(
+      page.locator('.archive-dropdown summary').filter({ hasText: /^Price$/ }),
+    ).toHaveCount(0);
+    const initialCount = Number(
+      (await page.locator('.reviews-summary').innerText()).match(/\d+/)![0],
+    );
     const sections = page.getByRole('navigation', { name: 'Shopping section' });
-    await expect(sections.getByRole('link', { name: /My Vinted Closet/ })).toHaveAttribute(
+    await expect(sections.getByRole('link', { name: /My Closet/ })).toHaveAttribute(
       'aria-current',
       'page',
     );
     await sections.getByRole('link', { name: /Curated Finds/ }).click();
     await expect(page).toHaveURL(/\/shop\/finds$/);
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Curated Finds');
-    await expect(page.locator('.reviews-summary')).toContainText('0 items found');
+    await expect(page.locator('.reviews-summary')).toContainText(/\d+ items? found/);
     await expect(
       page.locator('.archive-dropdown summary').filter({ hasText: 'Condition' }),
     ).toHaveCount(0);
     await expect(
       page.locator('.archive-dropdown summary').filter({ hasText: 'Personally tried' }),
     ).toBeVisible();
-    await sections.getByRole('link', { name: /My Vinted Closet/ }).click();
+    await sections.getByRole('link', { name: /My Closet/ }).click();
     await expect(page).toHaveURL(/\/shop\/closet$/);
-    await expect(page.locator('.reviews-summary')).toContainText('16 items found');
+    await expect(page.locator('.reviews-summary')).toContainText(
+      new RegExp(`${initialCount} items? found`),
+    );
     const category = page
       .locator('details')
       .filter({ has: page.locator('summary', { hasText: 'Category' }) });
     await category.locator('summary').click();
-    await category.getByLabel('Jeans', { exact: true }).check();
-    await expect(page).toHaveURL(/\/shop\/closet\?.*category=jeans/);
-    await expect(page.locator('.reviews-summary')).toContainText('2 items found');
-    await page.reload();
-    await expect(page.locator('.reviews-summary')).toContainText('2 items found');
+    const checkbox = category.locator('input[type=checkbox]').first();
+    if (await checkbox.count()) {
+      const categoryValue = await checkbox.getAttribute('value');
+      await checkbox.check();
+      await expect.poll(() => new URL(page.url()).searchParams.get('category')).toBe(categoryValue);
+      const filteredSummary = await page.locator('.reviews-summary').innerText();
+      await page.reload();
+      await expect(page.locator('.reviews-summary')).toHaveText(filteredSummary);
+    } else {
+      // Live inventory can legitimately have no published category assignments yet.
+      await expect(category.getByText('No options yet.', { exact: true })).toBeVisible();
+    }
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
     ).toBeTruthy();

@@ -1,12 +1,12 @@
-import type { Settings } from '@/lib/types';
-import { SocialLinks } from './SocialLinks';
 import { SubmissionForm } from './SubmissionForm';
-export function Footer({ settings, demo }: { settings: Settings; demo: boolean }) {
+import { SocialLinks } from './SocialLinks';
+import type { Settings } from '@/lib/types';
+export function Footer({ demo, settings }: { demo: boolean; settings: Settings }) {
   return (
     <footer className="site-footer">
       <div className="container footer-bar">
         <a className="wordmark wordmark--footer" href="/" aria-label="CurvyGirlReviews home">
-          <img className="wordmark__icon" src="/img/curvy.png" alt="CurvyGirlReviews Logo" />
+          <img className="wordmark__icon" src="/img/curvy.png" alt="" />
           CurvyGirlReviews
         </a>
 
@@ -15,8 +15,6 @@ export function Footer({ settings, demo }: { settings: Settings; demo: boolean }
         </p>
 
         <SubmissionForm kind="newsletter" />
-
-        <SocialLinks settings={settings} />
       </div>
 
       <div className="container footer-base">
@@ -28,21 +26,21 @@ export function Footer({ settings, demo }: { settings: Settings; demo: boolean }
           <li>
             <a href="/reviews/">Reviews</a>
           </li>
-          <li>
+          {/* <li>
             <a href="/my-faves/">My Faves</a>
-          </li>
+          </li> */}
           <li>
             <a href="/shop">Shop</a>
           </li>
           <li>
+            <a href="/about">About</a>
+          </li>
+          <li>
             <a href="/support">Support the Reviews</a>
           </li>
-          <li>
-            <a href="/wishlist">Wishlist</a>
-          </li>
-          <li>
+          {/* <li>
             <a href="/blog">Blog</a>
-          </li>
+          </li> */}
 
           <li>
             <a
@@ -55,6 +53,7 @@ export function Footer({ settings, demo }: { settings: Settings; demo: boolean }
             </a>
           </li>
         </ul>
+        <SocialLinks settings={settings} className="footer-socials" />
       </div>
     </footer>
   );

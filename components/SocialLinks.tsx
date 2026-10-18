@@ -45,30 +45,27 @@ const icons: Record<string, React.ReactNode> = {
 };
 export function SocialLinks({
   settings,
-  header = false,
+  className = '',
 }: {
   settings: Settings;
-  header?: boolean;
+  className?: string;
 }) {
+  const socials = settings.socials?.filter((social) => safeExternal(social.url)) || [];
+  if (!socials.length) return null;
   return (
-    <ul
-      className={`social-links social-links--${header ? 'header' : 'footer'}`}
-      aria-label="Social media"
-    >
-      {settings.socials
-        ?.filter((s) => safeExternal(s.url))
-        .map((s) => (
-          <li key={s.platform}>
-            <a
-              href={s.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={`CurvyGirlReviews on ${s.platform}`}
-            >
-              {icons[s.platform] || <span aria-hidden="true">{s.platform[0]}</span>}
-            </a>
-          </li>
-        ))}
+    <ul className={`social-links ${className}`.trim()} aria-label="Social media">
+      {socials.map((s) => (
+        <li key={s.platform}>
+          <a
+            href={s.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`CurvyGirlReviews on ${s.platform}`}
+          >
+            {icons[s.platform] || <span aria-hidden="true">{s.platform[0]}</span>}
+          </a>
+        </li>
+      ))}
     </ul>
   );
 }

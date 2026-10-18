@@ -1,10 +1,13 @@
+import { ExternalLinkIcon } from './ExternalLinkIcon';
+import { ClosetShopLink } from './ClosetShopLink';
 import { stegaClean } from 'next-sanity';
 import Link from 'next/link';
-import type { DocumentContent, SearchParams } from '@/lib/types';
-import { safeExternal } from '@/lib/urls';
+import Image from 'next/image';
+import type { DocumentContent, SearchParams, Settings } from '@/lib/types';
+import { closetShopUrl } from '@/lib/urls';
 import { browse, values, first, archiveUrl } from '@/lib/browse';
 import { ArchiveFilters, type ArchiveFilter } from './ArchiveFilters';
-import { InnerHero } from './InnerHero';
+import { EditorialHero } from './EditorialHero';
 import { CardGrid } from './CardGrid';
 import { ProductGrid } from './ProductGrid';
 import { sectionProducts, shoppingSizes, type ShoppingSection } from '@/lib/shopping';
@@ -13,6 +16,7 @@ export function Archive({
   params,
   kind = 'review',
   shopUrl,
+  settings = {},
   section = 'closet',
   shopBase,
 }: {
@@ -20,6 +24,7 @@ export function Archive({
   params: SearchParams;
   kind?: 'review' | 'blogPost' | 'product' | 'favorites';
   shopUrl?: string;
+  settings?: Settings;
   section?: ShoppingSection;
   shopBase?: string;
 }) {
@@ -47,13 +52,12 @@ export function Archive({
         .filter((v): v is string => !!v),
     ),
   ];
-  const priceSupported = all.some(
-    (d) => (shop ? d.listingPrice : d.priceWhenReviewed) !== undefined,
+  const currencies = new Set(
+    all.map((d) => stegaClean(shop ? d.currency : d.reviewCurrency)).filter(Boolean),
   );
-  const currencies = [
-    ...new Set(all.map((d) => stegaClean(shop ? d.currency : d.reviewCurrency)).filter(Boolean)),
-  ];
-  const priceSortable = priceSupported && currencies.length === 1;
+  const priceSortable =
+    currencies.size === 1 &&
+    all.some((d) => (shop ? d.listingPrice : d.priceWhenReviewed) !== undefined);
   const filter = (
     name: string,
     label: string,
@@ -64,7 +68,7 @@ export function Archive({
       'category',
       'Category',
       categories.map((c) => ({
-        value: c.slug || c._id,
+        value: stegaClean(c.slug || c._id),
         label: c.title[0].toUpperCase() + c.title.slice(1),
       })),
     ),
@@ -113,20 +117,14 @@ export function Archive({
         { value: 'video', label: 'Video' },
       ]),
     );
-  const highestPrice = Math.max(
-    100,
-    ...all.map((d) => (shop ? d.listingPrice : d.priceWhenReviewed) || 0),
-    Number(first(params, 'min_price')) || 0,
-    Number(first(params, 'max_price')) || 0,
-  );
   return (
     <main id="main" className="reviews-page container">
-      <InnerHero
+      <EditorialHero
         title={
           shop
             ? section === 'finds'
               ? 'Curated Finds'
-              : 'My Vinted Closet'
+              : 'My Closet'
             : blog
               ? 'The Blog'
               : kind === 'favorites'
@@ -137,7 +135,7 @@ export function Archive({
           shop
             ? section === 'finds'
               ? 'Pieces that caught my eye'
-              : 'Shop pieces from my own wardrobe. Purchase securely on Vinted.'
+              : 'Shop pieces from my own wardrobe. Purchase securely on Vinted or Poshmark.'
             : blog
               ? 'Stories, outfit finds, and honest takes.'
               : kind === 'favorites'
@@ -152,7 +150,7 @@ export function Archive({
             scroll={false}
             aria-current={section === 'closet' ? 'page' : undefined}
           >
-            <strong>My Vinted Closet</strong>
+            <strong>My Closet</strong>
             <span>Shop pieces from my own wardrobe.</span>
           </Link>
           <Link
@@ -171,11 +169,31 @@ export function Archive({
           placeholders. These items cannot be purchased.
         </p>
       )}
-      {shop && section === 'closet' && safeExternal(shopUrl) && (
+      {shop && section === 'closet' && closetShopUrl(shopUrl, 'vinted') && (
         <p>
-          <a className="btn btn-accent" href={shopUrl} target="_blank" rel="noopener noreferrer">
-            Visit my Vinted closet
+          <a
+            className="btn btn-accent"
+            href={closetShopUrl(shopUrl, 'vinted')}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Visit my Vinted closet <ExternalLinkIcon />
+            <span className="visually-hidden"> (opens in a new tab)</span>
           </a>
+        </p>
+      )}
+      {shop && section === 'closet' && settings.poshmarkShopUrl && (
+        <p>
+          <ClosetShopLink
+            product={{
+              _id: 'closet-link',
+              _type: 'product',
+              title: 'Poshmark closet',
+              slug: '',
+              closetPlatform: 'poshmark',
+            }}
+            settings={settings}
+          />
         </p>
       )}
       <ArchiveFilters
@@ -186,16 +204,7 @@ export function Archive({
         query={first(params, 'q')}
         filters={filters}
         sort={first(params, 'sort')}
-        price={
-          priceSortable
-            ? {
-                currency: currencies[0]!,
-                ceiling: Number.isFinite(highestPrice) ? Math.ceil(highestPrice) : 100,
-                min: first(params, 'min_price'),
-                max: first(params, 'max_price'),
-              }
-            : undefined
-        }
+        priceSortable={priceSortable}
       />
       <div className="reviews-summary">
         <p role="status">
@@ -217,7 +226,7 @@ export function Archive({
       </div>
       {count ? (
         shop ? (
-          <ProductGrid items={items} />
+          <ProductGrid items={items} settings={settings} />
         ) : (
           <CardGrid
             items={items}
@@ -225,6 +234,40 @@ export function Archive({
             returnTo={archiveUrl(base, params, page)}
           />
         )
+      ) : kind === 'review' ? (
+        <section
+          className="reviews-empty reviews-empty--illustrated"
+          aria-labelledby="reviews-empty-title"
+        >
+          <Image
+            className="reviews-empty__image"
+            src="/img/empty.jpg"
+            alt=""
+            width={1254}
+            height={1254}
+            sizes="(max-width: 767px) 85vw, 35vw"
+          />
+          <div className="reviews-empty__copy">
+            <p className="reviews-empty__eyebrow">No matches this time</p>
+            <h2 id="reviews-empty-title">Nothing fits this search.</h2>
+            <p className="reviews-empty__intro">
+              Try a different keyword or clear your filters to see more reviews.
+            </p>
+            <div className="reviews-empty__actions">
+              <Link className="btn btn-accent btn-lg" href={base} scroll={false}>
+                Clear search &amp; filters
+              </Link>
+              <button
+                className="btn btn-ghost btn-lg reviews-empty__request"
+                type="button"
+                data-open-dialog
+                aria-haspopup="dialog"
+              >
+                Request a Review
+              </button>
+            </div>
+          </div>
+        </section>
       ) : (
         <section className="reviews-empty">
           <h2>No {shop ? 'items' : 'articles'} found</h2>

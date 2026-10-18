@@ -1,5 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { browse, archiveUrl } from '../lib/browse';
 import {
   importRecordSchema,
@@ -55,7 +56,11 @@ test('invalid pages clamp and empty states stay deterministic', () => {
   assert.equal(browse(collection, { page: '999' }).page, 3);
   assert.equal(browse(collection, { page: 'NaN' }).page, 1);
   assert.equal(browse(collection, { q: 'not present' }).count, 0);
-  assert.equal(browse(collection, { min_price: '10', max_price: '12' }).count, 3);
+  assert.equal(browse(collection, { min_price: '10', max_price: '12' }).count, collection.length);
+  assert.equal(
+    archiveUrl('/shop', { min_price: '10', max_price: '12', category: 'shoes' }),
+    '/shop?category=shoes',
+  );
 });
 test('shop availability and historical reviewed prices use separate fields', () => {
   const d: DocumentContent = {
@@ -66,7 +71,7 @@ test('shop availability and historical reviewed prices use separate fields', () 
     priceWhenReviewed: 100,
   };
   assert.equal(browse([d], { max_price: '5' }, true).count, 1);
-  assert.equal(browse([d], { max_price: '5' }).count, 0);
+  assert.equal(browse([d], { max_price: '5' }).count, 1);
   assert.equal(browse([d], { availability: 'available' }, true).count, 0);
 });
 const record = {
@@ -167,7 +172,13 @@ test('form validation rejects spam and invalid submissions', () => {
   );
 });
 
-test('turquoise/dark text and focus colors meet normal text contrast', () => {
+test('implemented editorial tokens meet text and control contrast requirements', () => {
+  const css = readFileSync(new URL('../app/globals.css', import.meta.url), 'utf8');
+  const token = (name: string) => {
+    const value = css.match(new RegExp(`--color-${name}:\\s*#([0-9a-f]{6});`, 'i'))?.[1];
+    assert.ok(value, `Missing semantic token: ${name}`);
+    return value;
+  };
   function luminance(hex: string) {
     const v = hex
       .match(/.{2}/g)!
@@ -179,7 +190,30 @@ test('turquoise/dark text and focus colors meet normal text contrast', () => {
     const [light, dark] = [luminance(a), luminance(b)].sort((x, y) => y - x);
     return (light + 0.05) / (dark + 0.05);
   }
-  assert.ok(contrast('06302E', '35E0DE') >= 4.5);
-  assert.ok(contrast('4A505C', 'FCFAF7') >= 4.5);
-  assert.ok(contrast('00706F', 'FCFAF7') >= 4.5);
+  assert.ok(contrast(token('on-surface'), token('brand-pink')) >= 4.5);
+  assert.ok(contrast('FFFFFF', token('primary')) >= 4.5);
+  assert.ok(contrast(token('on-surface'), token('secondary-action')) >= 4.5);
+  assert.ok(contrast(token('text-secondary'), token('page-background')) >= 4.5);
+  assert.ok(contrast(token('link'), token('page-background')) >= 4.5);
+  assert.ok(contrast(token('border-control'), token('page-background')) >= 3);
+  assert.ok(contrast(token('success'), 'FFFFFF') >= 3);
+  assert.ok(contrast(token('error-text'), 'FFFFFF') >= 4.5);
+});
+
+test('new product category, brand and condition filter values match the full product dataset', () => {
+  const items: DocumentContent[] = Array.from({ length: 25 }, (_, i) => ({
+    ...collection[0],
+    _id: `product-${i}`,
+    _type: 'product',
+    title: `Boots ${i}`,
+    categories: [{ _id: 'category-shoes', slug: 'shoes', title: 'Shoes' }],
+    brand: { _id: 'fresh-brand', title: 'Fresh Brand' },
+    condition: i === 24 ? 'Like new' : 'Good',
+  }));
+  assert.equal(
+    browse(items, { category: 'shoes', brand: 'Fresh Brand', condition: 'Like new' }, true).count,
+    1,
+  );
+  assert.equal(browse(items, { condition: 'Like new' }, true).items[0]._id, 'product-24');
+  assert.equal(browse(items, { category: 'dresses' }, true).count, 0);
 });

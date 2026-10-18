@@ -12,7 +12,7 @@ export function first(params: SearchParams, key: string) {
 export function archiveUrl(base: string, params: SearchParams, page?: number) {
   const q = new URLSearchParams();
   Object.entries(params).forEach(([k, v]) => {
-    if (k === 'page' || k === 'review') return;
+    if (k === 'page' || k === 'review' || k === 'min_price' || k === 'max_price') return;
     (Array.isArray(v) ? v : v ? [v] : []).filter(Boolean).forEach((s) => q.append(k, s));
   });
   if (page && page > 1) q.set('page', String(page));
@@ -28,10 +28,7 @@ export function browse(all: DocumentContent[], params: SearchParams, shop = fals
   const conditions = values(params, 'condition');
   const retailers = values(params, 'retailer');
   const tried = values(params, 'tried');
-  const min = first(params, 'min_price');
-  const max = first(params, 'max_price');
   let items = all.filter((d) => {
-    const price = shop ? d.listingPrice : d.priceWhenReviewed;
     return (
       (!query ||
         [
@@ -46,7 +43,8 @@ export function browse(all: DocumentContent[], params: SearchParams, shop = fals
           .join(' ')
           .toLowerCase()
           .includes(query)) &&
-      (!categories.length || d.categories?.some((c) => categories.includes(c.slug || c._id))) &&
+      (!categories.length ||
+        d.categories?.some((c) => categories.includes(stegaClean(c.slug || c._id)))) &&
       (!brands.length || brands.includes(stegaClean(d.brand?.title || ''))) &&
       (!sizes.length ||
         (shop
@@ -56,9 +54,7 @@ export function browse(all: DocumentContent[], params: SearchParams, shop = fals
       (!retailers.length || retailers.includes(stegaClean(d.retailer || ''))) &&
       (!tried.length || tried.includes(d.personallyTried === true ? 'yes' : 'no')) &&
       (!formats.length || formats.includes(d.format || '') || d.format === 'both') &&
-      (!availability.length || availability.includes(d.availability || 'unknown')) &&
-      (!min || (Number.isFinite(Number(min)) && price !== undefined && price >= Number(min))) &&
-      (!max || (Number.isFinite(Number(max)) && price !== undefined && price <= Number(max)))
+      (!availability.length || availability.includes(d.availability || 'unknown'))
     );
   });
   const sort = first(params, 'sort');

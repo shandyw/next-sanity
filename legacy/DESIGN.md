@@ -29,9 +29,9 @@ typography:
     fontWeight: 400
     lineHeight: 1.65
   handwritten:
-    fontFamily: Caveat
+    fontFamily: Georgia
     fontSize: 22px
-    fontWeight: 600
+    fontWeight: 400
     lineHeight: 1.1
 rounded:
   none: 0px
@@ -109,7 +109,7 @@ Keep dark text on turquoise and yellow. Pink and yellow are decorative, not the 
 
 ## Typography
 
-Load **Onest** at weight 900 for expressive, heavy headlines; keep **Manrope** for body copy, navigation, controls, and review text; and use **Caveat** for handwritten annotations. Provide sans-serif and cursive fallbacks. Headlines are bold and direct; body copy remains calm and comfortably readable. UI copy stays as selectable HTML text.
+Load **Onest** at weight 900 for expressive, heavy headlines; keep **Manrope** for body copy, navigation, controls, and review text; and use **Georgia** at regular weight 400 for handwritten annotations. Provide sans-serif and serif fallbacks. Headlines are bold and direct; body copy remains calm and comfortably readable. UI copy stays as selectable HTML text.
 
 | Role | Size / line height | Weight | Application |
 | --- | --- | --- | --- |
@@ -119,7 +119,7 @@ Load **Onest** at weight 900 for expressive, heavy headlines; keep **Manrope** f
 | Card title | 24–30px / 0.98 | 900 | Review title |
 | Body | 16px / 1.65 | 400 | Main copy and form controls |
 | Card copy | 15px / 1.4 | 400 | Compact review description |
-| Handwritten note | 17–22px / 1.1 | 600 | Collage notes, CTA annotation, and doodles |
+| Handwritten note | 17–22px / 1.1 | 400 | Collage notes, CTA annotation, and doodles |
 
 Headlines use `font-family: 'Onest', sans-serif`, weight 900, `-0.05em` letter spacing, and `0.98` line height. Body copy remains Manrope. On mobile, hero text is 42–58px and section headings are about 34px. Let headings and product titles wrap rather than clip.
 
@@ -142,9 +142,9 @@ Review images use approximately 1.12:1 proportions on desktop and 1.18:1 on mobi
 
 ## Photo Collage and Handwritten Accents
 
-The hero collage contains two semantic `figure` elements with real `img` elements. The back print rotates about -3.5 degrees and the front print about +2.5 degrees. A small yellow “THE FIT CHECK” note sits on the front print. Set “But can / I sit in it?” in black Caveat on a small, tilted, irregular white paper scrap with a soft shadow near the lower photo edge. Place a thin, hand-drawn curved arrow in the open space beside the print, pointing back toward the photo. Keep turquoise motion strokes and a small heart as supporting details. On narrow screens, shift the back print enough to preserve white space for the arrow and note; do not clip the annotation.
+The hero collage contains two semantic `figure` elements with real `img` elements. The back print rotates about -3.5 degrees and the front print about +2.5 degrees. A small yellow “THE FIT CHECK” note sits on the front print. Set “But can / I sit in it?” in black Georgia on a small, tilted, irregular white paper scrap with a soft shadow near the lower photo edge. Place a thin, hand-drawn curved arrow in the open space beside the print, pointing back toward the photo. Keep turquoise motion strokes and a small heart as supporting details. On narrow screens, shift the back print enough to preserve white space for the arrow and note; do not clip the annotation.
 
-Use Caveat sparingly for annotations, never for essential controls or long body copy. Make visual accents look hand-drawn: use uneven polygon silhouettes, variable curved SVG strokes, rounded stroke ends, and slight rotation rather than flat rectangular bars or text-glyph arrows. The hero underline, sparks, arrows, small heart marks, and turquoise tape all use drawn shapes. Mark purely decorative elements `aria-hidden="true"`. Alt text must identify placeholder photography honestly; do not imply that an unowned stock model is the reviewer.
+Use Georgia sparingly for annotations, never for essential controls or long body copy. Make visual accents look hand-drawn: use uneven polygon silhouettes, variable curved SVG strokes, rounded stroke ends, and slight rotation rather than flat rectangular bars or text-glyph arrows. The hero underline, sparks, arrows, small heart marks, and turquoise tape all use drawn shapes. Mark purely decorative elements `aria-hidden="true"`. Alt text must identify placeholder photography honestly; do not imply that an unowned stock model is the reviewer.
 
 ## Reviews Discovery
 
@@ -240,7 +240,7 @@ Product information below the detail title uses a labeled definition list: Brand
 
 ## Dedicated About page
 
-`/about/` follows the composition in `temp/about.png` and the current homepage branding. The intro is a balanced text/photo grid at desktop widths, stacking below 900px in heading → copy → actions → photo order. The requested Shandy copy is real HTML. Onest 900, Manrope, Caveat, existing color tokens, container widths, and pill buttons are reused. A white photo border, light shadow, small rotation, yellow “Keeping it real.” note, handwritten “Real body. Real opinions.” annotation, and decorative hearts use separate HTML/CSS and existing SVG assets. The compact square photo reserves 680×680 dimensions, requests a resized image, loads eagerly, and has high fetch priority. It is the existing stock jeans photograph, visibly captioned “Placeholder photo — not Shandy.” A verified owned portrait is still required; the generated reference portrait is not used.
+`/about/` follows the composition in `temp/about.png` and the current homepage branding. The intro is a balanced text/photo grid at desktop widths, stacking below 900px in heading → copy → actions → photo order. The requested Shandy copy is real HTML. Onest 900, Manrope, Georgia, existing color tokens, container widths, and pill buttons are reused. A white photo border, light shadow, small rotation, yellow “Keeping it real.” note, handwritten “Real body. Real opinions.” annotation, and decorative hearts use separate HTML/CSS and existing SVG assets. The compact square photo reserves 680×680 dimensions, requests a resized image, loads eagerly, and has high fetch priority. It is the existing stock jeans photograph, visibly captioned “Placeholder photo — not Shandy.” A verified owned portrait is still required; the generated reference portrait is not used.
 
 “What you’ll find here” uses three unboxed columns, stacking below 600px. Meaningful numbers use the dark turquoise token rather than bright turquoise. The page reuses the current homepage header, newsletter footer, torn-paper request-banner markup, rack photograph, and request dialog; all behavior remains in `site.js`. Because there is no template/build system, shared markup is repeated in the static HTML and must be kept in sync. About-only CSS is scoped with `about-page` classes. The homepage composition and user edits are retained; only its About navigation destination changes to `/about/`. The archive About link also points to the new page. Current navigation uses `aria-current="page"` and a pink underline.
 

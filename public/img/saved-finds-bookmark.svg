@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="44" viewBox="0 0 32 44" fill="none">
+  <!-- Inline this SVG to inherit CSS color. Place the live count at x=16, y=20,
+       text-anchor=middle, dominant-baseline=middle; omit the count when empty. -->
+  <path d="M5 2.5H27A2.5 2.5 0 0 1 29.5 5V41L16 32.5 2.5 41V5A2.5 2.5 0 0 1 5 2.5Z"
+        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

@@ -37,3 +37,5 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+# Local marketplace exports and account-specific mappings
+/imports/

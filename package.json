@@ -15,17 +15,19 @@
     "format:check": "prettier --check .",
     "test": "node --import tsx --test tests/*.test.ts",
     "test:browser": "playwright test",
-    "import:products": "node --env-file=.env.local --import tsx scripts/import-products.ts"
+    "import:products": "node --env-file=.env.local --import tsx scripts/import-products.ts",
+    "import:poshmark:convert": "node --import tsx scripts/convert-poshmark.ts"
   },
   "dependencies": {
-    "@fontsource-variable/caveat": "^5.2.0",
     "@fontsource-variable/manrope": "^5.2.0",
     "@fontsource-variable/onest": "^5.2.0",
     "@portabletext/react": "^6.0.0",
     "@sanity/client": "^7.26.2",
     "@sanity/image-url": "^2.0.0",
+    "@sanity/ui": "4.3.0",
     "next": "16.3.8",
     "next-sanity": "13.3.4",
+    "openai": "7.32.0",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "sanity": "6.17.0",

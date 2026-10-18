@@ -1,0 +1,10 @@
+{
+  "source": "poshmark-your-closet",
+  "currency": "USD",
+  "region": "com",
+  "columns": {
+    "externalListingId": "REPLACE WITH LISTING ID COLUMN",
+    "title": "REPLACE WITH TITLE COLUMN",
+    "listingPrice": "REPLACE WITH LISTING PRICE COLUMN"
+  }
+}

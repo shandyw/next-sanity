@@ -2,6 +2,7 @@ import type { PortableTextBlock } from '@portabletext/types';
 export interface ContentPhoto {
   asset?: { _ref?: string; url?: string };
   alt: string;
+  caption?: string;
   crop?: { top: number; bottom: number; left: number; right: number };
   hotspot?: { x: number; y: number; width: number; height: number };
   demoSrc?: string;
@@ -16,6 +17,17 @@ export interface DocumentContent {
   _type: 'review' | 'blogPost' | 'product';
   title: string;
   slug: string;
+  titleHighlight?: string;
+  titleAccent?: string;
+  reviewSections?: Partial<
+    Record<
+      import('./review-layout').ReviewSectionKey,
+      { heading?: string; copy?: PortableTextBlock[] }
+    >
+  >;
+  shannequinQuote?: string;
+  ctaLabel?: string;
+  ctaProduct?: DocumentContent;
   excerpt?: string;
   description?: string;
   publishedAt?: string;
@@ -40,6 +52,8 @@ export interface DocumentContent {
   currency?: string;
   availability?: 'available' | 'reserved' | 'sold' | 'unknown';
   vintedUrl?: string;
+  poshmarkUrl?: string;
+  closetPlatform?: 'vinted' | 'poshmark';
   shoppingSection?: 'closet' | 'finds';
   purchaseUrl?: string;
   retailer?: string;
@@ -64,6 +78,7 @@ export interface PageContent {
   heroLine1?: string;
   heroEmphasis?: string;
   heroLine2?: string;
+  heroScriptAccent?: string;
   heroIntro?: string;
   heroBack?: ContentPhoto;
   heroFront?: ContentPhoto;
@@ -82,11 +97,22 @@ export interface PageContent {
   heading?: string;
   paragraphs?: string[];
   portrait?: ContentPhoto;
+  shannequinImage?: ContentPhoto;
+  shannequinMeasurements?: import('./shannequin-measurements').ShannequinMeasurements;
   promises?: { title: string; description: string }[];
 }
 export interface Settings {
+  leadModal?: {
+    enabled?: boolean;
+    eyebrow?: string;
+    headline?: string;
+    copy?: string;
+    cta?: string;
+    image?: ContentPhoto;
+  };
   socials?: { platform: string; url: string }[];
   vintedShopUrl?: string;
+  poshmarkShopUrl?: string;
   reviewWishlistUrl?: string;
   contactEmail?: string;
   contactDetails?: string;
