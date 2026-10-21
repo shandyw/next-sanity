@@ -1,10 +1,10 @@
-import { ExternalLinkIcon } from './ExternalLinkIcon';
-import { ClosetShopLink } from './ClosetShopLink';
+import { isAmazonProduct, amazonLink } from '@/lib/amazon';
+import { AffiliateDisclosure } from './AffiliateDisclosure';
+import { ClosetBanner } from './ClosetBanner';
 import { stegaClean } from 'next-sanity';
 import Link from 'next/link';
 import Image from 'next/image';
 import type { DocumentContent, SearchParams, Settings } from '@/lib/types';
-import { closetShopUrl } from '@/lib/urls';
 import { browse, values, first, archiveUrl } from '@/lib/browse';
 import { ArchiveFilters, type ArchiveFilter } from './ArchiveFilters';
 import { EditorialHero } from './EditorialHero';
@@ -13,12 +13,13 @@ import { ProductGrid } from './ProductGrid';
 import { sectionProducts, shoppingSizes, type ShoppingSection } from '@/lib/shopping';
 export function Archive({
   all: documents,
-  params,
+  params: incomingParams,
   kind = 'review',
   shopUrl,
   settings = {},
   section = 'closet',
   shopBase,
+  reviewWishlist = false,
 }: {
   all: DocumentContent[];
   params: SearchParams;
@@ -27,10 +28,18 @@ export function Archive({
   settings?: Settings;
   section?: ShoppingSection;
   shopBase?: string;
+  reviewWishlist?: boolean;
 }) {
   const shop = kind === 'product';
   const blog = kind === 'blogPost';
-  const all = shop ? sectionProducts(documents, section) : documents;
+  const all =
+    shop && !reviewWishlist
+      ? sectionProducts(documents, section)
+      : documents.filter((d) => !d.archived);
+  const params =
+    shop && all.some(isAmazonProduct) && /^price_/.test(first(incomingParams, 'sort'))
+      ? { ...incomingParams, sort: 'newest' }
+      : incomingParams;
   const base = shop
     ? shopBase || '/shop'
     : blog
@@ -56,6 +65,7 @@ export function Archive({
     all.map((d) => stegaClean(shop ? d.currency : d.reviewCurrency)).filter(Boolean),
   );
   const priceSortable =
+    !all.some(isAmazonProduct) &&
     currencies.size === 1 &&
     all.some((d) => (shop ? d.listingPrice : d.priceWhenReviewed) !== undefined);
   const filter = (
@@ -77,12 +87,15 @@ export function Archive({
       shop && section === 'finds' ? 'Available sizes' : 'Size',
       sizes.map((value) => ({ value, label: value })),
     ),
-    filter(
-      'brand',
-      'Brand',
-      brands.map((value) => ({ value, label: value })),
-    ),
   ];
+  if (!shop || section !== 'finds')
+    filters.push(
+      filter(
+        'brand',
+        'Brand',
+        brands.map((value) => ({ value, label: value })),
+      ),
+    );
   if (shop && section === 'closet')
     filters.push(
       filter(
@@ -121,29 +134,33 @@ export function Archive({
     <main id="main" className="reviews-page container">
       <EditorialHero
         title={
-          shop
-            ? section === 'finds'
-              ? 'Curated Finds'
-              : 'My Closet'
-            : blog
-              ? 'The Blog'
-              : kind === 'favorites'
-                ? 'My Faves'
-                : 'Fashion Reviews'
+          reviewWishlist
+            ? 'My Review Wishlist'
+            : shop
+              ? section === 'finds'
+                ? 'Curated Finds'
+                : 'My Closet'
+              : blog
+                ? 'The Blog'
+                : kind === 'favorites'
+                  ? 'My Faves'
+                  : 'Fashion Reviews'
         }
         intro={
-          shop
-            ? section === 'finds'
-              ? 'Pieces that caught my eye'
-              : 'Shop pieces from my own wardrobe. Purchase securely on Vinted or Poshmark.'
-            : blog
-              ? 'Stories, outfit finds, and honest takes.'
-              : kind === 'favorites'
-                ? 'The pieces worth another look.'
-                : 'Explore clothing reviews, real-life fit notes, and honest opinions from a size 16–18 perspective. Search the collection to find your next fit.'
+          reviewWishlist
+            ? 'The Curated Finds I’d love to try next. These pieces haven’t been reviewed yet. Gifts are optional and never guarantee a review or a positive opinion.'
+            : shop
+              ? section === 'finds'
+                ? 'Pieces that caught my eye'
+                : 'Shop pieces from my own wardrobe. Purchase securely on Vinted.'
+              : blog
+                ? 'Stories, outfit finds, and honest takes.'
+                : kind === 'favorites'
+                  ? 'The pieces worth another look.'
+                  : 'Explore clothing reviews, real-life fit notes, and honest opinions from a size 16–18 perspective. Search the collection to find your next fit.'
         }
       />
-      {shop && (
+      {shop && !reviewWishlist && (
         <nav className="shopping-sections" aria-label="Shopping section">
           <Link
             href="/shop/closet"
@@ -169,33 +186,8 @@ export function Archive({
           placeholders. These items cannot be purchased.
         </p>
       )}
-      {shop && section === 'closet' && closetShopUrl(shopUrl, 'vinted') && (
-        <p>
-          <a
-            className="btn btn-accent"
-            href={closetShopUrl(shopUrl, 'vinted')}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Visit my Vinted closet <ExternalLinkIcon />
-            <span className="visually-hidden"> (opens in a new tab)</span>
-          </a>
-        </p>
-      )}
-      {shop && section === 'closet' && settings.poshmarkShopUrl && (
-        <p>
-          <ClosetShopLink
-            product={{
-              _id: 'closet-link',
-              _type: 'product',
-              title: 'Poshmark closet',
-              slug: '',
-              closetPlatform: 'poshmark',
-            }}
-            settings={settings}
-          />
-        </p>
-      )}
+
+      <AffiliateDisclosure active={shop && all.some((d) => amazonLink(d, settings)?.affiliate)} />
       <ArchiveFilters
         stateKey={archiveUrl(base, params, page)}
         base={base}
@@ -304,6 +296,9 @@ export function Archive({
             </Link>
           )}
         </nav>
+      )}
+      {shop && section === 'closet' && !reviewWishlist && (
+        <ClosetBanner settings={settings} shopUrl={shopUrl} />
       )}
     </main>
   );

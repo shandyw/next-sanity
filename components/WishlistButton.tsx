@@ -17,9 +17,9 @@ export function WishlistButton({ id, title }: { id: string; title: string }) {
         className="wishlist-heart"
         disabled={!ready || !available}
         aria-pressed={saved}
-        aria-label={`${saved ? 'Remove' : 'Save'} ${title} ${saved ? 'from' : 'to'} wishlist`}
+        aria-label={`${saved ? 'Remove from saved items' : 'Save item'}: ${title}`}
         aria-describedby={statusId}
-        title={saved ? 'Remove from wishlist' : 'Save to wishlist'}
+        title={saved ? 'Remove from saved items' : 'Save item'}
         onClick={() => {
           const result = changeWishlist(id);
           setMessage(result.message);
@@ -33,7 +33,7 @@ export function WishlistButton({ id, title }: { id: string; title: string }) {
         role="status"
         className={error || !available ? 'wishlist-heart-error body-sm' : 'visually-hidden'}
       >
-        {available ? message : 'Wishlist unavailable: allow browser storage for this site.'}
+        {available ? message : 'Saved Items unavailable: allow browser storage for this site.'}
       </p>
     </div>
   );

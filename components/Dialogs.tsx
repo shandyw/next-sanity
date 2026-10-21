@@ -2,10 +2,11 @@
 import { useEffect, useRef } from 'react';
 import type { Settings } from '@/lib/types';
 import { SubmissionForm } from './SubmissionForm';
-import { safeExternal } from '@/lib/urls';
-import { ExternalLinkIcon } from './ExternalLinkIcon';
+
+import { ArrowIcon } from './ArrowIcon';
 export function Dialogs({ settings }: { settings: Settings }) {
-  const wishlistUrl = safeExternal(settings.reviewWishlistUrl);
+  const wishlistUrl = '/support#review-wishlist';
+  void settings;
   const request = useRef<HTMLDialogElement>(null);
   const contact = useRef<HTMLDialogElement>(null);
   const trigger = useRef<HTMLElement | null>(null);
@@ -81,15 +82,9 @@ export function Dialogs({ settings }: { settings: Settings }) {
             <h3 id="send-review-title" className="headline-sm">
               Want to send something my way?
             </h3>
-            <p>Choose from my review wishlist so the item, size, and color are right.</p>
-            <a
-              className="review-gifting__link"
-              href={wishlistUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Browse the review wishlist <ExternalLinkIcon />
-              <span className="visually-hidden"> (opens in a new tab)</span>
+            <p>Choose from My Review Wishlist so the item, size, and color are right.</p>
+            <a className="review-gifting__link" href={wishlistUrl}>
+              View My Review Wishlist <ArrowIcon />
             </a>
             <p className="review-gifting__disclaimer">
               Suggesting something else? Wait for my confirmation before buying. Gifts are optional

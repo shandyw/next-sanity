@@ -1,9 +1,20 @@
+import { acknowledgment } from '@/lib/catalog';
+import { ProductGrid } from './ProductGrid';
+import { EditorialLink } from './EditorialLink';
+import { AffiliateDisclosure } from './AffiliateDisclosure';
+import {
+  associatesActive,
+  isAmazonProduct,
+  experienceStatus,
+  experienceLabel,
+  type Experience,
+} from '@/lib/amazon';
 import Link from 'next/link';
 import { stegaClean } from 'next-sanity';
 import { PortableText } from '@portabletext/react';
 import type { PortableTextBlock } from '@portabletext/types';
-import type { ContentPhoto, DocumentContent } from '@/lib/types';
-import { getContent, getDocuments } from '@/lib/content';
+import type { ContentPhoto, DocumentContent, Settings } from '@/lib/types';
+import { getContent, getDocuments, getSettings } from '@/lib/content';
 import { reviewPhotos, reviewSections } from '@/lib/review-layout';
 import { safeExternal } from '@/lib/urls';
 import { siteUrl } from '@/lib/seo';
@@ -13,7 +24,17 @@ import { Video } from './Video';
 import { ArrowIcon } from './ArrowIcon';
 import { CardGrid } from './CardGrid';
 
-function Copy({ value }: { value?: PortableTextBlock[] }) {
+function Copy({
+  value,
+  settings,
+  sourceId,
+  experience,
+}: {
+  value?: PortableTextBlock[];
+  settings: Settings;
+  sourceId: string;
+  experience: Experience;
+}) {
   return value?.length ? (
     <PortableText
       value={value}
@@ -24,16 +45,20 @@ function Copy({ value }: { value?: PortableTextBlock[] }) {
           ),
         },
         marks: {
-          link: ({ value, children }) => {
-            const href = safeExternal(value?.href);
-            return href ? (
-              <a href={href} rel="noopener noreferrer">
-                {children}
-              </a>
-            ) : (
-              <>{children}</>
-            );
-          },
+          link: ({ value, children }) => (
+            <EditorialLink
+              href={value?.href}
+              affiliate={value?.affiliate === true}
+              affiliateHref={value?.affiliateUrl}
+              shortVerified={value?.shortLinkVerified === true}
+              settings={settings}
+              sourceId={sourceId}
+              placement="review"
+              experience={experience}
+            >
+              {children}
+            </EditorialLink>
+          ),
         },
       }}
     />
@@ -46,7 +71,8 @@ export async function ReviewArticle({
   document: DocumentContent;
   returnTo: string;
 }) {
-  const homepage = await getContent('homepage');
+  const [homepage, settings] = await Promise.all([getContent('homepage'), getSettings()]);
+  void returnTo;
   const relatedSlugs = new Set(d.relatedReviews?.map((review) => review.slug) || []);
   const related = relatedSlugs.size
     ? (await getDocuments('review')).filter(
@@ -135,6 +161,7 @@ export async function ReviewArticle({
             </h1>
             {d.sizeWorn && <p className="review-story__size">Size worn: {d.sizeWorn}</p>}
           </div>
+          {acknowledgment(d) && <p className="review-story__acknowledgment">{acknowledgment(d)}</p>}
           {d.publishedAt && (
             <p className="review-story__byline">
               <time dateTime={stegaClean(d.publishedAt)}>
@@ -153,6 +180,15 @@ export async function ReviewArticle({
             </p>
           )}
         </header>
+        {d.experienceStatus && (
+          <p className="body-sm">
+            {experienceLabel(d)}
+            {experienceStatus(d) === 'mannequin'
+              ? '. Demonstrated on Shannequin; this does not establish human comfort, movement, wash performance or durability.'
+              : ''}
+          </p>
+        )}
+        <AffiliateDisclosure active={associatesActive(settings)} />
         <div className="review-story__columns">
           <ReviewMedia key={`${d._id}-${d.format || 'written'}`} items={media} />
           <div className="review-story__sections">
@@ -171,7 +207,12 @@ export async function ReviewArticle({
                   </p>
                   <h2 id={`review-${key}`}>{d.reviewSections?.[key]?.heading || heading}</h2>
                   <div className="review-story__copy">
-                    <Copy value={d.reviewSections?.[key]?.copy} />
+                    <Copy
+                      settings={settings}
+                      sourceId={d._id}
+                      experience={experienceStatus(d)}
+                      value={d.reviewSections?.[key]?.copy}
+                    />
                   </div>
                 </section>
               ))
@@ -180,23 +221,36 @@ export async function ReviewArticle({
                 <h2>The review</h2>
                 {d.excerpt && <p>{d.excerpt}</p>}
                 {d.fitNotes && <p>{d.fitNotes}</p>}
-                <Copy value={d.body} />
+                <Copy
+                  settings={settings}
+                  sourceId={d._id}
+                  experience={experienceStatus(d)}
+                  value={d.body}
+                />
               </section>
             )}
             {sections.length > 0 && d.body?.length ? (
               <div className="review-story__additional">
-                <Copy value={d.body} />
+                <Copy
+                  settings={settings}
+                  sourceId={d._id}
+                  experience={experienceStatus(d)}
+                  value={d.body}
+                />
               </div>
             ) : null}
-            {d.priceWhenReviewed !== undefined && d.reviewCurrency && (
-              <p className="body-sm">
-                Price when reviewed:{' '}
-                {new Intl.NumberFormat('en', {
-                  style: 'currency',
-                  currency: stegaClean(d.reviewCurrency),
-                }).format(d.priceWhenReviewed)}
-              </p>
-            )}
+            {!d.products?.some(isAmazonProduct) &&
+              !(d.ctaProduct && isAmazonProduct(d.ctaProduct)) &&
+              d.priceWhenReviewed !== undefined &&
+              d.reviewCurrency && (
+                <p className="body-sm">
+                  Price when reviewed:{' '}
+                  {new Intl.NumberFormat('en', {
+                    style: 'currency',
+                    currency: stegaClean(d.reviewCurrency),
+                  }).format(d.priceWhenReviewed)}
+                </p>
+              )}
           </div>
         </div>
       </article>
@@ -270,6 +324,12 @@ export async function ReviewArticle({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structured).replace(/</g, '\\u003c') }}
         />
       )}
+      {d.reviewedProducts?.length ? (
+        <section className="container" aria-labelledby="reviewed-products">
+          <h2 id="reviewed-products">Items in this review</h2>
+          <ProductGrid items={d.reviewedProducts} settings={settings} />
+        </section>
+      ) : null}
     </main>
   );
 }

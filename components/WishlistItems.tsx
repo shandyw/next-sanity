@@ -87,7 +87,7 @@ export function WishlistItems({
         {!ready
           ? 'Loading your saved items…'
           : !available
-            ? 'Your browser blocks site storage. Enable it to use a wishlist.'
+            ? 'Your browser blocks site storage. Enable it to save items.'
             : `${saved.length} saved ${saved.length === 1 ? 'item' : 'items'}.`}{' '}
         {message}
       </p>
@@ -101,7 +101,7 @@ export function WishlistItems({
             if (result.ok) focusHeading();
           }}
         >
-          Clear wishlist
+          Clear saved items
         </button>
       )}
       {ready && missing > 0 && (
@@ -141,7 +141,7 @@ export function WishlistItems({
                     <button
                       type="button"
                       className="wishlist-remove"
-                      aria-label={`Remove ${item.name} from wishlist`}
+                      aria-label={`Remove from saved items: ${item.name}`}
                       disabled={!available}
                       onClick={() => {
                         const result = changeWishlist(item.id);
@@ -182,7 +182,7 @@ export function WishlistItems({
       )}
       <noscript>
         <p>
-          Enable JavaScript to view the wishlist saved in your browser.{' '}
+          Enable JavaScript to view the items saved in your browser.{' '}
           <a href="/shop">Browse items</a>.
         </p>
       </noscript>

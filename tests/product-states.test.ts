@@ -16,18 +16,18 @@ const markup = (changes: Partial<DocumentContent>) =>
 test('sold and reserved products never render a purchase action or product-state label', () => {
   for (const state of ['sold', 'reserved'] as const) {
     const html = markup({ availability: state });
-    assert.ok(!html.includes('Buy on Vinted'));
+    assert.ok(!html.includes('Shop on Vinted'));
     assert.ok(!html.includes('product-state'));
   }
 });
 test('only available products with valid listing URLs offer purchase and stale checks remain visible', () => {
   const available = markup({ availability: 'available' });
-  assert.match(available, /Buy on Vinted/);
+  assert.match(available, /Shop on Vinted/);
   assert.match(available, /not been checked recently/);
-  assert.ok(!markup({ availability: 'unknown' }).includes('Buy on Vinted'));
+  assert.ok(!markup({ availability: 'unknown' }).includes('Shop on Vinted'));
   assert.ok(
     !markup({ availability: 'available', vintedUrl: 'https://untrusted.test/items/123' }).includes(
-      'Buy on Vinted',
+      'Shop on Vinted',
     ),
   );
 });

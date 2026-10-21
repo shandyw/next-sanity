@@ -58,7 +58,7 @@ async function authenticate(request: Request) {
 }
 async function product(client: SanityClient, id: string) {
   const pair = await client.fetch<PricingItem[]>(
-    `*[_type=='product' && _id in $ids]{_id,_rev,_type,title,sku,description,shoppingSection,affiliateLink,availability,saleStatus,listingPrice,currency,"brandName":brand->title,"categories":categories[]->title,size,condition,styleModel,material,measurements,wearNotes,vintedUrl,poshmarkUrl,closetPlatform,purchaseUrl,"imageUrls":(coalesce(photos,[]) + coalesce(labelDefectPhotos,[]))[].asset->url}`,
+    `*[_type=='product' && _id in $ids]{_id,_rev,_type,title,sku,description,shoppingSection,affiliateLink,availability,saleStatus,listingPrice,currency,"brandName":brand->title,"categories":categories[]->title,size,condition,styleModel,material,measurements,wearNotes,vintedUrl,purchaseUrl,"imageUrls":(coalesce(photos,[]) + coalesce(labelDefectPhotos,[]))[].asset->url}`,
     { ids: [id, `drafts.${id}`] },
   );
   const item = pair.find((p) => p._id === `drafts.${id}`) || pair.find((p) => p._id === id);
@@ -169,10 +169,9 @@ export async function handlePricing(request: Request, rawId: string) {
       return reply({
         item,
         inputs:
-          latest[0]?.product.currency === item.currency &&
-          (latest[0]?.product.closetPlatform || 'vinted') === (item.closetPlatform || 'vinted')
+          latest[0]?.product.currency === item.currency
             ? latest[0].inputs
-            : defaultItemPricingInputs(item),
+            : defaultItemPricingInputs(),
         latest: latest[0] || null,
         history: history.slice(0, 20),
         nextCursor: history.length > 20 ? history[19]._id : null,

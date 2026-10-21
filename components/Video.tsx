@@ -1,4 +1,4 @@
-import { safeExternal } from '@/lib/urls';
+import { safeVideoUrl } from '@/lib/urls';
 export function Video({
   url,
   transcript,
@@ -8,7 +8,7 @@ export function Video({
   transcript?: string;
   captions?: string;
 }) {
-  const safe = safeExternal(url);
+  const safe = safeVideoUrl(url);
   if (!safe) return null;
   return (
     <div className="video-player">

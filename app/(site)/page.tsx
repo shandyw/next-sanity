@@ -1,3 +1,4 @@
+import { CurtainReveal } from '@/components/CurtainReveal';
 import { getContent, getDocuments, demoEnabled } from '@/lib/content';
 import { LatestVerdicts } from '@/components/LatestVerdicts';
 import { ContentImage } from '@/components/ContentImage';
@@ -27,8 +28,31 @@ export default async function Home() {
         scriptAccent={content.heroScriptAccent ?? 'questionable'}
         eyebrow="Fashion Reviews"
         cta={{ label: 'Explore the Reviews', href: '/reviews' }}
-        mainPhoto={content.heroBack}
-        smallPhoto={content.heroFront}
+        media={
+          <CurtainReveal
+            leftPosition={`${(content.heroBack?.hotspot?.x ?? 0.5) * 100}% ${(content.heroBack?.hotspot?.y ?? 0.5) * 100}%`}
+            rightPosition={`${(content.heroFront?.hotspot?.x ?? 0.5) * 100}% ${(content.heroFront?.hotspot?.y ?? 0.5) * 100}%`}
+            interactive={Boolean(content.heroBack?.asset?._ref && content.heroFront?.asset?._ref)}
+            leftPhoto={
+              <ContentImage
+                image={content.heroBack}
+                width={900}
+                height={1190}
+                sizes="(max-width: 767px) 40vw, 20vw"
+                priority
+              />
+            }
+            rightPhoto={
+              <ContentImage
+                image={content.heroFront}
+                width={900}
+                height={1190}
+                sizes="(max-width: 767px) 40vw, 20vw"
+                priority
+              />
+            }
+          />
+        }
       />
 
       <LatestVerdicts reviews={reviews} />

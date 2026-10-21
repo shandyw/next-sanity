@@ -1,6 +1,8 @@
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { build } from 'esbuild';
+import { createRequire } from 'node:module';
+import { pathToFileURL } from 'node:url';
 import { defaultInputs } from '../lib/pricing/contracts';
 let handle: (r: Request, id: string) => Promise<Response>;
 const state: {
@@ -139,6 +141,7 @@ before(async () => {
       resolveDir: process.cwd(),
     },
     bundle: true,
+
     platform: 'node',
     format: 'esm',
     write: false,
@@ -149,6 +152,12 @@ before(async () => {
           b.onResolve({ filter: /^(server-only|@sanity\/client)$/ }, (args) => ({
             path: args.path,
             namespace: 'mock',
+          }));
+          b.onResolve({ filter: /^next-sanity$/ }, () => ({
+            path: pathToFileURL(
+              createRequire(`${process.cwd()}/package.json`).resolve('next-sanity'),
+            ).href,
+            external: true,
           }));
           b.onResolve({ filter: /^\.\/provider$/ }, () => ({
             path: 'provider',

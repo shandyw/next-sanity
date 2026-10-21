@@ -1,3 +1,5 @@
+import { siteUrl } from '@/lib/seo';
+import { AmazonClickTracking } from '@/components/AmazonClickTracking';
 import { draftMode } from 'next/headers';
 import { VisualEditing } from 'next-sanity/visual-editing';
 import { Header } from '@/components/Header';
@@ -13,7 +15,10 @@ export async function generateMetadata() {
   const settings = await getSettings();
   return {
     description: settings.defaultSeo?.description,
-    robots: preview ? { index: false, follow: false } : undefined,
+    robots:
+      preview || (process.env.NODE_ENV === 'production' && !siteUrl())
+        ? { index: false, follow: false }
+        : undefined,
   };
 }
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
@@ -39,6 +44,9 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
           Design preview: sample reviews and placeholder photography.
         </aside>
       )}
+      <AmazonClickTracking
+        enabled={settings.amazonAssociates?.clickEventsEnabled === true && !preview}
+      />
       <Footer demo={demoEnabled} settings={settings} />
       <Dialogs settings={settings} />
       {settings.leadModal?.enabled && settings.leadModal.image && !preview && (

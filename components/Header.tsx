@@ -60,22 +60,12 @@ export function Header({ mobileSocials }: { mobileSocials?: React.ReactNode }) {
               </li>
 
               <li>
-                <a
-                  href="#contactDialog"
-                  data-open-contact
-                  aria-haspopup="dialog"
-                  aria-controls="contactDialog"
-                >
-                  Contact
-                </a>
+                <a href="/support/">Support the Reviews</a>
               </li>
             </ul>
 
             <div className="nav-actions">
               <SavedFindsLink />
-              <button className="btn btn-accent" data-open-dialog>
-                Request a Review
-              </button>
             </div>
             {mobileSocials}
           </nav>

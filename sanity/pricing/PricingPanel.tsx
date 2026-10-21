@@ -214,7 +214,7 @@ export function PricingPanel({ id, onApplied }: { id: string; onApplied?: () => 
     async (reset = true) => {
       const result = (await api()) as PricingData;
       if (currencyRef.current && currencyRef.current !== result.item.currency) {
-        setInputs(defaultItemPricingInputs(result.item));
+        setInputs(defaultItemPricingInputs());
         setChosen(
           typeof result.item.listingPrice === 'number'
             ? Math.round(result.item.listingPrice * 100)
@@ -844,7 +844,7 @@ export function PricingPanel({ id, onApplied }: { id: string; onApplied?: () => 
             />
             <Text size={1}>
               {itemAvailable(item)
-                ? 'Applies only the existing listing price/currency to a draft. Review and publish in Studio. Update your marketplace listing manually; this does not update Vinted or Poshmark.'
+                ? 'Applies only the existing listing price/currency to a draft. Review and publish in Studio. Update your Vinted listing manually.'
                 : 'Price updates are disabled until this item is explicitly marked Available through the existing workflow.'}
             </Text>
           </Stack>

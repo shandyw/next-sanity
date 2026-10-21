@@ -13,7 +13,7 @@ test('empty wishlist uses the illustration, hero disclaimer and keyboard closet 
   await expect(
     page.getByRole('heading', { name: 'Your next favorite is out there.' }),
   ).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Clear wishlist', exact: true })).toBeHidden();
+  await expect(page.getByRole('button', { name: 'Clear saved items', exact: true })).toBeHidden();
   const link = page.getByRole('link', { name: 'Browse My Closet' });
   await link.focus();
   await page.keyboard.press('Enter');
@@ -85,7 +85,7 @@ test('wishlist persists, synchronizes tabs, removes products, and clears without
   await expect(second.locator('.wishlist-row')).toHaveCount(0);
   await expect(second.locator('#wishlist-heading')).toBeFocused();
   await save.click();
-  await second.getByRole('button', { name: 'Clear wishlist', exact: true }).click();
+  await second.getByRole('button', { name: 'Clear saved items', exact: true }).click();
   await expect(second.locator('.wishlist-row')).toHaveCount(0);
   await expect(save).toHaveAttribute('aria-pressed', 'false');
   await second.setViewportSize({ width: 390, height: 844 });
@@ -135,7 +135,7 @@ test('failed writes do not report a save and missing products retain their saved
   );
   await page.reload();
   await expect(page.getByText(/1 previously saved piece is currently unavailable/)).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Clear wishlist', exact: true })).toBeHidden();
+  await expect(page.getByRole('button', { name: 'Clear saved items', exact: true })).toBeHidden();
   await page.goto('/shop');
   const save = page.locator('.wishlist-action button').first();
   await expect(save).toBeEnabled();

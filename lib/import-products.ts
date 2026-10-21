@@ -1,5 +1,6 @@
+import { ownedImportFields } from './import-ownership';
 import { createHash } from 'node:crypto';
-import { vintedUrl, poshmarkUrl } from './urls';
+import { vintedUrl } from './urls';
 import { type ImportRecord } from './product-import-schema';
 export { importRecordSchema, importEnvelopeSchema } from './product-import-schema';
 export type { ImportRecord } from './product-import-schema';
@@ -11,9 +12,10 @@ export interface ExistingProduct {
   externalListingId?: string;
   importEnabled?: boolean;
   shoppingSection?: string;
-  closetPlatform?: string;
   saleStatus?: string;
   lastSuccessfullyCheckedAt?: string;
+  importOverrides?: string[];
+  [key: string]: unknown;
 }
 export function stableProductId(source: string, id: string) {
   return (
@@ -27,7 +29,9 @@ export function createProduct(source: string, r: ImportRecord) {
     _type: 'product',
     dataSource: 'import',
     shoppingSection: 'closet',
-    closetPlatform: r.closetPlatform || 'vinted',
+    catalogSource: 'closet',
+    displayPlacements: ['closet'],
+    lastImportedAt: new Date().toISOString(),
     importSource: source,
     externalListingId: r.externalListingId,
     importEnabled: true,
@@ -55,28 +59,29 @@ export function createProduct(source: string, r: ImportRecord) {
   };
 }
 export function listingUpdate(r: ImportRecord, existing?: ExistingProduct) {
-  return {
-    listingPrice: r.listingPrice,
-    currency: r.currency,
-    ...(existing?.saleStatus === 'available' || existing?.saleStatus === 'sold'
-      ? {}
-      : { availability: r.availability }),
-    ...(r.closetPlatform === 'poshmark'
-      ? { poshmarkUrl: poshmarkUrl(r.poshmarkUrl)! }
-      : { vintedUrl: vintedUrl(r.vintedUrl)! }),
-    lastSuccessfullyCheckedAt: r.lastSuccessfullyCheckedAt,
-  };
+  return ownedImportFields(
+    {
+      listingPrice: r.listingPrice,
+      currency: r.currency,
+      ...(existing?.saleStatus === 'available' || existing?.saleStatus === 'sold'
+        ? {}
+        : { availability: r.availability }),
+      vintedUrl: vintedUrl(r.vintedUrl)!,
+      lastSuccessfullyCheckedAt: r.lastSuccessfullyCheckedAt,
+      lastImportedAt: r.lastSuccessfullyCheckedAt,
+    },
+    existing,
+  );
 }
 export function updateDecision(existing: ExistingProduct, source: string, r: ImportRecord) {
-  if (existing.shoppingSection === 'finds') return 'curated item is editorially managed';
+  if (existing.catalogSource === 'amazon' || existing.shoppingSection === 'finds')
+    return 'curated item is editorially managed';
   if (
     existing.dataSource !== 'import' ||
     existing.importSource !== source ||
     existing.externalListingId !== r.externalListingId
   )
     return 'identity mismatch';
-  if ((existing.closetPlatform || 'vinted') !== (r.closetPlatform || 'vinted'))
-    return 'marketplace is editorially managed';
   if (!existing.importEnabled) return 'manual ownership';
   if (
     existing.lastSuccessfullyCheckedAt &&

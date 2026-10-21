@@ -3,6 +3,8 @@ export interface ContentPhoto {
   asset?: { _ref?: string; url?: string };
   alt: string;
   caption?: string;
+  sourceKind?: 'original' | 'licensed' | 'amazon' | 'unverified';
+  sourceCredit?: string;
   crop?: { top: number; bottom: number; left: number; right: number };
   hotspot?: { x: number; y: number; width: number; height: number };
   demoSrc?: string;
@@ -14,6 +16,21 @@ export interface Named {
 }
 export interface DocumentContent {
   _id: string;
+  sku?: string;
+  catalogSource?: 'closet' | 'amazon';
+  displayPlacements?: ('closet' | 'finds' | 'reviewWishlist')[];
+  archived?: boolean;
+  saleStatus?: 'available' | 'sold';
+  reviewProgress?: 'not_requested' | 'wanted' | 'received' | 'in_progress' | 'reviewed';
+  desiredSize?: string;
+  desiredColor?: string;
+  styleModel?: string;
+  lastImportedAt?: string;
+  reviewedProducts?: DocumentContent[];
+  readerProvided?: boolean;
+  senderDisplayName?: string;
+  senderNamePermission?: boolean;
+  thankYouMessage?: string;
   _type: 'review' | 'blogPost' | 'product';
   title: string;
   slug: string;
@@ -26,6 +43,27 @@ export interface DocumentContent {
     >
   >;
   shannequinQuote?: string;
+  experienceStatus?: 'tested' | 'mannequin' | 'curated';
+  whyPicked?: string;
+  testedSize?: string;
+  measurements?: string;
+  fitObservations?: string;
+  sellerSpecifications?: string;
+  whatToCheck?: string;
+  editorialReviewedAt?: string;
+  contentReviewStatus?: 'needs_review' | 'approved';
+  indexingIntent?: 'noindex' | 'index';
+  amazonAffiliateUrl?: string;
+  amazonShortLinkVerified?: boolean;
+  newAmazonAffiliateUrl?: string;
+  newAmazonShortLinkVerified?: boolean;
+  relatedGuides?: { title: string; slug: string }[];
+  onReviewWishlist?: boolean;
+  amazonAsin?: string;
+  importedImageUrl?: string;
+  priority?: 'high' | 'medium' | 'low';
+  requestedQuantity?: number;
+  receivedQuantity?: number;
   ctaLabel?: string;
   ctaProduct?: DocumentContent;
   excerpt?: string;
@@ -52,8 +90,6 @@ export interface DocumentContent {
   currency?: string;
   availability?: 'available' | 'reserved' | 'sold' | 'unknown';
   vintedUrl?: string;
-  poshmarkUrl?: string;
-  closetPlatform?: 'vinted' | 'poshmark';
   shoppingSection?: 'closet' | 'finds';
   purchaseUrl?: string;
   retailer?: string;
@@ -102,6 +138,7 @@ export interface PageContent {
   promises?: { title: string; description: string }[];
 }
 export interface Settings {
+  amazonAssociates?: { active?: boolean; tag?: string; clickEventsEnabled?: boolean };
   leadModal?: {
     enabled?: boolean;
     eyebrow?: string;
@@ -112,7 +149,6 @@ export interface Settings {
   };
   socials?: { platform: string; url: string }[];
   vintedShopUrl?: string;
-  poshmarkShopUrl?: string;
   reviewWishlistUrl?: string;
   contactEmail?: string;
   contactDetails?: string;

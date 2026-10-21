@@ -210,7 +210,7 @@ test('deletion guards and removes only the selected draft/published pair in one 
     },
   };
   const client = {
-    fetch: async () => docs,
+    fetch: async (q:string) => q.includes('references(') ? [] : docs,
     transaction: () => transaction,
   } as unknown as InventoryDeleteClient;
   await deleteInventoryItem(client, docs[1]);

@@ -1,3 +1,4 @@
+import { ownedImportFields } from '../../lib/import-ownership';
 import type { useClient } from 'sanity';
 import {
   MASTER_INVENTORY_SOURCE,
@@ -8,7 +9,7 @@ import {
 } from '@/lib/master-inventory';
 import { PRODUCT_IMAGE } from '@/lib/product-images';
 import { fetchMasterImages, resolveMasterImage } from './master-images';
-import { eligible, primaryTargets, type ImportTarget } from './model';
+import { eligible, primaryTargets, type ImportTarget } from './targets';
 import { publishedId, INVENTORY_API_VERSION } from '../inventory/model';
 
 type Client = ReturnType<typeof useClient>;
@@ -70,12 +71,17 @@ export function previewMaster(records: MasterRecord[], targets: ImportTarget[]):
           candidates: [],
           note: 'Not eligible: Curated Finds/affiliate item or imports disabled.',
         };
+      const unchanged =
+        (target.importedFacts as { fingerprint?: string } | undefined)?.fingerprint ===
+        JSON.stringify(record);
       return {
         record,
-        choice: 'update',
+        choice: unchanged ? 'skip' : 'update',
         target,
         candidates: [],
-        note: 'Update this SKU from the master sheet. Save to draft only.',
+        note: unchanged
+          ? 'Unchanged source row; no draft write needed.'
+          : 'Changed source facts. Editorial copy, images, placements and overrides are preserved. Save to draft only.',
       };
     }
     return {
@@ -100,13 +106,10 @@ interface MasterFields {
   categories?: { _key: string; _type: 'reference'; _ref: string }[];
   condition?: string;
   photos?: MasterPhoto[];
-  poshmarkPrice?: { amount: number; currency: string };
   vintedPrice?: { amount: number; currency: string };
   listingPrice?: number;
   currency?: string;
-  closetPlatform?: 'vinted' | 'poshmark';
   purchaseUrl?: string;
-  poshmarkUrl?: string;
   vintedUrl?: string;
 }
 function changedFields(
@@ -118,29 +121,6 @@ function changedFields(
   categoryId: string | undefined,
 ): MasterFields {
   const link = masterListing(record.url);
-  const previousPlatform = current?.closetPlatform === 'poshmark' ? 'poshmark' : 'vinted';
-  const selected =
-    link?.platform ||
-    (current
-      ? current.closetPlatform === 'poshmark'
-        ? 'poshmark'
-        : 'vinted'
-      : record.poshmark !== undefined
-        ? 'poshmark'
-        : 'vinted');
-  const selectedPrice = record[selected];
-  const switched = current && previousPlatform !== selected;
-  const savedPrice = current?.[`${selected}Price`] as
-    { amount?: unknown; currency?: unknown } | undefined;
-  const savedPrimary =
-    savedPrice &&
-    typeof savedPrice.amount === 'number' &&
-    Number.isFinite(savedPrice.amount) &&
-    savedPrice.amount >= 0 &&
-    typeof savedPrice.currency === 'string' &&
-    /^[A-Z]{3}$/.test(savedPrice.currency)
-      ? { listingPrice: savedPrice.amount, currency: savedPrice.currency }
-      : {};
   return {
     sku: record.sku,
     masterInventorySku: record.sku,
@@ -155,20 +135,12 @@ function changedFields(
       : {}),
     ...(brandId ? { brand: { _type: 'reference', _ref: brandId } } : {}),
     ...(photos ? { photos } : {}),
-    ...(record.poshmark !== undefined
-      ? { poshmarkPrice: { amount: record.poshmark, currency } }
-      : {}),
     ...(record.vinted !== undefined ? { vintedPrice: { amount: record.vinted, currency } } : {}),
-    ...(selectedPrice !== undefined
-      ? { listingPrice: selectedPrice, currency }
-      : switched
-        ? savedPrimary
-        : {}),
-    ...(!current || link ? { closetPlatform: selected } : {}),
+    ...(record.vinted !== undefined ? { listingPrice: record.vinted, currency } : {}),
     ...(link
       ? {
           purchaseUrl: link.url,
-          ...(link.platform === 'poshmark' ? { poshmarkUrl: link.url } : { vintedUrl: link.url }),
+          vintedUrl: link.url,
         }
       : {}),
   };
@@ -323,12 +295,17 @@ export async function applyMasterRow(
       );
     }
   }
-  const fields = changedFields(record, current, currency, photos, brandId, categoryId);
+  const proposed = changedFields(record, current, currency, photos, brandId, categoryId);
+  const fields = ownedImportFields(proposed as unknown as Record<string, unknown>, current);
   if (!current) {
     await client.create({
       _id: `drafts.${id}`,
       _type: 'product',
       shoppingSection: 'closet',
+      catalogSource: 'closet',
+      displayPlacements: ['closet'],
+      lastImportedAt: new Date().toISOString(),
+      importedFacts: { title: record.title, fingerprint: JSON.stringify(record) },
       dataSource: 'import',
       importSource: MASTER_INVENTORY_SOURCE,
       externalListingId: record.sku,
@@ -346,32 +323,28 @@ export async function applyMasterRow(
     });
     return 'created' as const;
   }
-  const link = masterListing(record.url);
-  const switched =
-    link && link.platform !== (current.closetPlatform === 'poshmark' ? 'poshmark' : 'vinted');
-  // A different marketplace's asking price must not carry over when its new price is unknown.
-  const unset =
-    switched && fields.listingPrice === undefined
-      ? ['listingPrice', 'currency'].filter((key) => current[key] !== undefined)
-      : [];
   // Avoid producing another draft or revision when this row is already up to date.
   if (
-    !unset.length &&
     Object.entries(fields).every(
       ([key, value]) => JSON.stringify(current[key]) === JSON.stringify(value),
     )
   )
     return 'skipped' as const;
+  Object.assign(fields, {
+    lastImportedAt: new Date().toISOString(),
+    importedFacts: { title: record.title, fingerprint: JSON.stringify(record) },
+  });
   if (current._id.startsWith('drafts.')) {
-    let patch = client.patch(current._id).ifRevisionId(current._rev).set(fields);
-    if (unset.length) patch = patch.unset(unset);
-    await patch.commit({ visibility: 'sync' });
+    await client
+      .patch(current._id)
+      .ifRevisionId(current._rev)
+      .set(fields)
+      .commit({ visibility: 'sync' });
   } else {
     const next: Record<string, unknown> & { _id: string; _type: string } = {
       ...draftCopy(current),
       ...fields,
     };
-    for (const key of unset) delete next[key];
     await client
       .transaction()
       .patch(current._id, (patch) => patch.ifRevisionId(current!._rev).set({}))

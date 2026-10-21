@@ -62,7 +62,7 @@ export function PublicationAction({
               <Text>
                 {draft
                   ? `Publish the complete current draft of “${selected.title || selected.sku || 'this item'}”, including any other draft edits? Required fields and validation must pass first.`
-                  : `Remove “${selected.title || selected.sku || 'this item'}” from the public site and keep its content as an editable draft? Its Vinted or Poshmark listing will stay unchanged.`}
+                  : `Remove “${selected.title || selected.sku || 'this item'}” from the public site and keep its content as an editable draft? Its Vinted listing will stay unchanged.`}
               </Text>
               {!draft && <Text>Public pages may take up to five minutes to refresh.</Text>}
               {error && (

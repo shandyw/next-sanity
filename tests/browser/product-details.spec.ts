@@ -18,11 +18,11 @@ for (const width of [1440, 390]) {
     const title = await card.locator('h2').innerText();
     await expect(card).not.toContainText('Listing price:');
     await expect(card).not.toContainText(/closet link coming soon/);
-    await expect(card.getByRole('link', { name: 'Learn More', exact: true })).toHaveAttribute(
+    await expect(card.getByRole('link', { name: 'View item', exact: true })).toHaveAttribute(
       'href',
       href!,
     );
-    await card.getByRole('button', { name: /Save .* to wishlist/ }).click();
+    await card.getByRole('button', { name: /Save item:/ }).click();
     await expect(page).toHaveURL(/\/shop$/);
     await image.click();
     await expect(page).toHaveURL(href!);

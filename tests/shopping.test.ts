@@ -66,8 +66,8 @@ test('curated links are distinct from Vinted; affiliate disclosures are conditio
     newRetailer: 'Example retailer',
     newAffiliateLink: true,
   };
-  assert.match(render(both), /Buy mine on Vinted/);
+  assert.match(render(both), /Shop on Vinted/);
   assert.match(render(both), /Shop new at Example retailer/);
-  assert.doesNotMatch(render({ ...both, availability: 'sold' }), /Buy mine on Vinted/);
-  assert.match(render({ ...both, availability: 'sold' }), /Shop new at Example retailer/);
+  assert.doesNotMatch(render({ ...both, availability: 'sold' }), /Shop on Vinted/);
+  assert.doesNotMatch(render({ ...both, availability: 'sold' }), /Shop new at Example retailer/);
 });

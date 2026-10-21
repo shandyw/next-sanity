@@ -96,7 +96,7 @@ for (const width of [1440, 768, 390, 320]) {
       'rgb(33, 26, 29)',
     );
     const main = await page
-      .locator('.editorial-hero__photo--main')
+      .locator('.curtain-reveal__frames')
       .evaluate((element) => getComputedStyle(element).transform);
     expect(main).toBe('none');
     expect(

@@ -22,23 +22,25 @@ Use strong editorial serif headings, short flowing script accents, clean sans-se
 | --------------------------------------------- | --------- | -------------------------------------------- |
 | `--color-page-background` / `--color-neutral` | `#FFFBF8` | Warm page background                         |
 | `--color-surface`                             | `#FFFFFF` | Fields and modal surfaces                    |
-| `--color-on-surface`                          | `#211A1D` | Headings and primary ink                     |
-| `--color-text-secondary`                      | `#4B4348` | Body, supporting copy and placeholders       |
-| `--color-primary` / `--color-link`            | `#7A2345` | Berry actions and text links                 |
-| `--color-primary-ink`                         | `#FFFFFF` | Labels on berry backgrounds                  |
-| `--color-brand-pink` / `--color-pink`         | `#F5C1CB` | Selected editorial text highlights           |
-| `--color-secondary-action`                    | `#E87CA5` | Optional secondary pink fill with ink labels |
+| `--color-primary-ink` / `--color-on-surface`  | `#1A0A10` | Body text and headings                       |
+| `--color-ink-soft` / `--color-text-secondary` | `#5A4650` | Captions, labels and supporting copy         |
+| `--color-primary`                             | `#7A1F45` | Maroon primary actions                       |
+| `--color-link` / `--color-primary-deep`       | `#7A1F45` | Readable berry links and text accents        |
+| `--color-primary-button-ink`                  | `#FFFFFF` | White labels on maroon backgrounds           |
+| `--color-secondary-ink`                       | `#1A0A10` | Text on secondary buttons                    |
+| `--color-brand-pink` / `--color-pink`         | `#EBC0CA` | Selected editorial text highlights           |
+| `--color-secondary-action`                    | `#F472A2` | Optional secondary pink fill with ink labels |
 | `--color-cream`                               | `#F7ECDD` | Compact coming-soon panel                    |
 | `--color-blush`                               | `#FCE6EA` | Wishlist banner, gifting and soft panels     |
 | `--color-border-control`                      | `#767076` | Meaningful input/control edges               |
-| `--color-focus`                               | `#211A1D` | Visible focus outline                        |
+| `--color-focus`                               | `#2C1E23` | Visible focus outline                        |
 | `--color-border`                              | `#E2E0DA` | Decorative separators only                   |
 | `--color-success`                             | `#187441` | Valid-format tick                            |
 | `--color-error-text`                          | `#B4232C` | Error text                                   |
 
 The invalid-email boundary retains `#C74D58`; selected wishlist hearts retain red `#FF3333` as an interaction state. Yellow preview notices are semantic warnings, not brand actions. Do not use low-opacity body text or gradients on buttons.
 
-Required reference pairings are white on berry (about 8.77:1), berry on page (about 8.52:1), ink on pink highlight (about 10.10:1), and ink on secondary pink (about 6.39:1). Check actual computed states, including hover, active, selected and focus. Control edges and meaningful icons require at least 3:1; normal text requires 4.5:1. Decorative separators need not be mistaken for input outlines.
+Required reference pairings are white on berry (about 9.96:1), soft ink on page (about 8.41:1), primary ink on pink highlight (about 11.81:1), and primary ink on secondary pink (about 7.10:1). Check actual computed states, including hover, active, selected and focus. Control edges and meaningful icons require at least 3:1; normal text requires 4.5:1. Decorative separators need not be mistaken for input outlines.
 
 ## Fonts and responsive typography
 
@@ -63,7 +65,7 @@ Reserve image dimensions, use responsive `sizes`, and preserve Sanity crop/hotsp
 
 ## Buttons, links, forms and dialogs
 
-Primary pill buttons use solid berry with white labels in every state. Hover/active adds a restrained ink inset boundary; labels stay stationary. Ghost actions use ink outlines and ink text, with blush fill on hover/focus. Optional secondary pink actions use ink labels. Disabled controls remain readable, with secondary text on blush; the header saved-finds heart remains an active link to `/wishlist` even when empty or browser storage is unavailable. Its count appears only when greater than zero.
+Primary pill buttons use solid maroon (#7A2345) with white labels. Dark hover backgrounds retain white labels. Hover/active adds a restrained ink inset boundary; labels stay stationary. Ghost actions use ink outlines and ink text, with blush fill on hover/focus. Optional secondary pink actions use ink labels. Disabled controls remain readable, with secondary text on blush; the header saved-finds heart remains an active link to `/wishlist` even when empty or browser storage is unavailable. Its count appears only when greater than zero.
 
 Text links are berry and visibly underlined. Navigation/title hover underlines retain the center-growing animation and independent focus ring. Focus uses 3px ink with approximately 3px offset. Navigation CTAs (Explore the Reviews, Learn More, Read the review, Browse My Closet and About links) end with the shared 24px ArrowIcon. On hover only the arrow translates 4px over 180ms; reduced motion disables it. External shopping/closet/gift-list CTAs use the shared 24px ExternalLinkIcon without the forward-arrow animation. Submissions, search/reset/clear controls and dialog-opening Request a Review buttons have no directional icon. Icons are decorative, hidden from assistive technology, and placed after the label with 8px spacing. Keep ordinary navigation, image links and social icons free of extra CTA arrows.
 
@@ -73,7 +75,7 @@ Site modals share white surfaces, 8px panel corners, dark backdrops, serif headi
 
 ## Hero
 
-Every public page reuses `EditorialHero` with page-specific text and optional photos, CTA and disclaimer. The shared photo collage uses overlapping straight photo frames with 7px warm-white (#FFFDFA) borders and soft warm shadows. A blush measuring tape is layered behind the photos and a separate front piece crosses their lower edge; both are decorative, hidden from assistive technology and ignore pointer events. There are no photo tilts, captions, torn paper, adhesive tape, or AI labels. The homepage preserves “Big opinions. Questionable sizing.”, the size 16–18 introduction and “Explore the Reviews” linking to `/reviews`. “Questionable” alone uses the script accent in the primary berry color, without a background highlight or highlight-reveal animation; “sizing.” stays serif. Shared hero emphasis uses the primary text color with no colored backing. Other headlines use plain serif or optional editorial emphasis.
+Public pages reuse `EditorialHero` with page-specific text and optional photos, CTA and disclaimer. The homepage supplies its own CurtainReveal media; interior pages retain the shared collage below. The shared photo collage uses overlapping straight photo frames with 7px warm-white (#FFFDFA) borders and soft warm shadows. A blush measuring tape is layered behind the photos and a separate front piece crosses their lower edge; both are decorative, hidden from assistive technology and ignore pointer events. There are no photo tilts, captions, torn paper, adhesive tape, or AI labels. The homepage preserves “Big opinions. Questionable sizing.”, the size 16–18 introduction and “Explore the Reviews” linking to `/reviews`. “Questionable” alone uses the script accent in the primary berry color, without a background highlight or highlight-reveal animation; “sizing.” stays serif. Shared hero emphasis uses the primary text color with no colored backing. Other headlines use plain serif or optional editorial emphasis.
 
 The reusable local image pool remains in `public/img/hero/`, cached for five minutes per page identity so filter changes do not reshuffle it. Homepage Sanity outfit/detail overrides take precedence. Publish owned, suitable photos in Studio; pool images are decorative project imagery and are not evidence of a review. Empty pools display neutral placeholders. Supported formats are JPEG, PNG, WebP and AVIF; deployments trace these assets.
 
@@ -91,12 +93,12 @@ Entrance animation is progressive enhancement: coordinated brief fades/upward mo
 
 No enclosing card panel, fixed title heights, drop shadow or rounded photo. Titles wrap and grow naturally. Review titles render as plain text without colored highlights or mark elements. Existing titleHighlight content is retained but not applied. Never inject HTML into titles.
 
-Image-carousel controls remain independent and keyboard accessible. Title and reading links remain real links. Product cards retain their product metadata and wishlist hearts. The primary “Learn More” button links to the product detail page, where marketplace purchase actions remain available. Card descriptions display at most three lines with an ellipsis when clipped; full descriptions remain on detail pages. Unavailable closet-link placeholder text is hidden; configured closet profile links remain available. Cards share typography and spacing without adopting review claims.
+Image-carousel controls remain independent and keyboard accessible. Title and reading links remain real links. Product cards retain their product metadata and wishlist hearts. The primary “View item” button links to the product detail page, where marketplace purchase actions remain available. Card descriptions display at most three lines with an ellipsis when clipped; full descriptions remain on detail pages. Unavailable closet-link placeholder text is hidden; configured closet profile links remain available. Cards share typography and spacing without adopting review claims.
 
 ## Homepage order and sections
 
 1. Existing approved logo/navigation, request action and saved-finds heart; socials tab.
-2. Borderless staggered-photo hero.
+2. Homepage dressing-room curtain hero; existing headline, introduction and review CTA.
 3. Latest Verdicts: up to the three newest published reviews, independently of archive search. No homepage search input. Keep the archive CTA. When empty, use a compact warm-cream panel: Coming soon / Real try-ons are on their way. / Honest fit notes. No sugarcoating.
 4. Small typographic “On my review checklist”: 01 Fit, 02 Fabric, 03 Comfort. Berry numbers, dark text. These are planned criteria, not completed tests or statistics.
 5. About introduction: preserve the copy, straight photograph, “Size 16–18. Zero sugarcoating.” and `/about` link.
@@ -140,11 +142,11 @@ JPEG and PNG are recommended. WebP remains supported for existing optimized phot
 
 ## Closet marketplaces and shop links
 
-“My Closet” contains owned resale items from Vinted or Poshmark, selected via `product.closetPlatform`. Legacy items remain Vinted. Clothing categories and Curated Finds stay separate from marketplace selection. Public closet asking-price text is replaced by an underlined link to the matching configured closet profile on cards, detail pages and wishlist. The wishlist column is “Shop”; retailer finds use their retailer link with affiliate disclosure. Purchase buttons still lead to individual listings, identify the selected marketplace and respect sold/reserved states. Inventory/pricing tools retain listing prices. URL state, filtering, browser saves and existing routes are preserved. Poshmark CSV importing is local and authorized; no scraper or page-request synchronization is added.
+“My Closet” contains owned resale items sold through Vinted. Cards, details and saved items link to the configured Vinted profile; individual purchase buttons use Vinted listing URLs. Inventory and pricing tools retain asking prices.
 
 ### Studio master inventory CSV import
 
-Inventory includes a Sanity UI master inventory import dialog with labeled CSV/currency/photo-file controls, a paginated semantic preview table and explicit confirmation. It reads SKU, STATUS, NAME, DESCRIPTION, BRAND, SIZE, IMAGES, POSHMARK and VINTED plus optional URL, storing one item with separate marketplace prices. Photo filenames separated by | define gallery order. Existing uploaded images are reused by saved filename associations or an unambiguous original filename. The preview lists only missing or ambiguous files; crop and edited alt text are retained. Blank optional cells preserve existing fields. Table scrolling is labeled and keyboard accessible on narrow screens. Status and error feedback announce actual import outcomes. Product imports create/update drafts only. Filled master product fields and status are authoritative after confirmation; unrelated editorial content remains intact. A filled URL sets the listing purchase link and primary marketplace; blank URL cells keep existing links. New shared brand and clothing category labels are created after confirmation. Optional CATEGORY and CONDITION CSV columns map to existing product fields; blank cells preserve current values. Archive category, brand and condition options derive from all products in the selected section before pagination. No price range dropdown is shown, and legacy price range URL parameters are ignored. No scraping is used. This admin feature does not alter the public design.
+Inventory includes a Sanity UI master inventory import dialog with CSV, currency and photo-file controls, a preview table and confirmation. It reads SKU, STATUS, NAME, DESCRIPTION, BRAND, SIZE, IMAGES and VINTED, plus optional URL, CATEGORY and CONDITION. Product imports create or update drafts only; a filled URL sets the Vinted item link. Blank optional cells preserve existing fields.
 
 Inventory rows show explicit Draft/Published text and a contextual Publish/Set to Draft action. Sanity UI confirmation dialogs explain the public effect and preserve keyboard focus; actions disable during saves and announce the confirmed result. Publish runs schema validation; Set to Draft unpublishes while retaining editable content.
 
@@ -171,3 +173,37 @@ The hero measuring-tape assets are `/img/tape-behind.png` (774 × 509, transpare
 The About section keeps its existing introduction and script tagline, with the uncropped headless mannequin on the right and a blush rectangle behind it. Omit the decorative 18 on About only. Six stable measurement keys (chest, waist, hips, arm, wrist, inseam) live in About page → Shannequin measurements. Each stores a label, one positive source value, its source unit (in/cm), and a short description; clarify arm length versus upper-arm circumference. Never seed real content with example values. Missing or invalid values say “Measurement coming soon.” Convert with 2.54 cm/in, display one decimal at most, and remove trailing zeros.
 
 Hotspots share percentage coordinates relative to the actual full image bounds. Keep that image uncropped at its natural ratio with no letterboxing. Burgundy plus/minus circles have white borders and at least 44px effective targets, subtle static active halos, decorative labels/connectors, and visible keyboard focus. Hover/focus previews one area; click/tap pins it, a second activation closes it. Escape and outside pointer presses dismiss. A short pointer grace period lets users enter the popup without losing it; touch does not trigger hover changes. Warm-white panels use blush borders and warm shadows. Keep floating panels within the figure on desktop; below 1200px use a panel under the mannequin so narrow columns cannot obscure the controls. Reduce movement for reduced motion. A native “View all measurements” disclosure sits below the measurement introduction in the left copy column, remains available without JavaScript, and lists the same data; controls are hidden without JavaScript. Homepage and review mannequin compositions stay unchanged.
+
+## Owner’s review wishlist
+
+`/my-wishlist` is the owner’s selection of Curated Finds to try next; `/wishlist` remains a visitor’s browser-saved items. Use the existing shared hero, product cards, 4:5 media, independent save hearts, carousels, filter bar and product details. Entries are existing Shopping items, never a second product type or resale inventory. Support offers the configured external wishlist and embeds existing catalog wishes; Request a Review links to Support’s My Review Wishlist section; purchases continue on the associated retailer site. Keep “Not yet tried” and optional-gift expectations visible. Fully received items leave My Wishlist while remaining Curated Finds.
+
+Studio’s Review Wishlist tool imports the Amazon CSV into drafts matched by ASIN. Preserve manual edits on re-import, validate before publishing, and confirm destructive actions. New imports ignore Amazon prices, ratings and image URLs; legacy snapshots remain for review and are not displayed. Unverified Amazon thumbnails are retained for review but hidden publicly; use original/licensed Studio photographs with source information. See `docs/REVIEW-WISHLIST.md` for import ownership and publishing steps.
+
+## Amazon editorial and affiliate states
+
+Amazon product imagery must be original or separately licensed with source information; unverified/imported Amazon thumbnails stay hidden, preserving the data for review. No Amazon image proxy, price, stock, discount or customer-rating UI is enabled by CSV import or Associate enrollment. This restriction does not change own resale prices. Product CTA: “View on Amazon.” Ordinary links, active item-level affiliate links and requested-gift links use distinct attribution decisions through the shared resolver. Required identification and clear commission text appear before/near affiliate recommendations; they do not imply final application approval.
+
+Experience labels distinguish personally tested, mannequin-only and curated/not personally tested. Keep seller facts separate from original commentary and do not infer human comfort or durability from Shannequin. Hide empty editorial sections. New Amazon pages stay noindex until useful original commentary, limitations/checks, an editorial date and explicit editor approval/indexing intent are supplied. Query variants remain noindex with clean canonicals. Use the shared cards/hero and preserve the Closet/Curated Finds tabs. See `docs/AMAZON-LAUNCH.md` for source handling, configuration, consent-aware measurement and the owner launch checklist; no legal certification or ranking promise is made.
+
+The My Closet tab includes a blush closet banner with “Great finds. Second chances.”, the local `/img/group2.png` graphic, and the configured Vinted closet link. The layout stacks on mobile; Curated Finds does not display this banner.
+
+## Catalog terminology and states
+
+Navigation: Reviews, Shop, About, Support the Reviews, Saved Items with the existing heart and positive-only count. Logo links home; Contact remains a popup in the footer. Saved Items uses `/wishlist` and existing browser storage. My Review Wishlist is the owner’s gift selection, separate from visitor saves. Cards say “View item”; product details label Amazon and Vinted destinations explicitly. Sold items leave default shopping grids; sold/archived details retain save/review references and omit purchase actions. Reader-provided acknowledgments sit immediately below the review H1; names/custom messages require permission. Keep existing tokens, focus states, responsive layouts and dialog behavior.
+
+## Homepage curtain reveal
+
+At widths of 1000px and above, the homepage hero uses a wider 1360px container and a 1:1.35 copy/media column split. From 768px upward, the curtain scene also compensates for PNG padding with 118% width and a centered negative margin. At 768–999px the composition follows the copy with a 680px media column. This keeps the feature visibly larger in Studio previews as well as full desktop windows. Below 768px the existing contained mobile sizing remains. Photos, fabric and handle always scale together.
+
+The homepage alone uses `CurtainReveal` in the existing two-column hero; interior pages keep their existing collage, measuring tape and entrance behavior. Copy, script accent, CTA, fonts and surrounding sections are preserved. Below 768px the composition follows the copy; both frames stay side by side, with a reserved 1536:1024 scene and no horizontal overflow.
+
+Asset roles: `hero-frames.png` is the supplied 1536 × 1024 transparent frame overlay. Its photo apertures are normalized from original-canvas rectangles (157,119,598,791) and (782,119,598,791). Two independent photos fill those openings with cover sizing. `hero-curtain.png` is the supplied 1024 × 1536 ivory fabric; visible alpha bounds x89…976/y53…1484 are compensated in CSS instead of editing the original file. Keep the PNGs intact. The supplied `hero-pull-handle.png` remains available as a visual reference; the working handle uses HTML/CSS and an inline decorative SVG arrow so it remains sharp, accessible and at least 44 × 44px.
+
+The stationary dark rod sits above the right opening. The curtain starts at 8% reveal, anchored at canvas x1442, and compresses horizontally without shortening as the leading edge travels from x782 to x1386. At 100% the narrow gathered fabric is outside the right photo opening. The handle follows that same edge; the left photo stays visible. A separate Reveal photo / Close curtain button provides the same endpoints.
+
+On the first viewport entry only, wait 600ms, tug fabric and handle 16px right and return within 900ms. Cancel pending/running motion on interaction, keyboard focus, reduced-motion change or a resize during the tug. The tug never changes slider value or dismisses “Pull to reveal.” Keep that live HTML instruction until a visitor changes position. Reduced motion uses immediate controls with no introductory animation. No interaction has easing or lag; no animation dependency is added.
+
+Use pointer capture for mouse, touch and pen; release on completion, cancellation or lost capture. Fabric and handle use grab/grabbing cursors and `touch-action: pan-y` so vertical gestures can scroll. The focusable handle is a horizontal slider with a meaningful name and readable percentage. Arrow keys adjust 5% (Shift: 10%); Home/End select endpoints. Preserve a visible focus ring, decorative asset semantics and meaningful photo alt text.
+
+Studio → Content → Homepage: **Homepage left photo — always visible** (`heroBack`) and **Homepage right photo — curtain reveal** (`heroFront`). These reuse existing stored fields: nothing is overwritten or migrated. Set each photo’s alt description, crop and hotspot; hotspot positions also supply adjustable CSS object-position. Crop whitespace out of source photos when necessary. Publish the Homepage document and allow the normal five-minute content cache to refresh. If either photo is missing, show static frames with the available photo and a neutral placeholder; omit the curtain controls. Without JavaScript both photos remain statically visible. Do not substitute unrelated photos automatically.

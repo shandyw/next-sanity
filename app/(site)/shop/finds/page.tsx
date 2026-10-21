@@ -5,7 +5,7 @@ import { pageMetadata } from '@/lib/seo';
 export async function generateMetadata({ searchParams }: { searchParams: Promise<SearchParams> }) {
   return pageMetadata(
     'Curated Finds',
-    'Browse CurvyGirlReviews.',
+    'Clothes and accessories on my radar, with clear personally tested, mannequin-only and untested labels from a size 16–18 perspective.',
     '/shop/finds',
     Object.keys(await searchParams).length > 0,
   );

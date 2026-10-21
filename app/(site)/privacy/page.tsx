@@ -1,173 +1,94 @@
-import { pageMetadata } from '@/lib/seo';
 import { EditorialHero } from '@/components/EditorialHero';
+import { getSettings } from '@/lib/content';
+import { pageMetadata } from '@/lib/seo';
 export const metadata = pageMetadata(
-  'Privacy Policy',
-  'How CurvyGirlReviews handles your information.',
+  'Privacy',
+  'How CurvyGirlReviews handles form submissions, browser storage and outgoing retailer links.',
   '/privacy',
 );
-export default function Privacy() {
+export default async function Privacy() {
+  const settings = await getSettings();
   return (
     <main id="main" className="privacy-page__main container">
       <EditorialHero
-        title="Privacy Policy"
-        intro="How Curvy Girl Reviews collects, uses, and protects personal information, and how to contact us about your privacy."
+        title="Privacy"
+        intro="Information about forms, saved items, and links to other websites."
       />
-      <article className="privacy-content" aria-label="Privacy policy details">
-        <p className="privacy-effective">
-          Effective Date: <time dateTime="2026-10-03">October 3, 2026</time>
+      <article className="privacy-content" aria-label="Privacy information">
+        <p>
+          Updated <time dateTime="2026-10-18">October 18, 2026</time>.
         </p>
-        <section aria-labelledby="privacy-section-1">
-          <h2 id="privacy-section-1">1. Introduction</h2>
+        <h2>Information you submit</h2>
+        <p>
+          Newsletter signup asks for your email address. A review request asks for an email address
+          and item name or link, with optional name and notes. These details are used for the
+          requested subscription or to respond to your request. Public visitors do not need an
+          account to save items, and the Saved Items feature does not collect account passwords.
+        </p>
+        <p>
+          Newsletter submissions use the site’s server-side MailerLite integration when configured,
+          or its configured newsletter service adapter. Review requests go to the configured
+          request-handling service. The forms report an unavailable service or failed submission
+          rather than claiming that it succeeded. Contact opens your email app when a contact
+          address is configured.
+        </p>
+        <h2>Browser storage and preview cookies</h2>
+        <p>
+          Your saved product IDs stay in this browser’s local storage. Clear saved items or clearing
+          site data removes them. They do not sync across devices, reserve inventory, or create an
+          account.
+        </p>
+        <p>
+          The optional signup offer stores a successful-subscription flag locally and a dismissal
+          flag for the current browser session. Those flags do not contain your email address.
+          Studio sign-in and authorized draft preview use authentication or preview cookies for
+          editors.
+        </p>
+        <h2>Outgoing links and measurement</h2>
+        <p>
+          Following an Amazon or marketplace link takes you to another website, whose privacy and
+          checkout practices apply. When active, an Amazon affiliate link contains the site’s
+          Associate tracking ID, not an identifier assigned to you. Amazon may use its own tracking
+          technologies after you follow a link.
+        </p>
+        <p>
+          No general analytics provider is installed by the outbound-click feature. It is disabled
+          by default. If enabled and connected to a consent adapter, it emits a browser event after
+          analytics consent with the product identifier, page path, placement and experience
+          category. It omits email addresses, visitor IDs, search-query parameters and checkout
+          data. It respects browser Do Not Track and Global Privacy Control signals. The event
+          itself sends no network request and stores no data.
+        </p>
+        <h2>Site services</h2>
+        <p>
+          Sanity provides editorial content and uploaded media. Hosting, content delivery, form
+          providers and email services receive the connection or submission data needed to provide
+          their services. Their operational logs and retention settings depend on the owner’s
+          provider configuration. No additional retention period or provider contract is promised
+          here.
+        </p>
+        <p>
+          Fonts are served by this site. No Amazon API integration, advertising pixel or automatic
+          Amazon visit is installed by the wishlist importer. Imported Amazon images are not
+          publicly requested by this integration.
+        </p>
+        <h2>Your choices and questions</h2>
+        <p>
+          You can choose not to submit forms, remove saved items, clear browser storage, or refrain
+          from following retailer links. Newsletter messages should provide the subscription
+          provider’s unsubscribe option. Ask the site owner about access, correction or removal of
+          submitted information and applicable privacy rights.
+        </p>
+        {settings.contactEmail ? (
           <p>
-            This Privacy Policy describes how Curvy Girl Reviews (“we,” “us,” or “our”) collects,
-            uses, and discloses personal information when you visit or use{' '}
-            <a href="https://curvygirlreviews.com">https://curvygirlreviews.com</a> (the “Service”).
-            By using the Service, you agree to the practices described in this Policy. If you do not
-            agree, please do not use the Service.
+            Contact: <a href={`mailto:${settings.contactEmail}`}>{settings.contactEmail}</a>.
           </p>
-        </section>
-        <section aria-labelledby="privacy-section-2">
-          <h2 id="privacy-section-2">2. Information We Collect</h2>
-          <p>We collect the following categories of personal information:</p>
-          <ul>
-            <li>Contact information you provide directly, such as name and email address.</li>
-            <li>
-              Technical data such as IP address, browser type, device identifiers, and pages
-              visited.
-            </li>
-            <li>
-              Account information such as username, password (hashed), and profile preferences.
-            </li>
-            <li>
-              Usage data collected through analytics tools to understand how visitors use the site.
-            </li>
-          </ul>
-        </section>
-        <section aria-labelledby="privacy-section-3">
-          <h2 id="privacy-section-3">3. How We Use Your Information</h2>
-          <p>
-            We use the information we collect to (a) operate, maintain, and improve the Service; (b)
-            respond to your inquiries and provide support; (c) personalise your experience; (d)
-            detect, prevent, and address technical issues, fraud, or abuse; (e) comply with legal
-            obligations; and (f) communicate with you about updates, security alerts, and
-            administrative messages.
-          </p>
-        </section>
-        <section aria-labelledby="privacy-section-4">
-          <h2 id="privacy-section-4">4. Cookies and Tracking</h2>
-          <p>
-            We use cookies and similar tracking technologies to operate the site, remember your
-            preferences, and analyse usage. You can control cookies through your browser settings;
-            however, disabling them may affect functionality. For a full description of the cookies
-            we use, please see our cookie policy.
-          </p>
-          <p>
-            If you use the wishlist, saved item IDs are stored only in your browser. No account is
-            created. You can remove them using Clear wishlist or by clearing this site’s browser
-            data. The list does not sync across devices or reserve items.
-          </p>
-          <p>
-            The optional signup offer uses browser storage to remember when you dismiss it for the
-            session or successfully subscribe. These flags do not contain your email address.
-            Clearing this site’s browser data removes them. Email signups are sent to our configured
-            newsletter provider.
-          </p>
-        </section>
-        <section aria-labelledby="privacy-section-5">
-          <h2 id="privacy-section-5">5. Third-Party Services</h2>
-          <p>
-            We use a number of trusted third-party service providers to operate our site. These
-            providers may receive personal data only as necessary to perform their services and are
-            contractually required to protect it.
-          </p>
-          <ul>
-            <li>
-              Analytics providers (such as Google Analytics or Plausible) to understand site usage.
-            </li>
-          </ul>
-        </section>
-        <section aria-labelledby="privacy-section-6">
-          <h2 id="privacy-section-6">6. Data Sharing and Disclosure</h2>
-          <p>
-            We do not sell your personal information. We may share personal information only: (a)
-            with service providers acting on our behalf and bound by confidentiality obligations;
-            (b) when required by law, regulation, or valid legal process; (c) to protect the rights,
-            property, or safety of our users or others; or (d) in connection with a merger,
-            acquisition, or sale of assets, in which case we will provide notice before your data is
-            transferred.
-          </p>
-        </section>
-        <section aria-labelledby="privacy-section-7">
-          <h2 id="privacy-section-7">7. Your Rights</h2>
-          <p>
-            If you are a California resident, the California Consumer Privacy Act (CCPA), as amended
-            by the CPRA, gives you the following rights:
-          </p>
-          <ul>
-            <li>Right to know what personal information we collect, use, disclose, and sell.</li>
-            <li>
-              Right to delete personal information we have collected from you, subject to certain
-              exceptions.
-            </li>
-            <li>Right to correct inaccurate personal information.</li>
-            <li>Right to opt out of the sale or sharing of personal information.</li>
-            <li>Right to limit use of sensitive personal information.</li>
-            <li>Right to non-discrimination for exercising your privacy rights.</li>
-          </ul>
-          <p>
-            To exercise any of these rights, contact us at{' '}
-            <a href="mailto:contact@curvygirlreviews.com">contact@curvygirlreviews.com</a>. We will
-            respond within the timeframes required by applicable law.
-          </p>
-        </section>
-        <section aria-labelledby="privacy-section-8">
-          <h2 id="privacy-section-8">8. Data Security</h2>
-          <p>
-            We implement reasonable administrative, technical, and physical safeguards designed to
-            protect personal information against unauthorised access, alteration, disclosure, or
-            destruction. However, no method of transmission over the Internet or electronic storage
-            is completely secure, and we cannot guarantee absolute security.
-          </p>
-        </section>
-        <section aria-labelledby="privacy-section-9">
-          <h2 id="privacy-section-9">9. Children&#x27;s Privacy</h2>
-          <p>
-            Our services are not directed to children under the age of 13. We do not knowingly
-            collect personal information from children under 13. If you believe a child has provided
-            us with personal information, please contact us and we will take steps to delete it
-            promptly.
-          </p>
-        </section>
-        <section aria-labelledby="privacy-section-10">
-          <h2 id="privacy-section-10">10. Changes to This Policy</h2>
-          <p>
-            We may update this Privacy Policy from time to time. When we do, we will revise the
-            “Effective Date” above and, where appropriate, notify you through the Service or by
-            email. Your continued use of the Service after the change takes effect constitutes
-            acceptance of the updated Policy.
-          </p>
-        </section>
-        <section aria-labelledby="privacy-section-11">
-          <h2 id="privacy-section-11">11. Contact Us</h2>
-          <p>
-            If you have any questions or concerns about this Privacy Policy or our data practices,
-            please contact us at:
-          </p>
-          <address>
-            Curvy Girl Reviews
-            <br />
-            Email: <a href="mailto:contact@curvygirlreviews.com">contact@curvygirlreviews.com</a>
-            <br />
-            Website: <a href="https://curvygirlreviews.com">https://curvygirlreviews.com</a>
-            <br />
-            Jurisdiction: United States
-          </address>
-        </section>
-        <p className="privacy-disclaimer">
-          <strong>Disclaimer:</strong> This document was generated from a general-purpose template
-          and is provided for informational purposes only. It does not constitute legal advice or
-          create an attorney-client relationship. Have it reviewed by a qualified attorney licensed
-          in your jurisdiction before signing or relying on it.
+        ) : (
+          <p>Use Contact in the navigation when contact details are available.</p>
+        )}
+        <p>
+          See <a href="/disclosures">Disclosures & editorial approach</a> for how personal tests,
+          curated finds, gifts and affiliate links are distinguished.
         </p>
       </article>
     </main>

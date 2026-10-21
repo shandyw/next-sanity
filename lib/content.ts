@@ -1,3 +1,4 @@
+import { publicProjection } from './public-projection';
 import 'server-only';
 import { cache } from 'react';
 import { draftMode } from 'next/headers';
@@ -8,7 +9,7 @@ import { localDemoProducts } from './demo-products';
 import { exampleReview, exampleReviewSlug, localDemoReviews } from './demo-review';
 export const demoEnabled =
   process.env.NODE_ENV !== 'production' && process.env.ENABLE_DEMO_CONTENT === 'true';
-const projection = `{...,"slug":slug.current,"createdAt":_createdAt,"author":author->{name},"brand":brand->{_id,title,"slug":slug.current},"categories":categories[]->{_id,title,"slug":slug.current},"ctaProduct":ctaProduct->{...,"slug":slug.current},"relatedReview":relatedReview->{title,"slug":slug.current},"products":*[ _type == "product" && relatedReview._ref == ^._id]{...,"slug":slug.current},"relatedReviews":relatedReviews[]->{title,"slug":slug.current},"relatedProducts":relatedProducts[]->{...,"slug":slug.current}}`;
+const projection = publicProjection;
 export const getDocuments = cache(
   async (type: DocumentContent['_type']): Promise<DocumentContent[]> => {
     if (configured) {
@@ -77,7 +78,7 @@ export const getSettings = cache(async (): Promise<Settings> =>
 export async function publishedSitemapDocuments(): Promise<DocumentContent[]> {
   return configured
     ? fetchContent<DocumentContent[]>(
-        `*[_type in ["review","blogPost","product"] && defined(slug.current) && (_type == "product" || (defined(publishedAt) && publishedAt <= now()))] | order(publishedAt desc) { _id, _type, title, publishedAt, "slug":slug.current }`,
+        `*[_type in ["review","blogPost","product"] && defined(slug.current) && (_type == "product" || (defined(publishedAt) && publishedAt <= now()))] | order(publishedAt desc) ${publicProjection}`,
         {},
         false,
       )

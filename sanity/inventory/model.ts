@@ -1,3 +1,5 @@
+import { catalogSource } from '../../lib/catalog';
+import { assertNoProductReferences } from '../catalog/model';
 import type { useClient } from 'sanity';
 export type InventoryClient = Pick<ReturnType<typeof useClient>, 'fetch' | 'patch' | 'create'>;
 
@@ -12,10 +14,11 @@ export interface InventoryProduct {
   brandName?: string;
   size?: string;
   listingPrice?: number;
-  poshmarkPrice?: { amount: number; currency: string };
   vintedPrice?: { amount: number; currency: string };
   currency?: string;
   shoppingSection?: string;
+  catalogSource?: 'closet' | 'amazon';
+  archived?: boolean;
   affiliateLink?: boolean;
   saleStatus?: string;
   availability?: string;
@@ -48,7 +51,7 @@ export function inventoryScope(documents: InventoryProduct[]) {
     if (!pairs.has(id) || p._id.startsWith('drafts.')) pairs.set(id, p);
   }
   return [...pairs.values()].filter(
-    (p) => (!p.shoppingSection || p.shoppingSection === 'closet') && p.affiliateLink !== true,
+    (p) => catalogSource(p) === 'closet' && p.affiliateLink !== true,
   );
 }
 export function inventoryRows(
@@ -123,7 +126,7 @@ export async function fetchInventory(client: InventoryClient) {
   let cursor = '';
   for (;;) {
     const batch = await client.fetch<InventoryProduct[]>(
-      `*[_type == 'product' && !(_id in path('versions.**')) && _id > $cursor] | order(_id asc)[0...500]{_id,_rev,_type,sku,title,description,"brandName":brand->title,size,listingPrice,poshmarkPrice,vintedPrice,currency,shoppingSection,affiliateLink,saleStatus,availability}`,
+      `*[_type == 'product' && !(_id in path('versions.**')) && _id > $cursor] | order(_id asc)[0...500]{_id,_rev,_type,sku,title,description,"brandName":brand->title,size,listingPrice,vintedPrice,currency,shoppingSection,catalogSource,archived,affiliateLink,saleStatus,availability}`,
       { cursor },
     );
     documents.push(...batch);
@@ -144,7 +147,7 @@ export async function saveInventoryStatus(client: InventoryClient, id: string, s
   const source = draft || pair.find((p) => p._id === baseId);
   if (!source) throw new Error('This item was deleted. Refresh the inventory.');
   if (
-    (source.shoppingSection && source.shoppingSection !== 'closet') ||
+    catalogSource(source as import('../../lib/catalog').CatalogFields) !== 'closet' ||
     source.affiliateLink === true
   )
     throw new Error('This item is no longer closet inventory. Refresh the inventory.');
@@ -182,6 +185,7 @@ export async function deleteInventoryItem(client: InventoryDeleteClient, item: I
     !inventoryScope(documents).length
   )
     throw new Error('This item is no longer closet inventory. Refresh before deleting.');
+  await assertNoProductReferences(client, id);
   let transaction = client.transaction();
   for (const document of documents) {
     // The no-op patch adds an atomic revision precondition before each deletion.

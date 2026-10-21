@@ -171,7 +171,7 @@ function DeleteAction({
               <Text>
                 This deletes “{item.title || item.sku || 'Untitled item'}” and any draft/published
                 versions from Sanity. Reviews and uploaded photos are kept. This does not remove the
-                listing from Vinted or Poshmark.
+                listing from Vinted.
               </Text>
               <Text>If you only want to stop selling it, use Mark sold instead.</Text>
               {error && (
@@ -265,7 +265,7 @@ export function InventoryTool() {
     try {
       await saveInventoryStatus(client, id, status);
       setFeedback(
-        `${item.sku || item.title || 'Item'} marked ${status} in its draft. Open Edit, review the draft and publish when ready. The public listing has not changed.`,
+        `${item.sku || item.title || 'Item'} marked ${status} in its draft. Open Edit, review the draft and publish when ready. Publish after review and update the Vinted listing manually; this website does not synchronize marketplace availability.`,
       );
       await refresh();
     } catch {
@@ -568,9 +568,6 @@ function InventoryRow({
       <td>{item.size || '—'}</td>
       <td>
         {inventoryPrice(item.listingPrice, item.currency)}
-        {item.poshmarkPrice && (
-          <p>Poshmark: {inventoryPrice(item.poshmarkPrice.amount, item.poshmarkPrice.currency)}</p>
-        )}
         {item.vintedPrice && (
           <p>Vinted: {inventoryPrice(item.vintedPrice.amount, item.vintedPrice.currency)}</p>
         )}

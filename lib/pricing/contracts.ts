@@ -134,8 +134,8 @@ export const defaultInputs: PricingInputs = {
   preference: 'balanced',
   comparables: [],
 };
-export function defaultItemPricingInputs(item: { closetPlatform?: string }): PricingInputs {
-  return { ...defaultInputs, channel: item.closetPlatform === 'poshmark' ? 'Poshmark' : 'Vinted' };
+export function defaultItemPricingInputs(): PricingInputs {
+  return { ...defaultInputs };
 }
 export interface PricingItem {
   _id: string;
@@ -160,8 +160,6 @@ export interface PricingItem {
   wearNotes?: string;
   imageUrls?: string[];
   vintedUrl?: string;
-  poshmarkUrl?: string;
-  closetPlatform?: 'vinted' | 'poshmark';
   purchaseUrl?: string;
 }
 export interface AnalysisRecord {

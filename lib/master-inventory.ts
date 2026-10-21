@@ -1,10 +1,8 @@
 import { z } from 'zod';
-import { parseInventoryCsv } from './poshmark-import';
-import { poshmarkUrl, vintedUrl } from './urls';
+import { parseInventoryCsv } from './csv';
+import { vintedUrl } from './urls';
 
 export function masterListing(value?: string) {
-  const poshmark = poshmarkUrl(value);
-  if (poshmark) return { platform: 'poshmark' as const, url: poshmark };
   const vinted = vintedUrl(value);
   if (vinted) return { platform: 'vinted' as const, url: vinted };
 }
@@ -20,7 +18,6 @@ export const MASTER_HEADERS = [
   'CONDITION',
   'SIZE',
   'IMAGES',
-  'POSHMARK',
   'VINTED',
   'URL',
 ] as const;
@@ -36,7 +33,6 @@ export const masterRecordSchema = z
     condition: z.string().trim().max(160).optional(),
     size: z.string().trim().max(60),
     images: z.array(z.string().min(1).max(255)).max(20),
-    poshmark: price,
     vinted: price,
     url: z
       .string()
@@ -44,7 +40,7 @@ export const masterRecordSchema = z
       .max(2048)
       .refine(
         (value) => Boolean(masterListing(value)),
-        'URL must be an HTTPS Vinted item URL or Poshmark listing URL.',
+        'URL must be an HTTPS Vinted item URL.',
       )
       .transform((value) => masterListing(value)!.url)
       .optional(),
@@ -112,14 +108,13 @@ export function parseMasterInventory(csv: string) {
         ...(get('CONDITION') ? { condition: get('CONDITION') } : {}),
         size: get('SIZE'),
         images: imageNames(get('IMAGES')),
-        poshmark: amount(get('POSHMARK'), 'POSHMARK'),
         vinted: amount(get('VINTED'), 'VINTED'),
         ...(get('URL') ? { url: get('URL') } : {}),
       });
       const key = skuKey(record.sku);
       if (seen.has(key))
         throw new Error(
-          `SKU ${record.sku} appears more than once. Each physical item must have one row, even when listed in both stores.`,
+          `SKU ${record.sku} appears more than once. Each physical item must have one row.`,
         );
       seen.add(key);
       records.push(record);

@@ -62,7 +62,7 @@ export function changeWishlist(id?: string): { ok: boolean; message: string } {
     if (id && !saved && ids.length >= wishlistLimit)
       return {
         ok: false,
-        message: `Your wishlist is full (${wishlistLimit} items). Remove an item first.`,
+        message: `Your saved items list is full (${wishlistLimit} items). Remove an item first.`,
       };
     if (id)
       window.localStorage.setItem(
@@ -78,9 +78,9 @@ export function changeWishlist(id?: string): { ok: boolean; message: string } {
       ok: true,
       message: id
         ? saved
-          ? 'Removed from your wishlist.'
-          : 'Saved to your wishlist.'
-        : 'Wishlist cleared.',
+          ? 'Removed from your saved items.'
+          : 'Item saved.'
+        : 'Saved items cleared.',
     };
   } catch {
     return {

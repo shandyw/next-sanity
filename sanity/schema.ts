@@ -1,8 +1,16 @@
+import { amazonFieldsVisible, catalogSource, type CatalogFields } from '../lib/catalog';
+import { catalogProductFields, reviewCatalogFields, productCollection } from './catalog/schema';
+import {
+  amazonProductFields,
+  amazonSettingsField,
+  productPhotoSourceFields,
+} from './amazon-fields';
+import { reviewWishlistFields } from './review-wishlist/schema';
 import { measurementAreas } from '../lib/shannequin-measurements';
 import { reviewSections } from '../lib/review-layout';
 import { PRODUCT_IMAGE, productImageResolutionWarning } from '../lib/product-images';
 import { defineType, defineField, defineArrayMember } from 'sanity';
-import { vintedUrl, poshmarkUrl, closetShopUrl, safeExternal } from '../lib/urls';
+import { vintedUrl, closetShopUrl, safeExternal, safeVideoUrl } from '../lib/urls';
 import { SaleStatusInput } from './inventory/SaleStatusInput';
 import { INVENTORY_API_VERSION, isInventorySkuUnique } from './inventory/model';
 const slug = defineField({
@@ -46,6 +54,21 @@ const image = (name: string, label: string) =>
   });
 const url = (name: string, label: string) =>
   defineField({ name, title: label, type: 'url', validation: (r) => r.uri({ scheme: ['https'] }) });
+const videoUrl = (label: string) =>
+  defineField({
+    name: 'videoUrl',
+    title: label,
+    type: 'url',
+    description: 'Use an HTTPS URL or a site-relative path such as /videos/intro.mp4.',
+    validation: (r) =>
+      r
+        .uri({ scheme: ['https'], allowRelative: true })
+        .custom((value) =>
+          !value || safeVideoUrl(value)
+            ? true
+            : 'Use an HTTPS URL or a path beginning with a single /.',
+        ),
+  });
 const currency = (name: string, label: string) =>
   defineField({
     name,
@@ -105,6 +128,19 @@ const body = defineType({
                 title: 'URL',
                 validation: (r) => r.required().uri({ scheme: ['https', 'mailto'] }),
               },
+              defineField({
+                name: 'affiliate',
+                title: 'This is an affiliate recommendation',
+                type: 'boolean',
+                initialValue: false,
+              }),
+              url('affiliateUrl', 'Separate Amazon-generated affiliate URL (optional)'),
+              defineField({
+                name: 'shortLinkVerified',
+                title: 'I verified this Amazon-generated short link and enrolled account',
+                type: 'boolean',
+                initialValue: false,
+              }),
             ],
           },
         ],
@@ -125,6 +161,20 @@ const body = defineType({
   ],
 });
 const articleFields = [
+  defineField({
+    name: 'experienceStatus',
+    title: 'Experience behind this article (optional)',
+    type: 'string',
+    options: {
+      list: [
+        { title: 'Personally tested', value: 'tested' },
+        { title: 'Mannequin-only demonstration', value: 'mannequin' },
+        { title: 'Research / curated, not personally tested', value: 'curated' },
+      ],
+    },
+    description:
+      'State the evidence accurately. A mannequin demonstration cannot establish human comfort, movement or durability.',
+  }),
   title,
   slug,
   defineField({
@@ -155,6 +205,7 @@ const review = defineType({
   title: 'Review',
   type: 'document',
   fields: [
+    ...reviewCatalogFields,
     ...articleFields.map((field) =>
       field.name === 'body'
         ? defineField({
@@ -284,7 +335,7 @@ const review = defineType({
       },
       validation: (r) => r.required(),
     }),
-    url('videoUrl', 'Video URL (authorized HTTPS MP4 or WebM)'),
+    videoUrl('Video URL (authorized MP4 or WebM)'),
     defineField({
       name: 'videoCaptionsUrl',
       title: 'English captions (.vtt path on this site)',
@@ -347,13 +398,18 @@ const review = defineType({
 });
 const product = defineType({
   name: 'product',
-  title: 'Shopping item',
+  title: 'Product',
   type: 'document',
+  preview: { select: { title: 'title', subtitle: 'sku', media: 'photos.0' } },
   fields: [
-    title,
+    ...catalogProductFields,
+    ...reviewWishlistFields,
+    ...amazonProductFields,
+    { ...title, validation: (r) => r.required().max(500) },
     slug,
     defineField({
       name: 'sku',
+      hidden: ({ document }) => catalogSource((document || {}) as CatalogFields) !== 'closet',
       title: 'SKU',
       type: 'string',
       description:
@@ -379,6 +435,7 @@ const product = defineType({
     }),
     defineField({
       name: 'saleStatus',
+      hidden: ({ document }) => catalogSource((document || {}) as CatalogFields) !== 'closet',
       title: 'Sale Status',
       type: 'string',
       initialValue: 'available',
@@ -396,7 +453,8 @@ const product = defineType({
     }),
     defineField({
       name: 'shoppingSection',
-      title: 'Shopping section',
+      title: 'Legacy shopping section',
+      hidden: true,
       type: 'string',
       initialValue: 'closet',
       options: {
@@ -408,57 +466,38 @@ const product = defineType({
       description: 'Existing items without this field remain in My Closet.',
     }),
     defineField({
-      name: 'closetPlatform',
-      title: 'Closet marketplace',
-      type: 'string',
-      initialValue: 'vinted',
-      hidden: ({ document }) => document?.shoppingSection === 'finds',
-      description:
-        'Choose the primary marketplace for public purchase actions and the inventory asking-price total. You may keep links and master prices for both stores. Existing items without a selection remain on Vinted.',
-      options: {
-        list: [
-          { title: 'Vinted', value: 'vinted' },
-          { title: 'Poshmark', value: 'poshmark' },
-        ],
-      },
-      validation: (rule) =>
-        rule.custom(
-          (value) =>
-            !value || ['vinted', 'poshmark'].includes(value) || 'Choose Vinted or Poshmark.',
-        ),
-    }),
-    defineField({
       ...url('purchaseUrl', 'Purchase link'),
       description:
-        'Vinted or Poshmark listing for closet items; retailer product page for curated finds. The master CSV URL column fills this link and selects its marketplace. A blank URL cell preserves existing links.',
+        'Vinted listing for closet items; retailer product page for curated finds. The master CSV URL column fills this link. A blank URL cell preserves existing links.',
       validation: (r) =>
         r.custom((value, context) =>
           !value ||
-          (context.document?.shoppingSection === 'finds'
+          (catalogSource((context.document || {}) as CatalogFields) === 'amazon'
             ? safeExternal(value)
-            : context.document?.closetPlatform === 'poshmark'
-              ? poshmarkUrl(value)
-              : vintedUrl(value))
+            : vintedUrl(value))
             ? true
-            : 'Use an HTTPS retailer URL, or a listing from the selected closet marketplace.',
+            : 'Use an HTTPS retailer URL, or a Vinted item listing.',
         ),
     }),
     defineField({
       name: 'retailer',
       title: 'Retailer name',
       type: 'string',
+      hidden: ({ document }) => !amazonFieldsVisible((document || {}) as CatalogFields),
       description: 'Shown in Shop at [Retailer] buttons for curated finds.',
     }),
     defineField({
       name: 'affiliateLink',
       title: 'Purchase link earns commission',
       type: 'boolean',
+      hidden: ({ document }) => !amazonFieldsVisible((document || {}) as CatalogFields),
       initialValue: false,
     }),
     defineField({
       name: 'personallyTried',
       title: 'Personally tried',
       type: 'boolean',
+      hidden: ({ document }) => !amazonFieldsVisible((document || {}) as CatalogFields),
       initialValue: false,
       description:
         'Select only if you have worn or tested this item. Otherwise curated items say Not yet tried.',
@@ -467,6 +506,7 @@ const product = defineType({
       name: 'availableSizes',
       title: 'Available sizes (curated finds)',
       type: 'array',
+      hidden: ({ document }) => !amazonFieldsVisible((document || {}) as CatalogFields),
       of: [{ type: 'string' }],
       validation: (r) => r.unique(),
     }),
@@ -474,6 +514,7 @@ const product = defineType({
       name: 'priceMaintained',
       title: 'Retailer price is reliably maintained',
       type: 'boolean',
+      hidden: ({ document }) => !amazonFieldsVisible((document || {}) as CatalogFields),
       initialValue: false,
       description:
         'Curated prices and price filters are shown only when this is enabled. Confirm prices at the retailer.',
@@ -527,6 +568,7 @@ const product = defineType({
             rule.custom(productImageResolutionWarning).warning(),
           ],
           fields: [
+            ...productPhotoSourceFields,
             defineField({
               name: 'sourceFilenames',
               title: 'Original import filenames',
@@ -582,6 +624,8 @@ const product = defineType({
     defineField({
       name: 'measurements',
       title: 'Measurements (optional; include units)',
+      description:
+        'Identify whether these are your own body/garment measurements, Shannequin measurements, or seller-reported figures. Do not infer human fit from a mannequin.',
       type: 'text',
       rows: 3,
       validation: (r) => r.max(2000),
@@ -621,17 +665,16 @@ const product = defineType({
       type: 'string',
       readOnly: true,
       description:
-        'Stable SKU association set by the master CSV importer. Keep the CSV SKU stable across both stores.',
+        'Stable SKU association set by the master CSV importer.',
     }),
-    ...(['poshmark', 'vinted'] as const).map((platform) =>
-      defineField({
-        name: `${platform}Price`,
-        title: `${platform === 'poshmark' ? 'Poshmark' : 'Vinted'} price (master inventory)`,
+    defineField({
+        name: 'vintedPrice',
+        title: 'Vinted price (master inventory)',
         type: 'object',
         readOnly: true,
-        hidden: ({ document }) => document?.shoppingSection === 'finds',
+        hidden: ({ document }) => catalogSource((document || {}) as CatalogFields) === 'amazon',
         description:
-          'Price from your master CSV. Blank cells preserve the last stored value. The selected primary marketplace also updates Current listing price.',
+          'Price from your master CSV. Blank cells preserve the last stored value. A filled price also updates Current listing price.',
         fields: [
           defineField({
             name: 'amount',
@@ -642,7 +685,6 @@ const product = defineType({
           currency('currency', 'Currency'),
         ],
       }),
-    ),
     defineField({
       name: 'listingPrice',
       title: 'Current listing price',
@@ -666,20 +708,9 @@ const product = defineType({
       name: 'vintedUrl',
       title: 'External Vinted listing',
       type: 'url',
-      hidden: ({ document }) => document?.shoppingSection === 'finds',
+      hidden: ({ document }) => catalogSource((document || {}) as CatalogFields) === 'amazon',
       validation: (r) =>
         r.custom((v) => (!v || vintedUrl(v) ? true : 'Enter an HTTPS Vinted /items/ listing URL.')),
-    }),
-    defineField({
-      name: 'poshmarkUrl',
-      title: 'External Poshmark listing',
-      type: 'url',
-      description: 'Imported listing URL. Purchase link above can provide a manual override.',
-      hidden: ({ document }) => document?.shoppingSection === 'finds',
-      validation: (rule) =>
-        rule.custom((value) =>
-          !value || poshmarkUrl(value) ? true : 'Use an HTTPS Poshmark /listing/ URL.',
-        ),
     }),
     defineField({ name: 'externalListingId', title: 'External listing ID', type: 'string' }),
     defineField({
@@ -714,7 +745,7 @@ const product = defineType({
   ],
   validation: (r) =>
     r.custom((d) => {
-      if (d?.saleStatus && d.saleStatus !== d.availability)
+      if (d?.catalogSource !== 'amazon' && d?.saleStatus && d.saleStatus !== d.availability)
         return 'Sale Status and listing availability must agree. Re-select Sale Status to synchronize them.';
       if (d?.listingPrice !== undefined && !d.currency) return 'Select the listing currency.';
       if (d?.shoppingSection === 'finds' && (!d.purchaseUrl || !d.retailer))
@@ -780,22 +811,16 @@ const homepage = defineType({
       validation: (rule) => rule.max(40),
     }),
     defineField({ name: 'heroIntro', title: 'Hero introduction', type: 'text', rows: 2 }),
-    image('heroBack', 'Hero outfit photo'),
-    image('heroFront', 'Hero detail photo'),
+    image('heroBack', 'Homepage left photo — always visible'),
+    image('heroFront', 'Homepage right photo — curtain reveal'),
     defineField({ name: 'aboutHeading', title: 'About teaser heading', type: 'string' }),
     defineField({ name: 'aboutIntro', title: 'About teaser copy', type: 'text', rows: 3 }),
     image('aboutImage', 'About teaser photo'),
-    url('videoUrl', 'Homepage video URL'),
+    videoUrl('Homepage video URL'),
     defineField({ name: 'videoTranscript', title: 'Video transcript', type: 'text' }),
     defineField({ name: 'videoCaptionsUrl', title: 'English captions path', type: 'string' }),
     ...requestFields,
   ],
-  validation: (r) =>
-    r.custom((d) =>
-      d?.videoUrl && (!d.videoTranscript || !d.videoCaptionsUrl)
-        ? 'Homepage video needs transcript and captions.'
-        : true,
-    ),
 });
 const about = defineType({
   name: 'aboutPage',
@@ -901,6 +926,7 @@ const settings = defineType({
   title: 'Site settings',
   type: 'document',
   fields: [
+    amazonSettingsField,
     defineField({
       name: 'leadModal',
       title: 'Marketing lead modal',
@@ -975,24 +1001,15 @@ const settings = defineType({
       ...url('vintedShopUrl', 'Vinted shop URL'),
       validation: (rule) =>
         rule.custom((value) =>
-          !value || closetShopUrl(value, 'vinted')
+          !value || closetShopUrl(value)
             ? true
             : 'Use your HTTPS Vinted /member/ profile URL.',
         ),
     }),
     defineField({
-      ...url('poshmarkShopUrl', 'Poshmark closet URL'),
-      validation: (rule) =>
-        rule.custom((value) =>
-          !value || closetShopUrl(value, 'poshmark')
-            ? true
-            : 'Use your HTTPS Poshmark /closet/username URL.',
-        ),
-    }),
-    defineField({
       ...url('reviewWishlistUrl', 'My Review Wishlist URL'),
       description:
-        'Optional full HTTPS view-only link to your Amazon review wishlist. Enables the gifting option in Request a Review. Configure delivery details on Amazon, not here.',
+        'Legacy external wishlist link, retained for reference. Visitors now browse /my-wishlist. Manage items in the Review Wishlist tool or enable Include in My review wishlist on a Curated Find.',
     }),
     defineField({
       name: 'contactEmail',
@@ -1008,6 +1025,7 @@ const settings = defineType({
   ],
 });
 export const schemaTypes = [
+  productCollection,
   seo,
   body,
   review,

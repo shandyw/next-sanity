@@ -1,5 +1,5 @@
 import type { useClient } from 'sanity';
-import type { ImportTarget } from './model';
+import type { ImportTarget } from './targets';
 import type { MasterPhoto, MasterRow } from './master-model';
 
 export interface MasterImageAsset {

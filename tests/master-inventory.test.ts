@@ -2,10 +2,10 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { parseMasterInventory, imageNames, type MasterRecord } from '../lib/master-inventory';
 import { applyMasterRow, previewMaster, type MasterRow } from '../sanity/imports/master-model';
-import type { ImportTarget } from '../sanity/imports/model';
+import type { ImportTarget } from '../sanity/imports/targets';
 import type { useClient } from 'sanity';
 
-const headers = 'SKU,STATUS,NAME,DESCRIPTION,BRAND,SIZE,IMAGES,POSHMARK,VINTED\n';
+const headers = 'SKU,STATUS,NAME,DESCRIPTION,BRAND,SIZE,IMAGES,VINTED\n';
 const record: MasterRecord = {
   sku: 'SH-001',
   status: 'available',
@@ -14,7 +14,6 @@ const record: MasterRecord = {
   brand: '',
   size: '',
   images: [],
-  poshmark: 54,
   vinted: 49,
 };
 const existing = (extra: Partial<ImportTarget> = {}): ImportTarget => ({
@@ -150,30 +149,29 @@ const row = (extra: Partial<MasterRow> = {}): MasterRow => ({
 test('master columns parse multiline descriptions, prices and literal SKU zeros', () => {
   const result = parseMasterInventory(
     headers +
-      'SH-001,Available,Boots,"First line\nSecond line",Ryka,9,front.jpg | back.jpg,$54,$49\n',
+      'SH-001,Available,Boots,"First line\nSecond line",Ryka,9,front.jpg | back.jpg,$49\n',
   );
   assert.deepEqual(result.errors, []);
   assert.equal(result.records[0].sku, 'SH-001');
   assert.equal(result.records[0].description, 'First line\nSecond line');
   assert.deepEqual(result.records[0].images, ['front.jpg', 'back.jpg']);
-  assert.equal(result.records[0].poshmark, 54);
-  assert.equal(parseMasterInventory(headers + '00001,Sold,Item,,,,,0,\n').records[0].sku, '00001');
+  assert.equal(parseMasterInventory(headers + '00001,Sold,Item,,,,,0\n').records[0].sku, '00001');
   assert.equal(
-    parseMasterInventory(headers + '00001,Sold,Item,,,,,0,\n').records[0].status,
+    parseMasterInventory(headers + '00001,Sold,Item,,,,,0\n').records[0].status,
     'sold',
   );
 });
 test('master import rejects duplicate SKUs, ambiguous statuses, malformed prices and remote image fetching', () => {
   assert.match(
     parseMasterInventory(
-      headers + 'SH-001,Available,Boots,,,,,,\nsh-001,Sold,Boots,,,,,,\n',
+      headers + 'SH-001,Available,Boots,,,,,\nsh-001,Sold,Boots,,,,,\n',
     ).errors.join(),
     /appears more than once/,
   );
-  assert.ok(parseMasterInventory(headers + 'SH-001,,Boots,,,,,,\n').errors.length);
+  assert.ok(parseMasterInventory(headers + 'SH-001,,Boots,,,,,\n').errors.length);
   assert.match(
     parseMasterInventory(
-      headers + 'SH-001,Available,Boots,,,,,https://poshmark.com/listing/a,\n',
+      headers + 'SH-001,Available,Boots,,,,,https://example.com/item\n',
     ).errors.join(),
     /must contain a price/,
   );
@@ -181,16 +179,15 @@ test('master import rejects duplicate SKUs, ambiguous statuses, malformed prices
   assert.throws(() => imageNames('../a.jpg'), /filenames/);
   assert.throws(() => parseMasterInventory('SKU,NAME\na,b'), /master columns/);
 });
-test('one SKU creates one draft with separate store prices and unchanged reruns skip', async () => {
+test('one SKU creates one Vinted draft and unchanged reruns skip', async () => {
   const { client, docs } = mock();
   assert.equal(await applyMasterRow(client, row(), 'USD', new Map(), []), 'created');
   assert.equal(docs.length, 1);
   assert.ok(docs[0]._id.startsWith('drafts.master-inventory-'));
   assert.equal(docs[0].sku, 'SH-001');
   assert.equal(docs[0].masterInventorySku, 'SH-001');
-  assert.deepEqual(docs[0].poshmarkPrice, { amount: 54, currency: 'USD' });
   assert.deepEqual(docs[0].vintedPrice, { amount: 49, currency: 'USD' });
-  assert.equal(docs[0].listingPrice, 54);
+  assert.equal(docs[0].listingPrice, 49);
   assert.equal(docs[0].lastSuccessfullyCheckedAt, undefined);
   const rerun = previewMaster([record], structuredClone(docs))[0];
   assert.equal(await applyMasterRow(client, rerun, 'USD', new Map(), []), 'skipped');
@@ -199,11 +196,9 @@ test('one SKU creates one draft with separate store prices and unchanged reruns 
 });
 test('master updates selected fields in drafts while preserving blank fields, URLs, photos and reviews', async () => {
   const original = existing({
-    closetPlatform: 'vinted',
     size: '9M',
     description: 'Existing description',
     photos: [{ asset: { _ref: 'owned-photo' }, crop: { top: 0.1 }, alt: 'Owned' }],
-    poshmarkUrl: 'https://poshmark.com/listing/Boots',
     vintedUrl: 'https://vinted.com/items/123',
     purchaseUrl: 'https://vinted.com/items/123',
     relatedReview: { _ref: 'review1' },
@@ -308,13 +303,26 @@ test('brand references reuse existing labels or create a stable new brand withou
   );
 });
 
-test('legacy items without a marketplace stay on Vinted and master prices do not double-count them', async () => {
+test('legacy items use the Vinted price', async () => {
   const original = existing();
   const { client, docs } = mock([original]);
   await applyMasterRow(client, row({ choice: 'update', target: original }), 'USD', new Map(), []);
-  assert.equal(docs[1].closetPlatform, undefined);
   assert.equal(docs[1].listingPrice, 49);
-  assert.deepEqual(docs[1].poshmarkPrice, { amount: 54, currency: 'USD' });
+});
+
+test('master URL accepts only Vinted item links and strips tracking', () => {
+  const csv = (url: string) =>
+    headers.trimEnd() + ',URL\n' +
+    ['SH-001', 'Available', 'Boots', '', '', '', '', '$49', url].join(',') + '\n';
+  const parsed = parseMasterInventory(csv('https://www.vinted.com/items/123-boots?tracking=1#photo'));
+  assert.deepEqual(parsed.errors, []);
+  assert.equal(parsed.records[0].url, 'https://www.vinted.com/items/123-boots');
+  for (const invalid of [
+    'https://www.vinted.com/member/123',
+    'https://example.com/items/123',
+    'http://www.vinted.com/items/123',
+  ])
+    assert.match(parseMasterInventory(csv(invalid)).errors.join(), /HTTPS Vinted item URL/);
 });
 
 test('photo reruns retain saved crop and alt text; concurrent edits reject the item save', async () => {
@@ -348,123 +356,6 @@ test('photo reruns retain saved crop and alt text; concurrent edits reject the i
     () => applyMasterRow(client, row({ choice: 'update', target: original }), 'USD', new Map(), []),
     /changed after preview/,
   );
-});
-
-test('optional master URL accepts marketplace item links, normalizes tracking, and rejects shop or unsafe URLs', () => {
-  const csv = (url: string) =>
-    headers.trimEnd() +
-    ',URL\n' +
-    ['SH-001', 'Available', 'Boots', '', '', '', '', '$54', '$49', url].join(',') +
-    '\n';
-  const parsed = parseMasterInventory(
-    csv('https://poshmark.com/listing/Boots-123?tracking=example#image'),
-  );
-  assert.deepEqual(parsed.errors, []);
-  assert.equal(parsed.records[0].url, 'https://poshmark.com/listing/Boots-123');
-  assert.equal(
-    parseMasterInventory(csv('https://www.vinted.com/items/123-boots')).records[0].url,
-    'https://www.vinted.com/items/123-boots',
-  );
-  assert.equal(parseMasterInventory(csv('')).records[0].url, undefined);
-  for (const invalid of [
-    'https://poshmark.com/closet/example',
-    'https://www.vinted.com/member/123',
-    'http://poshmark.com/listing/123',
-    'https://evil.example/listing/123',
-    'https://poshmark.com.evil.example/listing/123',
-    'https://user:password@poshmark.com/listing/123',
-  ]) {
-    assert.match(
-      parseMasterInventory(csv(invalid)).errors.join(),
-      /HTTPS Vinted item URL or Poshmark listing URL/,
-    );
-  }
-});
-test('master URL fills Purchase link, selects its marketplace and retains the other marketplace link', async () => {
-  const original = existing({
-    closetPlatform: 'poshmark',
-    poshmarkUrl: 'https://poshmark.com/listing/Original-123',
-    purchaseUrl: 'https://poshmark.com/listing/Original-123',
-    slug: { current: 'keep-item-url' },
-  });
-  const { client, docs } = mock([original]);
-  await applyMasterRow(
-    client,
-    row({
-      record: { ...record, url: 'https://www.vinted.com/items/123-boots?tracking=abc' },
-      choice: 'update',
-      target: original,
-    }),
-    'USD',
-    new Map(),
-    [],
-  );
-  assert.deepEqual(docs[0], original);
-  const draft = docs[1];
-  assert.equal(draft.purchaseUrl, 'https://www.vinted.com/items/123-boots');
-  assert.equal(draft.vintedUrl, draft.purchaseUrl);
-  assert.equal(draft.closetPlatform, 'vinted');
-  assert.equal(draft.poshmarkUrl, original.poshmarkUrl);
-  assert.equal(draft.listingPrice, 49);
-  assert.deepEqual(draft.slug, original.slug);
-  const fresh = mock();
-  await applyMasterRow(
-    fresh.client,
-    row({
-      record: { ...record, poshmark: undefined, url: 'https://poshmark.com/listing/Boots-123' },
-    }),
-    'USD',
-    new Map(),
-    [],
-  );
-  assert.equal(fresh.docs[0].closetPlatform, 'poshmark');
-  assert.equal(fresh.docs[0].poshmarkUrl, 'https://poshmark.com/listing/Boots-123');
-});
-test('changing URL marketplace uses that store price and never carries over another store asking price', async () => {
-  for (const id of ['owned', 'drafts.owned']) {
-    const original = existing({
-      _id: id,
-      closetPlatform: 'poshmark',
-      listingPrice: 54,
-      currency: 'USD',
-    });
-    const { client, docs } = mock([original]);
-    await applyMasterRow(
-      client,
-      row({
-        record: { ...record, vinted: undefined, url: 'https://www.vinted.com/items/123' },
-        choice: 'update',
-        target: original,
-      }),
-      'USD',
-      new Map(),
-      [],
-    );
-    const draft = docs.find((doc) => doc._id === 'drafts.owned')!;
-    assert.equal(draft.closetPlatform, 'vinted');
-    assert.equal(draft.listingPrice, undefined);
-    assert.equal(draft.currency, undefined);
-  }
-  const original = existing({
-    closetPlatform: 'poshmark',
-    listingPrice: 54,
-    currency: 'USD',
-    vintedPrice: { amount: 36, currency: 'EUR' },
-  });
-  const { client, docs } = mock([original]);
-  await applyMasterRow(
-    client,
-    row({
-      record: { ...record, vinted: undefined, url: 'https://www.vinted.com/items/123' },
-      choice: 'update',
-      target: original,
-    }),
-    'USD',
-    new Map(),
-    [],
-  );
-  assert.equal(docs[1].listingPrice, 36);
-  assert.equal(docs[1].currency, 'EUR');
 });
 
 test('previously uploaded filenames are reused without supplying or uploading files again', async () => {
@@ -580,7 +471,7 @@ test('existing image lookup paginates all matching assets and prefers the item g
 
 test('master CSV imports category, brand and condition and reuses labels on reruns', async () => {
   const parsed = parseMasterInventory(
-    'SKU,STATUS,NAME,DESCRIPTION,BRAND,SIZE,IMAGES,POSHMARK,VINTED,Category,Condition\nSH-001,Available,Boots,,New Brand,,,,,Shoes,Like new\n',
+    'SKU,STATUS,NAME,DESCRIPTION,BRAND,SIZE,IMAGES,VINTED,Category,Condition\nSH-001,Available,Boots,,New Brand,,,,Shoes,Like new\n',
   );
   assert.deepEqual(parsed.errors, []);
   assert.equal(parsed.records[0].category, 'Shoes');

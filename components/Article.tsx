@@ -1,3 +1,6 @@
+import { EditorialLink } from './EditorialLink';
+import { AffiliateDisclosure } from './AffiliateDisclosure';
+import { associatesActive, experienceStatus } from '@/lib/amazon';
 import { ReviewArticle } from './ReviewArticle';
 import { stegaClean } from 'next-sanity';
 import { PortableText } from '@portabletext/react';
@@ -9,7 +12,6 @@ import { Video } from './Video';
 import { CardGrid } from './CardGrid';
 import { getDocuments, getSettings } from '@/lib/content';
 import { ProductGrid } from './ProductGrid';
-import { safeExternal } from '@/lib/urls';
 import { siteUrl } from '@/lib/seo';
 export async function Article({
   document: d,
@@ -67,6 +69,7 @@ export async function Article({
           )}
         </p>
       )}
+      <AffiliateDisclosure active={associatesActive(settings)} />
       <div className="review-detail__top">
         <div className="review-detail__content">
           <h2 className="headline-md review-detail__review-title">The review</h2>
@@ -115,16 +118,20 @@ export async function Article({
                 ),
               },
               marks: {
-                link: ({ value, children }) => {
-                  const href = safeExternal(value?.href);
-                  return href ? (
-                    <a href={href} rel="noopener noreferrer">
-                      {children}
-                    </a>
-                  ) : (
-                    <>{children}</>
-                  );
-                },
+                link: ({ value, children }) => (
+                  <EditorialLink
+                    href={value?.href}
+                    affiliate={value?.affiliate === true}
+                    affiliateHref={value?.affiliateUrl}
+                    shortVerified={value?.shortLinkVerified === true}
+                    settings={settings}
+                    sourceId={d._id}
+                    placement="guide"
+                    experience={experienceStatus(d)}
+                  >
+                    {children}
+                  </EditorialLink>
+                ),
               },
             }}
           />

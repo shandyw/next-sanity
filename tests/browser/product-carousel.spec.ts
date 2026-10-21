@@ -6,7 +6,7 @@ let fixture: string;
 test.beforeAll(async () => {
   const result = await build({
     stdin: {
-      contents: `import React from 'react';import {createRoot} from 'react-dom/client';import {ProductGrid} from './components/ProductGrid';const item={_id:'carousel-test',_type:'product',title:'Test jeans',slug:'test-jeans',description:'A pair of jeans.',photos:Array.from({length:8},(_,i)=>({alt:'Jeans view '+(i+1)}))};createRoot(document.getElementById('fixture')).render(<><h1>Product carousel check</h1><ProductGrid items={[item,{...item,_id:'single',title:'Single photo',photos:[item.photos[0]]},{...item,_id:'missing',title:'No photo',photos:[]}]}/></>);`,
+      contents: `import React from 'react';import {createRoot} from 'react-dom/client';import {ProductGrid} from './components/ProductGrid';const item={_id:'carousel-test',_type:'product',title:'Test jeans',slug:'test-jeans',description:'A pair of jeans.',photos:Array.from({length:8},(_,i)=>({alt:'Jeans view '+(i+1)}))};createRoot(document.getElementById('fixture')).render(<><h1>Product carousel check</h1><ProductGrid items={[item,{...item,_id:'single',title:'Single photo',photos:[item.photos[0]]},{...item,_id:'missing',title:'No photo',photos:[]},{...item,_id:'amazon-find',title:'Wishlist blouse',slug:'wishlist-blouse',shoppingSection:'finds',onReviewWishlist:true,personallyTried:false,photos:[],importedImageUrl:'https://m.media-amazon.com/images/I/test.jpg'}]}/></>);`,
       resolveDir: process.cwd(),
       loader: 'tsx',
     },
@@ -20,18 +20,20 @@ test.beforeAll(async () => {
         name: 'isolated-product-images',
         setup(builder) {
           builder.onResolve(
-            { filter: /^(next\/link|next-sanity)$|^\.\/ContentImage$/ },
+            { filter: /^(next\/link|next\/image|next-sanity)$|^\.\/ContentImage$/ },
             (args) => ({ path: args.path, namespace: 'fixture' }),
           );
           builder.onLoad({ filter: /.*/, namespace: 'fixture' }, (args) => ({
             resolveDir: process.cwd(),
             loader: 'tsx',
             contents:
-              args.path === 'next/link'
-                ? `export default function Link(props){return <a {...props}/>}`
-                : args.path === 'next-sanity'
-                  ? `export const stegaClean=value=>value;`
-                  : `export function ContentImage({image,width,height}){return image?<img src='/img/empty.jpg' alt={image.alt} width={width} height={height}/>:<div className='image-placeholder' role='img' aria-label='Photograph awaiting publication'/>;}`,
+              args.path === 'next/image'
+                ? `export default function Image(props){return <img {...props}/>}`
+                : args.path === 'next/link'
+                  ? `export default function Link(props){return <a {...props}/>}`
+                  : args.path === 'next-sanity'
+                    ? `export const stegaClean=value=>value;`
+                    : `export function ContentImage({image,width,height}){return image?<img src='/img/empty.jpg' alt={image.alt} width={width} height={height}/>:<div className='image-placeholder' role='img' aria-label='Photograph awaiting publication'/>;}`,
           }));
         },
       },
@@ -58,6 +60,14 @@ for (const width of [1440, 390]) {
     await page.addScriptTag({ content: fixture });
     const cards = page.locator('.product-card');
     const card = cards.first();
+    await expect(cards.nth(3).getByRole('img')).toHaveAccessibleName(
+      'Photograph awaiting publication',
+    );
+    await expect(cards.nth(3).locator('img')).toHaveCount(0);
+    await expect(cards.nth(3)).toContainText('Curated · Not personally tested');
+    await expect(
+      cards.nth(3).getByRole('link', { name: 'View item', exact: true }),
+    ).toHaveAttribute('href', '/shop/wishlist-blouse');
     const track = card.locator('.card-slider__track');
     const dots = card.locator('.card-slider__dot');
     await expect(card.locator('.card-slider__slide')).toHaveCount(5);
@@ -114,9 +124,9 @@ for (const width of [1440, 390]) {
         .toBeGreaterThan(bounds.width / 2);
       await session.detach();
     }
-    await card.getByRole('button', { name: 'Save Test jeans to wishlist', exact: true }).click();
+    await card.getByRole('button', { name: 'Save item: Test jeans', exact: true }).click();
     await expect(
-      card.getByRole('button', { name: 'Remove Test jeans from wishlist', exact: true }),
+      card.getByRole('button', { name: 'Remove from saved items: Test jeans', exact: true }),
     ).toHaveAttribute('aria-pressed', 'true');
     await expect(page).toHaveURL(/product-carousel-fixture$/);
     for (const dot of await dots.all()) {

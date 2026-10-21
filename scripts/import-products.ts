@@ -65,7 +65,7 @@ async function main() {
       try {
         const existing = client
           ? await client.fetch<ExistingProduct[]>(
-              `*[_type=='product' && ( _id==$id || _id==$draftId || (dataSource=='import' && importSource==$source && externalListingId==$externalId))]{_id,_rev,dataSource,importSource,externalListingId,importEnabled,lastSuccessfullyCheckedAt,shoppingSection,saleStatus,closetPlatform}`,
+              `*[_type=='product' && ( _id==$id || _id==$draftId || (dataSource=='import' && importSource==$source && externalListingId==$externalId))]{_id,_rev,dataSource,importSource,externalListingId,importEnabled,lastSuccessfullyCheckedAt,shoppingSection,catalogSource,saleStatus,importOverrides}`,
               {
                 id,
                 draftId: 'drafts.' + id,
@@ -98,18 +98,29 @@ async function main() {
             console.log(`Record ${index + 1}: ${decision}`);
             continue;
           }
-          if (!dryRun)
+          if (!dryRun) {
+            const document = await client!.getDocument(previous._id);
+            if (!document || document._rev !== previous._rev)
+              throw Error('Item changed; retry after reviewing.');
+            const { _rev, _createdAt, _updatedAt, ...copy } = document;
+            void _rev;
+            void _createdAt;
+            void _updatedAt;
             await client!
-              .patch(previous._id)
-              .ifRevisionId(previous._rev)
-              .set(listingUpdate(r, previous))
+              .transaction()
+              .patch(previous._id, (p) => p.ifRevisionId(previous._rev).set({}))
+              .create({ ...copy, _id: 'drafts.' + previous._id, ...listingUpdate(r, previous) })
               .commit();
+          }
           summary.updated++;
         } else {
           if (!dryRun)
             await client!
               .transaction()
-              .create<ReturnType<typeof createProduct>>(createProduct(envelope.source, r))
+              .create<ReturnType<typeof createProduct>>({
+                ...createProduct(envelope.source, r),
+                _id: 'drafts.' + id,
+              })
               .commit();
           summary.created++;
         }

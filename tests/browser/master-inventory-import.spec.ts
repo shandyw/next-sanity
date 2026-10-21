@@ -26,7 +26,7 @@ test.beforeAll(async () => {
           builder.onLoad({ filter: /.*/, namespace: 'fixture' }, () => ({
             loader: 'tsx',
             contents: `
-    const docs=[{_id:'owned',_rev:'r1',_type:'product',sku:'SH-001',title:'Old boots',shoppingSection:'closet',saleStatus:'sold',availability:'sold',size:'9M',description:'Original description',closetPlatform:'poshmark',poshmarkUrl:'https://poshmark.com/listing/Boots-123',vintedUrl:'https://vinted.com/items/123',photos:[{asset:{_ref:'owned-photo'},alt:'Owned photo'}],relatedReview:{_ref:'review1'}}];window.testDocs=docs;window.testAssets=[];window.uploaded=[];
+    const docs=[{_id:'owned',_rev:'r1',_type:'product',sku:'SH-001',title:'Old boots',shoppingSection:'closet',saleStatus:'sold',availability:'sold',size:'9M',description:'Original description',vintedUrl:'https://vinted.com/items/123',photos:[{asset:{_ref:'owned-photo'},alt:'Owned photo'}],relatedReview:{_ref:'review1'}}];window.testDocs=docs;window.testAssets=[];window.uploaded=[];
     const client={withConfig:()=>client,fetch:async(q,p)=>structuredClone(q.includes("_type=='sanity.imageAsset'")?window.testAssets.filter(a=>a._id>p.cursor&&(p.filenames.includes(a.originalFilename)||p.assetIds.includes(a._id))).sort((a,b)=>a._id.localeCompare(b._id)).slice(0,500):p.cursor!==undefined?docs.filter(d=>d._type===(q.includes("_type=='brand'")?'brand':q.includes("_type=='clothingCategory'")?'clothingCategory':'product')&&d._id>p.cursor).sort((a,b)=>a._id.localeCompare(b._id)):docs.filter(d=>d._type==='product'&&((d.sku||'').toLowerCase()===p.sku||String(d.masterInventorySku||'').toLowerCase()===p.sku||p.ids.includes(d._id)))),getDocuments:async(ids)=>structuredClone(ids.map(id=>docs.find(d=>d._id===id)||null)),create:async(doc)=>{if(window.failImport)throw Error('Permission denied');if(docs.some(d=>d._id===doc._id))throw Error('Duplicate');docs.push({...doc,_rev:'new'});},createIfNotExists:async(doc)=>{if(window.failImport)throw Error('Permission denied');if(!docs.some(d=>d._id===doc._id))docs.push({...doc,_rev:'new'});return doc;},patch:(id)=>{let fields;const patch={ifRevisionId:()=>patch,set:(value)=>{fields=value;return patch;},commit:async()=>{if(window.failImport)throw Error('Permission denied');Object.assign(docs.find(d=>d._id===id),fields,{_rev:'new'});}};return patch;},transaction:()=>{let created;const tx={patch:(id,cb)=>{const patch={ifRevisionId:()=>patch,set:()=>patch};cb(patch);return tx;},create:(doc)=>{created=doc;return tx;},commit:async()=>{await client.create(created);}};return tx;},assets:{upload:async(type,file)=>{window.uploaded.push(file.name);const asset={_id:'image-'+(file.name.startsWith('front')?'a':'b').repeat(40)+'-1080x1350-jpg',originalFilename:file.name};if(!window.testAssets.some(a=>a._id===asset._id))window.testAssets.push(asset);return asset;}}};export const useClient=()=>client;`,
           }));
         },
@@ -35,10 +35,10 @@ test.beforeAll(async () => {
   });
   fixture = result.outputFiles[0].text;
 });
-const headers = 'SKU,STATUS,NAME,DESCRIPTION,BRAND,SIZE,IMAGES,POSHMARK,VINTED\n';
+const headers = 'SKU,STATUS,NAME,DESCRIPTION,BRAND,SIZE,IMAGES,VINTED\n';
 const csv =
   headers +
-  'SH-001,Available,Master boots,,,,,$54,$49\nSH-002,Sold,Master sandals,Owned description,Example Brand,8.5,front.jpg | back.jpg,$40,$35\n';
+  'SH-001,Available,Master boots,,,,,$49\nSH-002,Sold,Master sandals,Owned description,Example Brand,8.5,front.jpg | back.jpg,$35\n';
 async function open(page: import('@playwright/test').Page, width: number, text = csv) {
   await page.setViewportSize({ width, height: 1000 });
   await page.route('**/master-import-fixture', (route) =>
@@ -60,7 +60,7 @@ async function open(page: import('@playwright/test').Page, width: number, text =
   });
 }
 for (const width of [1440, 390])
-  test(`master CSV previews two stores, uploads ordered photos and saves drafts at ${width}px`, async ({
+  test(`master CSV previews Vinted prices, uploads ordered photos and saves drafts at ${width}px`, async ({
     page,
   }) => {
     await open(page, width);
@@ -104,7 +104,6 @@ for (const width of [1440, 390])
       'Status',
       'Category / Brand / Condition / Size',
       'Photos',
-      'Poshmark',
       'Vinted',
       'URL',
       'Decision',
@@ -134,27 +133,25 @@ for (const width of [1440, 390])
       saleStatus: 'sold',
     });
     expect(result.docs.find((d) => d._id === 'drafts.owned')).toMatchObject({
-      title: 'Master boots',
+      title: 'Old boots',
       saleStatus: 'available',
       size: '9M',
       description: 'Original description',
-      poshmarkPrice: { amount: 54, currency: 'USD' },
       vintedPrice: { amount: 49, currency: 'USD' },
       relatedReview: { _ref: 'review1' },
-      poshmarkUrl: 'https://poshmark.com/listing/Boots-123',
     });
     expect(result.uploaded).toEqual(['front.jpg', 'back.jpg']);
     await page.getByRole('button', { name: 'Close', exact: true }).click();
     await expect(page.getByRole('button', { name: 'Import master inventory CSV' })).toBeFocused();
   });
 test('master duplicate SKUs and denied writes report errors without success', async ({ page }) => {
-  await open(page, 1440, headers + 'SH-001,Available,Boots,,,,,,\nsh-001,Sold,Boots,,,,,,\n');
+  await open(page, 1440, headers + 'SH-001,Available,Boots,,,,,\nsh-001,Sold,Boots,,,,,\n');
   await expect(page.getByRole('alert')).toContainText('appears more than once');
   await expect(page.getByRole('button', { name: 'Preview master import' })).toBeDisabled();
   await page.getByLabel('Master inventory CSV', { exact: true }).setInputFiles({
     name: 'inventory.csv',
     mimeType: 'text/csv',
-    buffer: Buffer.from(headers + 'SH-001,Available,Boots,,,,,$54,\n'),
+    buffer: Buffer.from(headers + 'SH-001,Available,Boots,,,,,$49\n'),
   });
   await page.getByRole('button', { name: 'Preview master import' }).click();
   await expect(page.getByRole('status')).toContainText('1 item ready');
@@ -174,7 +171,7 @@ test('master URL previews the listing and saves it to the matching Studio purcha
   const csv =
     headers.trimEnd() +
     ',URL\n' +
-    ['SH-001', 'Available', 'Master boots', '', '', '', '', '$54', '$49', url].join(',') +
+    ['SH-001', 'Available', 'Master boots', '', '', '', '', '$49', url].join(',') +
     '\n';
   await open(page, 1440, csv);
   await page.getByRole('button', { name: 'Preview master import' }).click();
@@ -182,7 +179,7 @@ test('master URL previews the listing and saves it to the matching Studio purcha
   await expect(
     page.getByRole('link', { name: 'Open listing for SH-001 (opens in a new tab)' }),
   ).toHaveAttribute('href', url);
-  await expect(page.getByText('Primary marketplace: Vinted')).toBeVisible();
+  await expect(page.getByText('Vinted listing')).toBeVisible();
   await page.getByRole('checkbox').check();
   await page.getByRole('button', { name: 'Confirm master import (1 changes)' }).click();
   await expect(page.getByRole('status')).toContainText('updated 1');
@@ -192,9 +189,7 @@ test('master URL previews the listing and saves it to the matching Studio purcha
   expect(docs.find((doc) => doc._id === 'drafts.owned')).toMatchObject({
     purchaseUrl: url,
     vintedUrl: url,
-    closetPlatform: 'vinted',
     listingPrice: 49,
-    poshmarkUrl: 'https://poshmark.com/listing/Boots-123',
   });
 });
 
@@ -228,9 +223,12 @@ test('master CSV reuses prior uploads and requests only missing image files', as
   await page.getByRole('button', { name: 'Clear selected photos' }).click();
   await page.getByRole('button', { name: 'Preview master import' }).click();
   await expect(page.getByRole('alert')).toHaveCount(0);
-  await expect(
-    page.getByText('2 existing image assets will be reused.', { exact: false }),
-  ).toBeVisible();
+  await expect(page.getByLabel('Decision for SH-001')).toHaveValue('skip');
+  await expect(page.getByLabel('Decision for SH-002')).toHaveValue('skip');
+  await expect(page.getByText('Unchanged source row; no draft write needed.')).toHaveCount(2);
+  expect(await page.evaluate(() => (window as unknown as { uploaded: string[] }).uploaded)).toEqual(
+    ['back.jpg'],
+  );
 });
 
 test('master category and condition preview connects new labels to draft inventory', async ({
@@ -239,7 +237,7 @@ test('master category and condition preview connects new labels to draft invento
   await open(
     page,
     1440,
-    'SKU,STATUS,NAME,DESCRIPTION,BRAND,SIZE,IMAGES,POSHMARK,VINTED,Category,Condition\nSH-003,Available,New boots,,Fresh Brand,9,,54,,Shoes,Like new\n',
+    'SKU,STATUS,NAME,DESCRIPTION,BRAND,SIZE,IMAGES,VINTED,Category,Condition\nSH-003,Available,New boots,,Fresh Brand,9,,,Shoes,Like new\n',
   );
   await page.getByRole('button', { name: 'Preview master import' }).click();
   await expect(page.getByText('New category label', { exact: true })).toBeVisible();

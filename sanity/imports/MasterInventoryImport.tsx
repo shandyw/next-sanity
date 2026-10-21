@@ -3,8 +3,8 @@
 import { useRef, useState } from 'react';
 import { Box, Button, Card, Dialog, Flex, Select, Stack, Text } from '@sanity/ui';
 import { useClient } from 'sanity';
-import { parseMasterInventory, MASTER_HEADERS, masterListing } from '@/lib/master-inventory';
-import { fetchImportTargets, eligible, type ImportTarget } from './model';
+import { parseMasterInventory, MASTER_HEADERS } from '@/lib/master-inventory';
+import { fetchImportTargets, eligible, type ImportTarget } from './targets';
 import {
   applyMasterRow,
   fetchMasterBrands,
@@ -240,13 +240,12 @@ export function MasterInventoryImport({ onImported }: { onImported: () => void }
           >
             <Stack gap={4}>
               <Text size={1}>
-                Your master sheet manages one item per SKU across Vinted and Poshmark. Preview every
+                Your master sheet manages one item per SKU on Vinted. Preview every
                 change before saving drafts.
               </Text>
               <Text size={1}>
-                Columns: {MASTER_HEADERS.join(', ')}. POSHMARK and VINTED contain asking prices, not
-                listing links. The optional URL column fills Purchase link and selects its
-                marketplace. Blank URL cells keep existing links.
+                Columns: {MASTER_HEADERS.join(', ')}. VINTED contains asking prices, not listing
+                links. The optional URL column fills Purchase link. Blank URL cells keep existing links.
               </Text>
               <label>
                 Master inventory CSV
@@ -380,7 +379,6 @@ export function MasterInventoryImport({ onImported }: { onImported: () => void }
                             'Status',
                             'Category / Brand / Condition / Size',
                             'Photos',
-                            'Poshmark',
                             'Vinted',
                             'URL',
                             'Decision',
@@ -442,11 +440,6 @@ export function MasterInventoryImport({ onImported }: { onImported: () => void }
                                   : 'No photos: add before publishing'}
                             </td>
                             <td style={{ padding: 12 }}>
-                              {row.record.poshmark !== undefined
-                                ? inventoryPrice(row.record.poshmark, currency)
-                                : 'Blank: keep existing'}
-                            </td>
-                            <td style={{ padding: 12 }}>
                               {row.record.vinted !== undefined
                                 ? inventoryPrice(row.record.vinted, currency)
                                 : 'Blank: keep existing'}
@@ -462,12 +455,7 @@ export function MasterInventoryImport({ onImported }: { onImported: () => void }
                                   >
                                     {row.record.url}
                                   </a>
-                                  <p>
-                                    Primary marketplace:{' '}
-                                    {masterListing(row.record.url)?.platform === 'poshmark'
-                                      ? 'Poshmark'
-                                      : 'Vinted'}
-                                  </p>
+                                  <p>Vinted listing</p>
                                 </>
                               ) : (
                                 'Blank: keep existing link'

@@ -1,3 +1,5 @@
+import { AffiliateDisclosure } from './AffiliateDisclosure';
+import { associatesActive } from '@/lib/amazon';
 import { SubmissionForm } from './SubmissionForm';
 import { SocialLinks } from './SocialLinks';
 import type { Settings } from '@/lib/types';
@@ -17,9 +19,13 @@ export function Footer({ demo, settings }: { demo: boolean; settings: Settings }
         <SubmissionForm kind="newsletter" />
       </div>
 
+      <div className="container">
+        <AffiliateDisclosure active={associatesActive(settings)} />
+      </div>
       <div className="container footer-base">
         <p className="body-sm">
-          © {new Date().getFullYear()} CurvyGirlReviews. <a href="/privacy/">Privacy</a>
+          © {new Date().getFullYear()} CurvyGirlReviews. <a href="/privacy/">Privacy</a> ·{' '}
+          <a href="/disclosures">Disclosures</a>
           {demo ? ' | Sample content for design review.' : ''}
         </p>
         <ul className="footer-base__links">
@@ -38,10 +44,9 @@ export function Footer({ demo, settings }: { demo: boolean; settings: Settings }
           <li>
             <a href="/support">Support the Reviews</a>
           </li>
-          {/* <li>
-            <a href="/blog">Blog</a>
-          </li> */}
-
+          <li>
+            <a href="/wishlist">Saved Items</a>
+          </li>
           <li>
             <a
               href="#contactDialog"

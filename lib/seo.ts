@@ -3,7 +3,18 @@ import type { ContentPhoto } from './types';
 import type { Metadata } from 'next';
 import type { DocumentContent } from './types';
 export function siteUrl() {
-  return process.env.SITE_URL ? new URL(process.env.SITE_URL) : undefined;
+  try {
+    const url = process.env.SITE_URL ? new URL(process.env.SITE_URL) : undefined;
+    return url &&
+      !url.username &&
+      !url.password &&
+      (url.protocol === 'https:' ||
+        (process.env.NODE_ENV !== 'production' && url.protocol === 'http:'))
+      ? new URL(url.origin)
+      : undefined;
+  } catch {
+    return undefined;
+  }
 }
 export function pageMetadata(
   title: string,
@@ -15,7 +26,10 @@ export function pageMetadata(
     title,
     description,
     alternates: { canonical: path },
-    robots: noindex ? { index: false, follow: true } : undefined,
+    robots:
+      noindex || (process.env.NODE_ENV === 'production' && !siteUrl())
+        ? { index: false, follow: true }
+        : undefined,
     openGraph: {
       title,
       description,

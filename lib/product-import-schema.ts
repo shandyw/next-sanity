@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { vintedUrl, poshmarkUrl } from './urls';
+import { vintedUrl } from './urls';
 const listingFields = {
   externalListingId: z.string().regex(/^[A-Za-z0-9_-]{1,100}$/),
   title: z.string().trim().min(1).max(160),
@@ -24,26 +24,15 @@ const listingFields = {
     .max(20)
     .optional(),
 };
-export const importRecordSchema = z.union([
-  z
-    .object({
-      ...listingFields,
-      closetPlatform: z.literal('vinted').optional(),
-      vintedUrl: z
-        .string()
-        .refine((value) => Boolean(vintedUrl(value)), 'Use an HTTPS Vinted item URL'),
-    })
-    .strict(),
-  z
-    .object({
-      ...listingFields,
-      closetPlatform: z.literal('poshmark'),
-      poshmarkUrl: z
-        .string()
-        .refine((value) => Boolean(poshmarkUrl(value)), 'Use an HTTPS Poshmark listing URL'),
-    })
-    .strict(),
-]);
+export const importRecordSchema = z
+  .object({
+    ...listingFields,
+    closetPlatform: z.literal('vinted').optional(),
+    vintedUrl: z
+      .string()
+      .refine((value) => Boolean(vintedUrl(value)), 'Use an HTTPS Vinted item URL'),
+  })
+  .strict();
 export const importEnvelopeSchema = z
   .object({
     version: z.literal(1),

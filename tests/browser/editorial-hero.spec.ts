@@ -27,7 +27,7 @@ test.beforeEach(async ({ page }) => {
     scope.heroAnimationCalls = [];
     const animate = Element.prototype.animate;
     Element.prototype.animate = function (frames, options) {
-      if (this.closest('.editorial-hero')) {
+      if (this.closest('.editorial-hero') && !this.closest('.curtain-reveal')) {
         const timing = typeof options === 'object' ? options : { duration: options };
         scope.heroAnimationCalls.push({
           part: this.getAttribute('data-hero-part'),
@@ -45,13 +45,11 @@ test('desktop assembly timings, once-only playback and keyboard CTA', async ({ p
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/');
   const hero = page.locator('.editorial-hero');
-  await expect.poll(() => page.evaluate(() => window.heroAnimationCalls.length)).toBe(6);
+  await expect.poll(() => page.evaluate(() => window.heroAnimationCalls.length)).toBe(4);
   const calls = await page.evaluate(() => window.heroAnimationCalls);
   expect(calls.map(({ part, delay, duration }) => [part, delay, duration])).toEqual([
-    ['main-photo', 80, 550],
     ['eyebrow', 160, 400],
     ['heading', 160, 400],
-    ['small-photo', 220, 500],
     ['description', 450, 350],
     ['action', 450, 350],
   ]);
@@ -71,7 +69,7 @@ test('desktop assembly timings, once-only playback and keyboard CTA', async ({ p
     .toBe(0);
   await page.evaluate(() => scrollTo(0, document.body.scrollHeight));
   await hero.scrollIntoViewIfNeeded();
-  expect(await page.evaluate(() => window.heroAnimationCalls.length)).toBe(6);
+  expect(await page.evaluate(() => window.heroAnimationCalls.length)).toBe(4);
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
   ).toBeTruthy();
@@ -156,7 +154,7 @@ test('without JavaScript the complete composition and real review link remain av
   await expect(hero.getByRole('heading', { level: 1 })).toBeVisible();
   await expect(hero.locator('.editorial-hero__highlight')).toHaveCount(0);
   await expectPrimaryColor(hero.locator('.editorial-hero__emphasis'));
-  await expect(hero.locator('.editorial-hero__photo--main')).toBeVisible();
+  await expect(hero.locator('.curtain-reveal__frames')).toBeVisible();
   const link = hero.getByRole('link', { name: 'Explore the Reviews' });
   await expect(link).toBeVisible();
   await expect(link).toHaveAttribute('href', '/reviews');

@@ -136,6 +136,7 @@ test('stable IDs, manual ownership, reruns, stale snapshots and field ownership'
   assert.deepEqual(Object.keys(listingUpdate(r)).sort(), [
     'availability',
     'currency',
+    'lastImportedAt',
     'lastSuccessfullyCheckedAt',
     'listingPrice',
     'vintedUrl',
@@ -190,10 +191,11 @@ test('implemented editorial tokens meet text and control contrast requirements',
     const [light, dark] = [luminance(a), luminance(b)].sort((x, y) => y - x);
     return (light + 0.05) / (dark + 0.05);
   }
-  assert.ok(contrast(token('on-surface'), token('brand-pink')) >= 4.5);
-  assert.ok(contrast('FFFFFF', token('primary')) >= 4.5);
-  assert.ok(contrast(token('on-surface'), token('secondary-action')) >= 4.5);
-  assert.ok(contrast(token('text-secondary'), token('page-background')) >= 4.5);
+  assert.ok(contrast(token('primary-ink'), token('brand-pink')) >= 4.5);
+  assert.ok(contrast(token('primary-button-ink'), token('primary')) >= 4.5);
+  assert.ok(contrast(token('secondary-ink'), token('secondary-action')) >= 4.5);
+  assert.ok(contrast(token('ink-soft'), token('page-background')) >= 4.5);
+  assert.ok(contrast(token('ink-soft'), token('surface')) >= 4.5);
   assert.ok(contrast(token('link'), token('page-background')) >= 4.5);
   assert.ok(contrast(token('border-control'), token('page-background')) >= 3);
   assert.ok(contrast(token('success'), 'FFFFFF') >= 3);

@@ -18,6 +18,7 @@ export async function EditorialHero({
   scriptAccent,
   mainPhoto,
   smallPhoto,
+  media,
 }: {
   title: string;
   emphasis?: string;
@@ -28,8 +29,9 @@ export async function EditorialHero({
   scriptAccent?: string;
   mainPhoto?: ContentPhoto;
   smallPhoto?: ContentPhoto;
+  media?: ReactNode;
 }) {
-  const images = await getHeroImages(stegaClean(title));
+  const images = media ? [] : await getHeroImages(stegaClean(title));
   const accentIndex =
     emphasis && scriptAccent ? stegaClean(emphasis).indexOf(stegaClean(scriptAccent)) : -1;
   const photo = (image: ContentPhoto | undefined, src: string | undefined, main: boolean) => {
@@ -110,39 +112,41 @@ export async function EditorialHero({
             </a>
           )}
         </div>
-        <div className="editorial-hero__collage">
-          <Image
-            className="editorial-hero__measure editorial-hero__measure--behind"
-            src="/img/tape-behind.png"
-            alt="measuring tape"
-            aria-hidden="true"
-            width={774}
-            height={509}
-            sizes="(max-width: 767px) 95vw, 50vw"
-            loading="eager"
-          />
-          <figure
-            className="editorial-hero__photo editorial-hero__photo--main"
-            data-hero-part="main-photo"
-          >
-            {photo(mainPhoto, images[0], true)}
-          </figure>
-          <figure
-            className="editorial-hero__photo editorial-hero__photo--small"
-            data-hero-part="small-photo"
-          >
-            {photo(smallPhoto, images[1] || images[0], false)}
-          </figure>
-          <Image
-            className="editorial-hero__measure editorial-hero__measure--front"
-            src="/img/tape-front.png"
-            alt="measuring tape"
-            aria-hidden="true"
-            width={223}
-            height={220}
-            sizes="(max-width: 767px) 34vw, 18vw"
-          />
-        </div>
+        {media || (
+          <div className="editorial-hero__collage">
+            <Image
+              className="editorial-hero__measure editorial-hero__measure--behind"
+              src="/img/tape-behind.png"
+              alt="measuring tape"
+              aria-hidden="true"
+              width={774}
+              height={509}
+              sizes="(max-width: 767px) 95vw, 50vw"
+              loading="eager"
+            />
+            <figure
+              className="editorial-hero__photo editorial-hero__photo--main"
+              data-hero-part="main-photo"
+            >
+              {photo(mainPhoto, images[0], true)}
+            </figure>
+            <figure
+              className="editorial-hero__photo editorial-hero__photo--small"
+              data-hero-part="small-photo"
+            >
+              {photo(smallPhoto, images[1] || images[0], false)}
+            </figure>
+            <Image
+              className="editorial-hero__measure editorial-hero__measure--front"
+              src="/img/tape-front.png"
+              alt="measuring tape"
+              aria-hidden="true"
+              width={223}
+              height={220}
+              sizes="(max-width: 767px) 34vw, 18vw"
+            />
+          </div>
+        )}
       </HeroEntrance>
     </section>
   );
