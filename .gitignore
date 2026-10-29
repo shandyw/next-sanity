@@ -4,12 +4,19 @@ node_modules/
 !.env.example
 playwright-report/
 test-results/
-.DS_Store
-*.tsbuildinfo
 
 
 /.pnp
 .pnp.js
+
+#package manager logs
+pnpm-debug.log*
+lerna-debug.log*
+
+#temp files
+*.swp
+*.swo
+*~
 
 # testing
 /coverage
