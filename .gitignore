@@ -9,6 +9,8 @@ test-results/
 /.pnp
 .pnp.js
 
+next-env.d.ts
+
 #package manager logs
 pnpm-debug.log*
 lerna-debug.log*
