@@ -1,7 +1,5 @@
-import { getDocuments, getSettings } from '@/lib/content';
+import { getSettings } from '@/lib/content';
 import { giftListUrl } from '@/lib/urls';
-import { reviewWishlistItems } from '@/lib/catalog';
-import { ProductGrid } from '@/components/ProductGrid';
 import { ExternalLinkIcon } from '@/components/ExternalLinkIcon';
 import { pageMetadata } from '@/lib/seo';
 import { EditorialHero } from '@/components/EditorialHero';
@@ -12,9 +10,8 @@ export const metadata = pageMetadata(
   '/support',
 );
 export default async function Page() {
-  const [settings, products] = await Promise.all([getSettings(), getDocuments('product')]);
+  const settings = await getSettings();
   const wishlist = giftListUrl(settings.reviewWishlistUrl);
-  const wishes = reviewWishlistItems(products);
   return (
     <main id="main" className="container">
       <EditorialHero title="Support the Reviews" intro="Help choose what I try on next." />
@@ -80,26 +77,6 @@ export default async function Page() {
           <span>Gifts are optional and don’t guarantee a review or a positive opinion.</span>
         </p>
       </div>
-      <section id="review-wishlist" aria-labelledby="review-wishlist-title">
-        <h2 id="review-wishlist-title">My Review Wishlist</h2>
-        <p>
-          These are Curated Finds I would like to review. Saving an item does not purchase or
-          reserve it. Gifts never guarantee a review or a positive opinion.
-        </p>
-        {wishes.length ? (
-          <ProductGrid items={wishes} settings={settings} />
-        ) : (
-          <p>
-            No catalog wishlist items to show yet.{' '}
-            {wishlist
-              ? 'Use the Amazon wishlist above for current gift choices.'
-              : 'My Amazon wishlist link will be available here once configured.'}
-          </p>
-        )}
-        <p>
-          <a href="/my-wishlist">Browse all review-wishlist items</a>
-        </p>
-      </section>
     </main>
   );
 }

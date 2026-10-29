@@ -170,7 +170,7 @@ test('homepage uses new composition; interior pages retain the existing hero', a
   await page.goto('/about');
   await expect(page.locator('.curtain-reveal')).toHaveCount(0);
   await expect(page.locator('.editorial-hero__collage')).toHaveCount(1);
-  await expect(page.locator('.editorial-hero__measure')).toHaveCount(2);
+  await expect(page.locator('.editorial-hero__measure')).toHaveCount(0);
 });
 
 test('touch drags horizontally while vertical gestures scroll and cancel capture', async ({

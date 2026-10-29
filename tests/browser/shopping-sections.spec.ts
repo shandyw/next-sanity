@@ -15,6 +15,9 @@ for (const width of [1440, 390]) {
       (await page.locator('.reviews-summary').innerText()).match(/\d+/)![0],
     );
     const sections = page.getByRole('navigation', { name: 'Shopping section' });
+    await expect(sections.locator('img')).toHaveCount(2);
+    await expect(page.getByLabel('Sort by', { exact: true })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Clear filters' })).toHaveCount(0);
     await expect(sections.getByRole('link', { name: /My Closet/ })).toHaveAttribute(
       'aria-current',
       'page',
@@ -43,9 +46,10 @@ for (const width of [1440, 390]) {
       const categoryValue = await checkbox.getAttribute('value');
       await checkbox.check();
       await expect.poll(() => new URL(page.url()).searchParams.get('category')).toBe(categoryValue);
-      const filteredSummary = await page.locator('.reviews-summary').innerText();
+      await expect(page.getByRole('link', { name: 'Clear filters' })).toBeVisible();
+      const filteredSummary = await page.locator('.reviews-summary p').innerText();
       await page.reload();
-      await expect(page.locator('.reviews-summary')).toHaveText(filteredSummary);
+      await expect(page.locator('.reviews-summary p')).toHaveText(filteredSummary);
     } else {
       // Live inventory can legitimately have no published category assignments yet.
       await expect(category.getByText('No options yet.', { exact: true })).toBeVisible();

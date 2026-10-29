@@ -78,7 +78,7 @@ export const getSettings = cache(async (): Promise<Settings> =>
 export async function publishedSitemapDocuments(): Promise<DocumentContent[]> {
   return configured
     ? fetchContent<DocumentContent[]>(
-        `*[_type in ["review","blogPost","product"] && defined(slug.current) && (_type == "product" || (defined(publishedAt) && publishedAt <= now()))] | order(publishedAt desc) ${publicProjection}`,
+        `*[_type in ["review","blogPost"] && defined(slug.current) && defined(publishedAt) && publishedAt <= now()] | order(publishedAt desc) ${publicProjection}`,
         {},
         false,
       )

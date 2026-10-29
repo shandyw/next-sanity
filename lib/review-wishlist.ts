@@ -28,7 +28,7 @@ export function amazonProduct(value?: string) {
   try {
     const url = new URL(value || '');
     const asin = url.pathname
-      .match(/\/(?:dp|gp\/product)\/([a-z0-9]{10})(?:\/|$)/i)?.[1]
+      .match(/\/(?:dp|gp\/product|gp\/aw\/d)\/([a-z0-9]{10})(?:\/|$)/i)?.[1]
       .toUpperCase();
     if (
       url.protocol === 'https:' &&
@@ -143,6 +143,7 @@ export function wishlistDraft(row: WishCsvRow, current?: ReviewWish) {
           catalogSource: 'amazon',
           displayPlacements: ['finds', 'reviewWishlist'],
           reviewProgress: row.receivedQuantity >= row.requestedQuantity ? 'received' : 'wanted',
+          curatedReviewStatus: 'not_reviewed',
           dataSource: 'import',
           importSource: 'amazon-wishlist-csv',
           externalListingId: row.asin,

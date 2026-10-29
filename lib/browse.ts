@@ -12,7 +12,8 @@ export function first(params: SearchParams, key: string) {
 export function archiveUrl(base: string, params: SearchParams, page?: number) {
   const q = new URLSearchParams();
   Object.entries(params).forEach(([k, v]) => {
-    if (k === 'page' || k === 'review' || k === 'min_price' || k === 'max_price') return;
+    if (k === 'page' || k === 'review' || k === 'format' || k === 'min_price' || k === 'max_price')
+      return;
     (Array.isArray(v) ? v : v ? [v] : []).filter(Boolean).forEach((s) => q.append(k, s));
   });
   if (page && page > 1) q.set('page', String(page));
@@ -23,7 +24,6 @@ export function browse(all: DocumentContent[], params: SearchParams, shop = fals
   const categories = values(params, 'category');
   const brands = values(params, 'brand');
   const sizes = values(params, 'size');
-  const formats = values(params, 'format');
   const availability = values(params, 'availability');
   const conditions = values(params, 'condition');
   const retailers = values(params, 'retailer');
@@ -53,7 +53,6 @@ export function browse(all: DocumentContent[], params: SearchParams, shop = fals
       (!conditions.length || conditions.includes(stegaClean(d.condition || ''))) &&
       (!retailers.length || retailers.includes(stegaClean(d.retailer || ''))) &&
       (!tried.length || tried.includes(d.personallyTried === true ? 'yes' : 'no')) &&
-      (!formats.length || formats.includes(d.format || '') || d.format === 'both') &&
       (!availability.length || availability.includes(d.availability || 'unknown'))
     );
   });

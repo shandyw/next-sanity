@@ -172,7 +172,7 @@ function draftCopy(item: ImportTarget) {
 export async function applyMasterRow(
   base: Client,
   row: MasterRow,
-  currency: 'USD' | 'CAD' | 'GBP' | 'EUR',
+  currency: 'USD',
   files: Map<string, File>,
   expectedBrands: ImportTarget[],
   expectedCategories: ImportTarget[] = [],

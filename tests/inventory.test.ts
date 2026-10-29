@@ -95,6 +95,7 @@ test('search, counts, sorting and currency totals apply across full inventory', 
     totals: { USD: 20, GBP: 7 },
   });
   assert.equal(inventoryPrice(20, 'USD'), '$20.00');
+  assert.equal(inventoryPrice(20), '$20.00');
   assert.equal(inventoryPrice(20, 'USD\u200b'), 'Not set');
 });
 test('cursor fetching includes products beyond the first batch', async () => {
@@ -210,7 +211,7 @@ test('deletion guards and removes only the selected draft/published pair in one 
     },
   };
   const client = {
-    fetch: async (q:string) => q.includes('references(') ? [] : docs,
+    fetch: async (q: string) => (q.includes('references(') ? [] : docs),
     transaction: () => transaction,
   } as unknown as InventoryDeleteClient;
   await deleteInventoryItem(client, docs[1]);

@@ -28,15 +28,8 @@ for (const width of [1440, 390, 320]) {
       await expect(hero.getByRole('heading', { level: 1 })).toHaveText(title);
       const images = hero.locator('.editorial-hero__photo img');
       await expect(images).toHaveCount(2);
-      await expect(hero.locator('.editorial-hero__measure')).toHaveCount(2);
-      for (const tape of await hero.locator('.editorial-hero__measure').all()) {
-        await expect(tape).toHaveAttribute('alt', '');
-        await expect(tape).toHaveAttribute('aria-hidden', 'true');
-        await expect(tape).toHaveCSS('pointer-events', 'none');
-      }
-      await expect(hero.locator('.editorial-hero__measure--behind')).toHaveCSS('z-index', '0');
+      await expect(hero.locator('.editorial-hero__measure')).toHaveCount(0);
       await expect(hero.locator('.editorial-hero__photo--small')).toHaveCSS('z-index', '2');
-      await expect(hero.locator('.editorial-hero__measure--front')).toHaveCSS('z-index', '3');
       const bounds = await hero.boundingBox();
       for (const frame of await hero.locator('.editorial-hero__photo').all()) {
         await expect(frame).toHaveCSS('padding', '7px');

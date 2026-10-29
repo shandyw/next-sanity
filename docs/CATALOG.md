@@ -1,5 +1,7 @@
 # Catalog operations and migration
 
+> Historical catalog documentation. Phase 2B uses Reviews, Finds, Looks, and a Vinted-only closet link. See [Phase 2B status](PHASE-2B.md) for current behavior.
+
 The existing `product` type remains the catalog. Permanent identity is the Sanity document ID (drafts share their published ID); IDs, slugs, saved-item IDs and review references are preserved. Do not recreate an existing item to change its placement.
 
 ## Terminology and routes

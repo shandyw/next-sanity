@@ -16,8 +16,10 @@ export async function EditorialHero({
   disclaimer,
   cta,
   scriptAccent,
+  layout = 'portrait',
   mainPhoto,
   smallPhoto,
+  landscapePhoto,
   media,
 }: {
   title: string;
@@ -27,17 +29,23 @@ export async function EditorialHero({
   disclaimer?: ReactNode;
   cta?: { label: string; href: string };
   scriptAccent?: string;
+  layout?: 'portrait' | 'landscape';
   mainPhoto?: ContentPhoto;
   smallPhoto?: ContentPhoto;
+  landscapePhoto?: ContentPhoto;
   media?: ReactNode;
 }) {
-  const images = media ? [] : await getHeroImages(stegaClean(title));
+  const landscape =
+    !media &&
+    layout === 'landscape' &&
+    Boolean(landscapePhoto?.asset?._ref || landscapePhoto?.demoSrc);
+  const images = media || landscape ? [] : await getHeroImages(stegaClean(title));
   const accentIndex =
     emphasis && scriptAccent ? stegaClean(emphasis).indexOf(stegaClean(scriptAccent)) : -1;
   const photo = (image: ContentPhoto | undefined, src: string | undefined, main: boolean) => {
     const sizes = main ? '(max-width: 767px) 58vw, 30vw' : '(max-width: 767px) 49vw, 25vw';
     if (image?.asset?._ref)
-      return <ContentImage image={image} width={900} height={1100} sizes={sizes} priority />;
+      return <ContentImage image={image} width={900} height={1500} sizes={sizes} priority />;
     // Pool photographs are decorative editorial imagery, not photographs of the reviewed item.
     if (src)
       return (
@@ -57,7 +65,7 @@ export async function EditorialHero({
   };
   return (
     <section
-      className={`editorial-hero${emphasis ? ' editorial-hero--emphasized' : ''}`}
+      className={`editorial-hero${emphasis ? ' editorial-hero--emphasized' : ''}${landscape ? ' editorial-hero--landscape' : ''}`}
       aria-labelledby="heroHeading"
     >
       <HeroEntrance>
@@ -113,38 +121,39 @@ export async function EditorialHero({
           )}
         </div>
         {media || (
-          <div className="editorial-hero__collage">
-            <Image
-              className="editorial-hero__measure editorial-hero__measure--behind"
-              src="/img/tape-behind.png"
-              alt="measuring tape"
-              aria-hidden="true"
-              width={774}
-              height={509}
-              sizes="(max-width: 767px) 95vw, 50vw"
-              loading="eager"
-            />
-            <figure
-              className="editorial-hero__photo editorial-hero__photo--main"
-              data-hero-part="main-photo"
-            >
-              {photo(mainPhoto, images[0], true)}
-            </figure>
-            <figure
-              className="editorial-hero__photo editorial-hero__photo--small"
-              data-hero-part="small-photo"
-            >
-              {photo(smallPhoto, images[1] || images[0], false)}
-            </figure>
-            <Image
-              className="editorial-hero__measure editorial-hero__measure--front"
-              src="/img/tape-front.png"
-              alt="measuring tape"
-              aria-hidden="true"
-              width={223}
-              height={220}
-              sizes="(max-width: 767px) 34vw, 18vw"
-            />
+          <div
+            className={`editorial-hero__collage${landscape ? ' editorial-hero__collage--landscape' : ''}`}
+          >
+            {landscape ? (
+              <figure
+                className="editorial-hero__photo editorial-hero__photo--landscape"
+                data-hero-part="main-photo"
+              >
+                <ContentImage
+                  image={landscapePhoto}
+                  width={1400}
+                  height={1000}
+                  preserveFullImage
+                  sizes="(max-width: 767px) 90vw, 52vw"
+                  priority
+                />
+              </figure>
+            ) : (
+              <>
+                <figure
+                  className="editorial-hero__photo editorial-hero__photo--main"
+                  data-hero-part="main-photo"
+                >
+                  {photo(mainPhoto, images[0], true)}
+                </figure>
+                <figure
+                  className="editorial-hero__photo editorial-hero__photo--small"
+                  data-hero-part="small-photo"
+                >
+                  {photo(smallPhoto, images[1] || images[0], false)}
+                </figure>
+              </>
+            )}
           </div>
         )}
       </HeroEntrance>

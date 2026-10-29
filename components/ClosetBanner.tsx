@@ -4,23 +4,28 @@ import type { Settings } from '@/lib/types';
 import { closetShopUrl } from '@/lib/urls';
 import { ExternalLinkIcon } from './ExternalLinkIcon';
 
-export function ClosetBanner({ settings, shopUrl }: { settings: Settings; shopUrl?: string }) {
+export function ClosetBanner({
+  settings,
+  shopUrl,
+  headingLevel = 'h2',
+}: {
+  settings: Settings;
+  shopUrl?: string;
+  headingLevel?: 'h1' | 'h2';
+}) {
   const vinted = closetShopUrl(stegaClean(settings.vintedShopUrl || shopUrl));
+  const Heading = headingLevel;
 
   return (
     <section className="closet-banner" aria-labelledby="closet-banner-title">
       <div className="closet-banner__copy">
         <p className="closet-banner__eyebrow">Shop my closet</p>
-        <h2 id="closet-banner-title">
-          Great finds.
-          <br />
-          Second chances.
-        </h2>
-        <p>Shop clothes, shoes &amp; accessories from my personal closet.</p>
+        <Heading id="closet-banner-title">Shop My Closet</Heading>
+        <p>I sell clothing, shoes, and accessories from my personal closet on Vinted.</p>
         {vinted && (
           <div className="closet-banner__actions">
             <a className="btn btn-ghost" href={vinted} target="_blank" rel="noopener noreferrer">
-              My Vinted Closet <ExternalLinkIcon />
+              Shop My Vinted Closet <ExternalLinkIcon />
               <span className="visually-hidden"> (opens in a new tab)</span>
             </a>
           </div>

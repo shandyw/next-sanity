@@ -1,5 +1,7 @@
 # Authorized product imports
 
+> Retired in Phase 2B. Do not import legacy product inventory or Amazon wishlist rows. Manage Amazon Finds and Looks directly in Studio; Vinted owns closet inventory. See [Phase 2B status](PHASE-2B.md).
+
 No scraper, private Vinted API, or server-side image downloader is implemented. Frontend components read normalized Sanity product documents regardless of their source. Manual products work independently.
 
 Use JSON with `version: 1`, a stable lowercase `source` key identifying your authorized supplier, and `products`. See `products.example.json` (illustrative only; replace every sample value). Each record requires:
@@ -9,7 +11,7 @@ Use JSON with `version: 1`, a stable lowercase `source` key identifying your aut
 | externalListingId          | Stable supplier ID, 1–100 letters/digits/underscores/hyphens                      |
 | title                      | 1–160 characters                                                                  |
 | listingPrice               | Finite number >= 0                                                                |
-| currency                   | USD, GBP, EUR, CAD, AUD, PLN, CZK, SEK, DKK                                       |
+| currency (optional)        | USD only; omitted values default to USD                                           |
 | availability               | available, reserved, sold, unknown                                                |
 | vintedUrl (Vinted records) | HTTPS allowlisted Vinted domain, `/items/<numeric-id>` path; tracking is stripped |
 | lastSuccessfullyCheckedAt  | ISO timestamp including timezone; no future timestamps                            |
@@ -38,7 +40,7 @@ In Studio, choose **Physical closet inventory** for a closet product. Set **Site
 
 ## Master inventory CSV in Studio (current workflow)
 
-Open **Studio → Inventory → Import master inventory CSV**. Required columns are `SKU, STATUS, NAME, DESCRIPTION, BRAND, SIZE, IMAGES, VINTED`. Optional columns are `URL, CATEGORY, CONDITION`. See [the example CSV](master-inventory.example.csv). One SKU represents one physical item. The VINTED column contains its asking price, not a URL. A blank price preserves the saved price. URL accepts an individual HTTPS Vinted `/items/` link; it updates Purchase link and External Vinted listing. A blank URL preserves existing links. Shop/profile URLs and other hosts are rejected, and tracking parameters are stripped. Choose the file currency explicitly in the import dialog.
+Open **Studio → Inventory → Import master inventory CSV**. Required columns are `SKU, STATUS, NAME, DESCRIPTION, BRAND, SIZE, IMAGES, VINTED`. Optional columns are `URL, CATEGORY, CONDITION`. See [the example CSV](master-inventory.example.csv). One SKU represents one physical item. The VINTED column contains its USD asking price, not a URL. A blank price preserves the saved price. URL accepts an individual HTTPS Vinted `/items/` link; it updates Purchase link and External Vinted listing. A blank URL preserves existing links. Shop/profile URLs and other hosts are rejected, and tracking parameters are stripped.
 
 The preview matches SKUs, checks image filenames and shows what will change. Confirming creates or updates drafts only; review each draft and publish it in Studio. Missing CSV rows never delete or mark products sold.
 
@@ -56,7 +58,7 @@ Files are uploaded using your authenticated Studio client **only after confirmat
 
 ### Review, matching and safe reruns
 
-1. Upload the master CSV (up to 10 MB / 10,000 items), choose currency, and select any referenced photo files.
+1. Upload the master CSV (up to 10 MB / 10,000 items) and select any referenced photo files. Prices are in USD.
 2. Click **Preview master import**. File validation and preview do not write or upload anything. Duplicate CSV SKUs, invalid statuses, bad prices, unresolved image filenames, and duplicate/unpublished brand labels need fixing first.
 3. Review every preview page. Exact SKUs/master identities match existing items, deduplicating draft/published pairs in favor of drafts. Older imported items with matching external IDs are suggestions: select **Match** explicitly to adopt the master SKU while retaining their document IDs, links, images and review relationships. Never choose Create new when a row refers to an existing physical item. Duplicate stored SKUs and excluded/disabled items default to Skip and cannot be overwritten.
 4. Confirm the checkbox and **Confirm master import**. Filled master fields become authoritative for the selected items. Item changes are draft-only; new shared brand labels are created directly after confirmation so references resolve. No product is automatically published.

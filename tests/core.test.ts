@@ -62,6 +62,13 @@ test('invalid pages clamp and empty states stay deterministic', () => {
     '/shop?category=shoes',
   );
 });
+test('removed Format filter no longer changes review results or archive links', () => {
+  assert.equal(browse(collection, { format: 'video' }).count, collection.length);
+  assert.equal(
+    archiveUrl('/reviews', { format: 'video', category: 'jeans' }),
+    '/reviews?category=jeans',
+  );
+});
 test('shop availability and historical reviewed prices use separate fields', () => {
   const d: DocumentContent = {
     ...collection[0],
@@ -85,10 +92,12 @@ const record = {
 };
 test('import validates IDs, prices, URLs, and rejects unknown editorial fields', () => {
   assert.ok(importRecordSchema.safeParse(record).success);
+  assert.equal(importRecordSchema.parse({ ...record, currency: undefined }).currency, 'USD');
   for (const change of [
     { vintedUrl: 'http://127.0.0.1/private' },
     { vintedUrl: 'https://vinted.com.evil.test/items/1' },
     { listingPrice: -1 },
+    { currency: 'GBP' },
     { externalListingId: '../bad' },
     { body: 'overwrite review' },
     { lastSuccessfullyCheckedAt: '2099-01-01T00:00:00Z' },

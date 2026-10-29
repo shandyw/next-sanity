@@ -22,11 +22,7 @@ export function ProductCard({
   const price = shoppingPrice(d);
   const detailUrl = `/shop/${encodeURIComponent(stegaClean(d.slug))}`;
   const hasClosetLink =
-    !finds &&
-    !d.demo &&
-    Boolean(
-      closetShopUrl(stegaClean(settings?.vintedShopUrl)),
-    );
+    !finds && !d.demo && Boolean(closetShopUrl(stegaClean(settings?.vintedShopUrl)));
   const brand = d.brand?.title?.trim();
   const description = productDescription(d);
   const photos = productPhotos(d).slice(0, 5);
@@ -59,21 +55,21 @@ export function ProductCard({
       </p>
       {finds && <p className="body-sm product-experience">{experienceLabel(d)}</p>}
       {description && <p className="product-card__description">{description}</p>}
-      {finds && price !== undefined && d.currency && (
+      {finds && price !== undefined && (
         <p>
           Retailer price:{' '}
           {new Intl.NumberFormat('en', {
             style: 'currency',
-            currency: stegaClean(d.currency),
+            currency: stegaClean(d.currency || 'USD'),
           }).format(price)}
         </p>
       )}
       <div className="product-card__actions">
-        {hasClosetLink && (
+        {/* {hasClosetLink && (
           <p>
             <ClosetShopLink product={d} settings={settings} />
           </p>
-        )}
+        )} */}
         <Link className="btn btn-accent" href={detailUrl}>
           View item <ArrowIcon />
         </Link>

@@ -2,6 +2,14 @@ import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import './globals.css';
 import { siteUrl } from '@/lib/seo';
+const bodyFont = localFont({
+  src: '../node_modules/@fontsource-variable/manrope/files/manrope-latin-wght-normal.woff2',
+  variable: '--font-manrope',
+  weight: '200 800',
+  style: 'normal',
+  display: 'swap',
+  preload: true,
+});
 const editorialSerif = localFont({
   src: '../public/fonts/lora/lora-latin-600-normal.woff2',
   variable: '--font-editorial-serif',
@@ -27,7 +35,7 @@ export const metadata: Metadata = {
 };
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${editorialSerif.variable} ${editorialScript.variable}`}>
+    <html lang="en" className={`${bodyFont.variable} ${editorialSerif.variable} ${editorialScript.variable}`}>
       <body>{children}</body>
     </html>
   );

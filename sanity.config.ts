@@ -1,13 +1,8 @@
 'use client';
-import { DeleteProductAction } from './sanity/catalog/DeleteProductAction';
-import { ProductsTool } from './sanity/catalog/ProductsTool';
-import { ReviewWishlistTool } from './sanity/review-wishlist/ReviewWishlistTool';
 import { defineConfig } from 'sanity';
 import { presentationTool } from 'sanity/presentation';
 import { structureTool } from 'sanity/structure';
 import { schemaTypes, singletonTypes } from './sanity/schema';
-import { InventoryTool } from './sanity/inventory/InventoryTool';
-import { PriceDocumentAction } from './sanity/pricing/PricingPanel';
 export default defineConfig({
   name: 'curvygirlreviews',
   title: 'CurvyGirlReviews',
@@ -15,11 +10,6 @@ export default defineConfig({
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || '',
   basePath: '/studio',
   auth: { loginMethod: 'token' },
-  tools: [
-    { name: 'products', title: 'Products', component: ProductsTool },
-    { name: 'inventory', title: 'Inventory', component: InventoryTool },
-    { name: 'review-wishlist', title: 'Review Wishlist', component: ReviewWishlistTool },
-  ],
   plugins: [
     presentationTool({
       previewUrl: {
@@ -30,84 +20,90 @@ export default defineConfig({
     structureTool({
       structure: (S) =>
         S.list()
-          .title('Content')
+          .title('CurvyGirlReviews')
           .items([
             S.listItem()
-              .title('Homepage')
-              .child(S.document().schemaType('homepage').documentId('homepage')),
-            S.listItem()
-              .title('About page')
-              .child(S.document().schemaType('aboutPage').documentId('aboutPage')),
-            S.listItem()
-              .title('Site settings')
-              .child(S.document().schemaType('siteSettings').documentId('siteSettings')),
-            S.listItem()
-              .title('Products')
+              .title('Content')
               .child(
                 S.list()
-                  .title('Products')
+                  .title('Content')
+                  .items([
+                    S.documentTypeListItem('review').title('Reviews'),
+                    S.documentTypeListItem('look').title('Shop the Looks'),
+                    S.documentTypeListItem('blogPost').title('Blog Posts'),
+                  ]),
+              ),
+            S.listItem()
+              .title('Amazon Finds')
+              .child(
+                S.list()
+                  .title('Amazon Finds')
                   .items([
                     S.listItem()
-                      .title('All Products')
-                      .child(S.documentTypeList('product').title('All Products')),
+                      .title('Quick Add Find')
+                      .child(
+                        S.documentTypeList('find')
+                          .title('Quick Add Find')
+                          .initialValueTemplates([S.initialValueTemplateItem('quick-add-find')]),
+                      ),
+                    S.documentTypeListItem('find').title('All Finds'),
                     ...[
+                      ['Not Tested', 'coalesce(experienceStatus, "notTested") == "notTested"'],
+                      ['Received — Needs Testing', 'experienceStatus == "received"'],
+                      ['Tested', 'experienceStatus == "tested"'],
                       [
-                        'My Closet',
-                        'catalogSource == "closet" || (!defined(catalogSource) && shoppingSection != "finds")',
+                        'Needs Attention',
+                        '!defined(title) || !defined(slug.current) || !defined(category) || (!defined(amazonUrl) && !defined(affiliateUrl)) || (experienceStatus in ["received", "tested"] && !defined(acquisitionSource)) || count(productImages[approvalStatus != "approved" || sourceKind == "unverified"]) > 0 || count(editorialImages[approvalStatus != "approved" || sourceKind == "unverified"]) > 0',
                       ],
-                      [
-                        'Curated Finds',
-                        '"finds" in displayPlacements || (!defined(displayPlacements) && shoppingSection == "finds")',
-                      ],
-                      [
-                        'My Review Wishlist',
-                        '"reviewWishlist" in displayPlacements || (!defined(displayPlacements) && onReviewWishlist == true)',
-                      ],
-                      ['Archived', 'archived == true'],
                     ].map(([title, filter]) =>
                       S.listItem()
                         .title(title)
                         .child(
-                          S.documentTypeList('product')
+                          S.documentTypeList('find')
                             .title(title)
-                            .filter(`_type == "product" && (${filter})`),
+                            .filter(`_type == "find" && (${filter})`),
                         ),
                     ),
                   ]),
               ),
-            S.divider(),
-            ...S.documentTypeListItems().filter(
-              (i) => !singletonTypes.has(i.getId() || '') && i.getId() !== 'product',
-            ),
+            S.listItem()
+              .title('Website')
+              .child(
+                S.list()
+                  .title('Website')
+                  .items([
+                    S.listItem()
+                      .title('Homepage')
+                      .child(S.document().schemaType('homepage').documentId('homepage')),
+                    S.listItem()
+                      .title('About page')
+                      .child(S.document().schemaType('aboutPage').documentId('aboutPage')),
+                    S.listItem()
+                      .title('Site settings')
+                      .child(S.document().schemaType('siteSettings').documentId('siteSettings')),
+                    S.divider(),
+                    S.documentTypeListItem('clothingCategory').title('Clothing categories'),
+                    S.documentTypeListItem('brand').title('Brands'),
+                    S.documentTypeListItem('blogCategory').title('Blog categories'),
+                    S.documentTypeListItem('author').title('Authors'),
+                  ]),
+              ),
           ]),
     }),
   ],
   schema: {
     types: schemaTypes,
     templates: (templates) => [
-      ...templates.filter((t) => !singletonTypes.has(t.schemaType)),
+      ...templates.filter(
+        (t) =>
+          !singletonTypes.has(t.schemaType) &&
+          !['product', 'productCollection'].includes(t.schemaType),
+      ),
       {
-        id: 'review-wishlist-product',
-        title: 'Amazon item for My Review Wishlist',
-        schemaType: 'product',
-        value: {
-          shoppingSection: 'finds',
-          catalogSource: 'amazon',
-          displayPlacements: ['finds', 'reviewWishlist'],
-          reviewProgress: 'wanted',
-          onReviewWishlist: true,
-          retailer: 'Amazon',
-          affiliateLink: false,
-          personallyTried: false,
-          experienceStatus: 'curated',
-          contentReviewStatus: 'needs_review',
-          indexingIntent: 'noindex',
-          priority: 'medium',
-          requestedQuantity: 1,
-          receivedQuantity: 0,
-          availability: 'available',
-          saleStatus: 'available',
-        },
+        id: 'quick-add-find',
+        title: 'Quick Add Find',
+        schemaType: 'find',
+        value: { experienceStatus: 'notTested' },
       },
     ],
   },
@@ -115,13 +111,6 @@ export default defineConfig({
     actions: (actions, context) =>
       singletonTypes.has(context.schemaType)
         ? actions.filter((a) => !['delete', 'duplicate', 'unpublish'].includes(a.action || ''))
-        : context.schemaType === 'product'
-          ? [
-              ...actions.map((action) =>
-                action.action === 'delete' ? DeleteProductAction : action,
-              ),
-              PriceDocumentAction,
-            ]
-          : actions,
+        : actions,
   },
 });

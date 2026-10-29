@@ -8,17 +8,31 @@ import { RequestBanner } from '@/components/RequestBanner';
 import { Video } from '@/components/Video';
 import { pageMetadata } from '@/lib/seo';
 import { ArrowIcon } from '@/components/ArrowIcon';
+import Link from 'next/link';
+import { getLooks, lookImage, lookOccasionLabel } from '@/lib/looks';
+import { getSettings } from '@/lib/content';
+import { ClosetBanner } from '@/components/ClosetBanner';
+import { WishlistButton } from '@/components/WishlistButton';
 export const metadata = pageMetadata(
   'Real Curves. Unfiltered Reviews.',
   'Honest plus-size fashion reviews, clothing finds, and review requests.',
   '/',
 );
 export default async function Home() {
-  const [content, reviews, about] = await Promise.all([
+  const [content, reviews, about, looks, settings] = await Promise.all([
     getContent('homepage'),
     getDocuments('review'),
     getContent('aboutPage'),
+    getLooks(),
+    getSettings(),
   ]);
+  const categories = [
+    ...new Map(
+      reviews
+        .flatMap((review) => review.categories || [])
+        .map((category) => [category.slug || category._id, category]),
+    ).values(),
+  ].slice(0, 8);
   return (
     <main id="main">
       <EditorialHero
@@ -56,6 +70,55 @@ export default async function Home() {
       />
 
       <LatestVerdicts reviews={reviews} />
+
+      <section className="container home-looks" aria-labelledby="home-looks-heading">
+        <div className="home-section-heading">
+          <h2 id="home-looks-heading">Shop the Looks</h2>
+          <Link className="text-link" href="/shop">
+            Browse all Looks →
+          </Link>
+        </div>
+        {looks.length ? (
+          <div className="look-grid">
+            {looks.slice(0, 3).map((look) => (
+              <article className="look-card" key={look._id}>
+                <Link
+                  className="look-card__image"
+                  href={`/looks/${encodeURIComponent(look.slug)}`}
+                  aria-label={`View ${look.title}`}
+                >
+                  <ContentImage image={lookImage(look)} width={720} height={900} />
+                </Link>
+                <div className="look-card__copy">
+                  <WishlistButton id={look._id} title={look.title} />
+                  <p className="eyebrow">{lookOccasionLabel(look.occasion)}</p>
+                  <h3>
+                    <Link href={`/looks/${encodeURIComponent(look.slug)}`}>{look.title}</Link>
+                  </h3>
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <p>Outfit stories are coming soon.</p>
+        )}
+      </section>
+
+      {categories.length > 0 && (
+        <section className="container home-categories" aria-labelledby="home-categories-heading">
+          <h2 id="home-categories-heading">Browse by Category</h2>
+          <div className="look-filters">
+            {categories.map((category) => (
+              <Link
+                key={category._id}
+                href={`/reviews?category=${encodeURIComponent(category.slug || category._id)}`}
+              >
+                {category.title}
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       <section className="about" id="about" aria-labelledby="aboutHeading">
         <div className="container about__inner">
@@ -109,6 +172,16 @@ export default async function Home() {
       )}
 
       <Shannequin image={about.shannequinImage} />
+      <div className="container home-closet">
+        <ClosetBanner settings={settings} />
+      </div>
+      <section className="container home-support" aria-labelledby="home-support-heading">
+        <h2 id="home-support-heading">Support the Reviews</h2>
+        <p>Help choose what I try on next or visit my Amazon gift wishlist.</p>
+        <Link className="btn btn-accent" href="/support">
+          Ways to support
+        </Link>
+      </section>
       <RequestBanner content={content} />
     </main>
   );

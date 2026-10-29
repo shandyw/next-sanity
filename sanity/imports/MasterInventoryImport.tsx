@@ -21,7 +21,6 @@ import {
 } from './master-images';
 import { INVENTORY_API_VERSION, inventoryPrice, publishedId } from '../inventory/model';
 
-type Currency = 'USD' | 'CAD' | 'GBP' | 'EUR';
 const pageSize = 25;
 export function MasterInventoryImport({ onImported }: { onImported: () => void }) {
   const client = useClient({ apiVersion: INVENTORY_API_VERSION });
@@ -30,7 +29,7 @@ export function MasterInventoryImport({ onImported }: { onImported: () => void }
   const [open, setOpen] = useState(false);
   const [csv, setCsv] = useState('');
   const [files, setFiles] = useState<Map<string, File>>(new Map());
-  const [currency, setCurrency] = useState<Currency>('USD');
+  const currency = 'USD';
   const [rows, setRows] = useState<MasterRow[]>([]);
   const [targets, setTargets] = useState<ImportTarget[]>([]);
   const [imageAssets, setImageAssets] = useState<MasterImageAsset[]>([]);
@@ -240,12 +239,13 @@ export function MasterInventoryImport({ onImported }: { onImported: () => void }
           >
             <Stack gap={4}>
               <Text size={1}>
-                Your master sheet manages one item per SKU on Vinted. Preview every
-                change before saving drafts.
+                Your master sheet manages one item per SKU on Vinted. Preview every change before
+                saving drafts.
               </Text>
               <Text size={1}>
                 Columns: {MASTER_HEADERS.join(', ')}. VINTED contains asking prices, not listing
-                links. The optional URL column fills Purchase link. Blank URL cells keep existing links.
+                links. The optional URL column fills Purchase link. Blank URL cells keep existing
+                links.
               </Text>
               <label>
                 Master inventory CSV
@@ -255,23 +255,6 @@ export function MasterInventoryImport({ onImported }: { onImported: () => void }
                   disabled={busy}
                   onChange={(event) => void upload(event.currentTarget.files?.[0])}
                 />
-              </label>
-              <label>
-                Currency for prices in this file
-                <Select
-                  value={currency}
-                  disabled={busy}
-                  onChange={(event) => {
-                    invalidate();
-                    setCurrency(event.currentTarget.value as Currency);
-                  }}
-                >
-                  {['USD', 'CAD', 'GBP', 'EUR'].map((value) => (
-                    <option key={value} value={value}>
-                      {value}
-                    </option>
-                  ))}
-                </Select>
               </label>
               <label>
                 Photo files (optional)

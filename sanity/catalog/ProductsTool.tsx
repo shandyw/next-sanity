@@ -14,14 +14,16 @@ import {
   catalogPlacements,
   catalogIssues,
   closetStatus,
+  isCuratedFind,
+  curatedReviewStatus,
   reviewProgress,
 } from '../../lib/catalog';
 import type { DocumentContent } from '../../lib/types';
 import { saveCatalogDraft } from './model';
-type Item = DocumentContent & { _rev: string; _published: boolean; lastImportedAt?: string };
+type Item = DocumentContent & { _rev: string; _published: boolean };
 const Table = styled.table`
   width: 100%;
-  min-width: 1100px;
+  min-width: 1000px;
   border-collapse: collapse;
   font: 14px/1.5 system-ui;
   th,
@@ -90,6 +92,16 @@ function RowActions({
             })
           }
         />
+      ) : isCuratedFind(item) ? (
+        <Select
+          aria-label={`Curated Find review status for ${item.title}`}
+          value={curatedReviewStatus(item)}
+          disabled={disabled}
+          onChange={(e) => onSave(item, { curatedReviewStatus: e.currentTarget.value })}
+        >
+          <option value="not_reviewed">Not reviewed</option>
+          <option value="reviewed">Reviewed</option>
+        </Select>
       ) : (
         <Select
           aria-label={`Review progress for ${item.title}`}
@@ -318,7 +330,6 @@ export function ProductsTool() {
                     'Availability / progress',
                     'Publication / archive',
                     'Needs attention',
-                    'Last imported',
                     'Actions',
                   ].map((h) => (
                     <th key={h} scope="col">
@@ -362,7 +373,11 @@ export function ProductsTool() {
                     <td>
                       {catalogSource(item) === 'closet'
                         ? closetStatus(item)
-                        : reviewProgress(item).replaceAll('_', ' ')}
+                        : isCuratedFind(item)
+                          ? curatedReviewStatus(item) === 'reviewed'
+                            ? 'Reviewed'
+                            : 'Not reviewed'
+                          : reviewProgress(item).replaceAll('_', ' ')}
                     </td>
                     <td>
                       {item._id.startsWith('drafts.')
@@ -373,11 +388,6 @@ export function ProductsTool() {
                       {item.archived ? ' · Archived' : ''}
                     </td>
                     <td>{catalogIssues(item).join('; ') || '—'}</td>
-                    <td>
-                      {item.lastImportedAt
-                        ? new Date(item.lastImportedAt).toLocaleString()
-                        : 'Never'}
-                    </td>
                     <td>
                       <RowActions item={item} pending={pending === item._id} onSave={save} />
                     </td>

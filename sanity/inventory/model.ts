@@ -104,15 +104,15 @@ export function inventorySummary(items: InventoryProduct[]) {
         typeof p.listingPrice === 'number' &&
         Number.isFinite(p.listingPrice) &&
         p.listingPrice >= 0 &&
-        /^[A-Z]{3}$/.test(p.currency || '')
+        /^[A-Z]{3}$/.test(p.currency || 'USD')
       )
-        totals[p.currency!] = (totals[p.currency!] || 0) + p.listingPrice;
+        totals[p.currency || 'USD'] = (totals[p.currency || 'USD'] || 0) + p.listingPrice;
       else unpriced++;
     }
   }
   return { available, sold, unknown, unpriced, totals };
 }
-export function inventoryPrice(price?: number, currency?: string) {
+export function inventoryPrice(price?: number, currency = 'USD') {
   if (price == null || !Number.isFinite(price) || !/^[A-Z]{3}$/.test(currency || ''))
     return 'Not set';
   try {

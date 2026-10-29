@@ -7,6 +7,8 @@ import {
   catalogSource,
   catalogPlacements,
   closetStatus,
+  isCuratedFind,
+  curatedReviewStatus,
   reviewWishlistItems,
   acknowledgment,
   placementError,
@@ -36,6 +38,35 @@ test('legacy identities retain placements; explicit multiple placements require 
   const d = product({ catalogSource: 'amazon', displayPlacements: ['finds', 'reviewWishlist'] });
   assert.equal(sectionProducts([d], 'finds')[0]._id, reviewWishlistItems([d])[0]._id);
   assert.equal(reviewWishlistItems([{ ...d, reviewProgress: 'received' }]).length, 0);
+});
+test('Curated Finds default to Not reviewed without replacing wishlist progress', () => {
+  const find = product({ catalogSource: 'amazon', displayPlacements: ['finds', 'reviewWishlist'] });
+  assert.equal(isCuratedFind(find), true);
+  assert.equal(curatedReviewStatus(find), 'not_reviewed');
+  assert.equal(curatedReviewStatus({ ...find, reviewProgress: 'received' }), 'not_reviewed');
+  assert.equal(curatedReviewStatus({ ...find, reviewProgress: 'reviewed' }), 'not_reviewed');
+  assert.equal(curatedReviewStatus({ ...find, curatedReviewStatus: 'reviewed' }), 'reviewed');
+  assert.equal(
+    curatedReviewStatus({
+      ...find,
+      reviewProgress: 'reviewed',
+      curatedReviewStatus: 'not_reviewed',
+    }),
+    'not_reviewed',
+  );
+  assert.equal(reviewWishlistItems([{ ...find, curatedReviewStatus: 'reviewed' }]).length, 0);
+  assert.equal(
+    reviewWishlistItems([
+      { ...find, reviewProgress: 'received', curatedReviewStatus: 'not_reviewed' },
+    ]).length,
+    0,
+  );
+  assert.equal(
+    reviewWishlistItems([
+      { ...find, reviewProgress: 'reviewed', curatedReviewStatus: 'not_reviewed' },
+    ]).length,
+    1,
+  );
 });
 test('sold/archived items leave grids, retain identity and have no purchase actions', () => {
   const sold = product({
@@ -69,6 +100,7 @@ test('repeat source-fact imports preserve editorial work, placements, IDs and ex
     displayPlacements: ['finds'],
     archived: true,
     reviewProgress: 'received',
+    curatedReviewStatus: 'reviewed',
     brand: { _ref: 'my-brand' },
     importOverrides: ['brand', 'saleStatus'],
     importedFacts: { title: 'Imported title' },
@@ -84,6 +116,7 @@ test('repeat source-fact imports preserve editorial work, placements, IDs and ex
       photos: [{ asset: { _ref: 'imported' }, alt: 'New' }],
       displayPlacements: ['closet'],
       reviewProgress: 'wanted',
+      curatedReviewStatus: 'not_reviewed',
     },
     original,
   );
@@ -94,6 +127,7 @@ test('repeat source-fact imports preserve editorial work, placements, IDs and ex
   assert.equal(patch.saleStatus, undefined);
   assert.equal(patch.displayPlacements, undefined);
   assert.equal(patch.reviewProgress, undefined);
+  assert.equal(patch.curatedReviewStatus, undefined);
   assert.equal(patch.size, '18');
   assert.deepEqual((patch.photos as unknown[])[0], original.photos[0]);
   assert.equal(original._id, 'one');
@@ -112,6 +146,7 @@ test('actual GROQ projection excludes admin fields and unapproved images, includ
     title: 'Amazon item',
     slug: { current: 'amazon' },
     shoppingSection: 'finds',
+    curatedReviewStatus: 'reviewed',
     amazonAsin: 'B0C5R6Q2XZ',
     listingPrice: 777,
     referencePrice: 'ADMIN PRICE',
@@ -134,9 +169,17 @@ test('actual GROQ projection excludes admin fields and unapproved images, includ
     thankYouMessage: 'HIDDEN THANKS',
     reviewedProducts: [{ _type: 'reference', _ref: 'amazon' }],
     ctaProduct: { _type: 'reference', _ref: 'amazon' },
+    primaryFind: { _type: 'reference', _ref: 'find-one' },
+  };
+  const find = {
+    _id: 'find-one',
+    _type: 'find',
+    title: 'Reviewed Find',
+    amazonUrl: 'https://www.amazon.com/dp/B0ABC12345',
+    privateNotes: 'HIDDEN FIND NOTES',
   };
   const result = await (
-    await evaluate(parse(`*[]${publicProjection}`), { dataset: [amazon, review] })
+    await evaluate(parse(`*[]${publicProjection}`), { dataset: [amazon, review, find] })
   ).get();
   const json = JSON.stringify(result);
   for (const secret of [
@@ -145,15 +188,18 @@ test('actual GROQ projection excludes admin fields and unapproved images, includ
     'SECRET.jpg',
     'HIDDEN NAME',
     'HIDDEN THANKS',
+    'HIDDEN FIND NOTES',
     '777',
     '"reference"',
   ])
     assert.ok(!json.includes(secret), secret);
   assert.match(json, /original/);
-  assert.match(json, /reviewedProducts/);
+  assert.doesNotMatch(json, /reviewedProducts/);
+  assert.match(json, /Reviewed Find/);
   const publicAmazon = result.find((d: { _id: string }) => d._id === 'amazon');
   assert.equal(publicAmazon.photos.length, 1);
   assert.equal(publicAmazon.photos[0].alt, 'Original');
+  assert.equal(publicAmazon.curatedReviewStatus, 'reviewed');
 });
 test('acknowledgments cannot render custom text or a name without permission', () => {
   const d = {

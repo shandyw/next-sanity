@@ -9,6 +9,12 @@ export interface ContentPhoto {
   hotspot?: { x: number; y: number; width: number; height: number };
   demoSrc?: string;
 }
+export interface EditorialHeroMedia {
+  layout?: 'portrait' | 'landscape';
+  portraitMain?: ContentPhoto;
+  portraitSecondary?: ContentPhoto;
+  landscapePhoto?: ContentPhoto;
+}
 export interface Named {
   _id: string;
   title: string;
@@ -22,6 +28,7 @@ export interface DocumentContent {
   archived?: boolean;
   saleStatus?: 'available' | 'sold';
   reviewProgress?: 'not_requested' | 'wanted' | 'received' | 'in_progress' | 'reviewed';
+  curatedReviewStatus?: 'not_reviewed' | 'reviewed';
   desiredSize?: string;
   desiredColor?: string;
   styleModel?: string;
@@ -46,7 +53,6 @@ export interface DocumentContent {
   experienceStatus?: 'tested' | 'mannequin' | 'curated';
   whyPicked?: string;
   testedSize?: string;
-  measurements?: string;
   fitObservations?: string;
   sellerSpecifications?: string;
   whatToCheck?: string;
@@ -66,6 +72,14 @@ export interface DocumentContent {
   receivedQuantity?: number;
   ctaLabel?: string;
   ctaProduct?: DocumentContent;
+  primaryFind?: {
+    _id: string;
+    title: string;
+    experienceStatus?: 'notTested' | 'received' | 'tested';
+    amazonUrl?: string;
+    affiliateUrl?: string;
+    affiliateShortLinkVerified?: boolean;
+  };
   excerpt?: string;
   description?: string;
   publishedAt?: string;
@@ -138,6 +152,8 @@ export interface PageContent {
   promises?: { title: string; description: string }[];
 }
 export interface Settings {
+  closetHero?: EditorialHeroMedia;
+  findsHero?: EditorialHeroMedia;
   amazonAssociates?: { active?: boolean; tag?: string; clickEventsEnabled?: boolean };
   leadModal?: {
     enabled?: boolean;

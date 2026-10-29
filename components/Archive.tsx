@@ -32,6 +32,13 @@ export function Archive({
 }) {
   const shop = kind === 'product';
   const blog = kind === 'blogPost';
+  const catalog = shop || kind === 'review';
+  const heroMedia =
+    shop && !reviewWishlist
+      ? section === 'finds'
+        ? settings.findsHero
+        : settings.closetHero
+      : undefined;
   const all =
     shop && !reviewWishlist
       ? sectionProducts(documents, section)
@@ -48,6 +55,12 @@ export function Archive({
         ? '/my-faves'
         : '/reviews';
   const { items, count, pages, page } = browse(all, params, shop);
+  const hasActiveCatalogFilters =
+    Boolean(first(params, 'q').trim()) ||
+    (first(params, 'sort') !== '' && first(params, 'sort') !== 'newest') ||
+    ['category', 'size', 'brand', 'condition', 'retailer', 'tried', 'min_price', 'max_price'].some(
+      (name) => values(params, name).some((value) => value.trim()),
+    );
   const categories = [
     ...new Map(all.flatMap((d) => d.categories || []).map((c) => [c.slug || c._id, c])).values(),
   ].sort((a, b) => a.title.localeCompare(b.title));
@@ -62,7 +75,7 @@ export function Archive({
     ),
   ];
   const currencies = new Set(
-    all.map((d) => stegaClean(shop ? d.currency : d.reviewCurrency)).filter(Boolean),
+    all.map((d) => stegaClean(shop ? d.currency || 'USD' : d.reviewCurrency)).filter(Boolean),
   );
   const priceSortable =
     !all.some(isAmazonProduct) &&
@@ -123,16 +136,14 @@ export function Archive({
       ]),
     );
   }
-  if (!shop && !blog && all.some((d) => d.format))
-    filters.push(
-      filter('format', 'Format', [
-        { value: 'written', label: 'Written' },
-        { value: 'video', label: 'Video' },
-      ]),
-    );
   return (
     <main id="main" className="reviews-page container">
       <EditorialHero
+        eyebrow={shop && !reviewWishlist ? 'SHOP' : undefined}
+        layout={heroMedia?.layout}
+        mainPhoto={heroMedia?.portraitMain}
+        smallPhoto={heroMedia?.portraitSecondary}
+        landscapePhoto={heroMedia?.landscapePhoto}
         title={
           reviewWishlist
             ? 'My Review Wishlist'
@@ -161,24 +172,67 @@ export function Archive({
         }
       />
       {shop && !reviewWishlist && (
-        <nav className="shopping-sections" aria-label="Shopping section">
-          <Link
-            href="/shop/closet"
-            scroll={false}
-            aria-current={section === 'closet' ? 'page' : undefined}
-          >
-            <strong>My Closet</strong>
-            <span>Shop pieces from my own wardrobe.</span>
-          </Link>
-          <Link
-            href="/shop/finds"
-            scroll={false}
-            aria-current={section === 'finds' ? 'page' : undefined}
-          >
-            <strong>Curated Finds</strong>
-            <span>Pieces that caught my eye.</span>
-          </Link>
-        </nav>
+        <section className="shopping-destinations" aria-labelledby="shopping-destinations-title">
+          <h2 id="shopping-destinations-title">What are we shopping?</h2>
+          <nav className="shopping-sections" aria-label="Shopping section">
+            <Link
+              href="/shop/closet"
+              scroll={false}
+              aria-current={section === 'closet' ? 'page' : undefined}
+            >
+              <Image
+                src="/img/browsing.jpg"
+                alt=""
+                width={900}
+                height={900}
+                sizes="(max-width: 599px) 76px, 112px"
+              />
+              <span className="shopping-sections__copy">
+                <strong>My Closet</strong>
+                <span>Pre-loved pieces from me</span>
+              </span>
+              <span className="shopping-sections__check" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="m5 12 5 5 9-10"
+                    stroke="currentColor"
+                    strokeWidth="2.4"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </span>
+            </Link>
+            <Link
+              href="/shop/finds"
+              scroll={false}
+              aria-current={section === 'finds' ? 'page' : undefined}
+            >
+              <Image
+                src="/img/curated.jpg"
+                alt=""
+                width={900}
+                height={900}
+                sizes="(max-width: 599px) 76px, 112px"
+              />
+              <span className="shopping-sections__copy">
+                <strong>Curated Finds</strong>
+                <span>My favorite discoveries</span>
+              </span>
+              <span className="shopping-sections__check" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="m5 12 5 5 9-10"
+                    stroke="currentColor"
+                    strokeWidth="2.4"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </span>
+            </Link>
+          </nav>
+        </section>
       )}
       {shop && all.some((d) => d.demo) && (
         <p className="demo-notice">
@@ -192,6 +246,7 @@ export function Archive({
         stateKey={archiveUrl(base, params, page)}
         base={base}
         shop={shop}
+        catalog={catalog}
         curated={shop && section === 'finds'}
         query={first(params, 'q')}
         filters={filters}
@@ -215,6 +270,11 @@ export function Archive({
           found
           {pages > 1 ? ` · Page ${page} of ${pages}` : ''}
         </p>
+        {catalog && hasActiveCatalogFilters && (
+          <Link className="archive-clear-filters" href={base} scroll={false}>
+            Clear filters
+          </Link>
+        )}
       </div>
       {count ? (
         shop ? (

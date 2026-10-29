@@ -20,18 +20,18 @@ Use strong editorial serif headings, short flowing script accents, clean sans-se
 
 | Token                                         | Value     | Role                                         |
 | --------------------------------------------- | --------- | -------------------------------------------- |
-| `--color-page-background` / `--color-neutral` | `#FFFBF8` | Warm page background                         |
+| `--color-page-background` / `--color-neutral` | `#FFFFFF` | Warm page background                         |
 | `--color-surface`                             | `#FFFFFF` | Fields and modal surfaces                    |
-| `--color-primary-ink` / `--color-on-surface`  | `#1A0A10` | Body text and headings                       |
+| `--color-primary-ink` / `--color-on-surface`  | `#11151c` | Body text and headings                       |
 | `--color-ink-soft` / `--color-text-secondary` | `#5A4650` | Captions, labels and supporting copy         |
-| `--color-primary`                             | `#7A1F45` | Maroon primary actions                       |
-| `--color-link` / `--color-primary-deep`       | `#7A1F45` | Readable berry links and text accents        |
+| `--color-primary`                             | `#c71585` | Maroon primary actions                       |
+| `--color-link` / `--color-primary-deep`       | `#c71585` | Readable berry links and text accents        |
 | `--color-primary-button-ink`                  | `#FFFFFF` | White labels on maroon backgrounds           |
-| `--color-secondary-ink`                       | `#1A0A10` | Text on secondary buttons                    |
-| `--color-brand-pink` / `--color-pink`         | `#EBC0CA` | Selected editorial text highlights           |
-| `--color-secondary-action`                    | `#F472A2` | Optional secondary pink fill with ink labels |
-| `--color-cream`                               | `#F7ECDD` | Compact coming-soon panel                    |
-| `--color-blush`                               | `#FCE6EA` | Wishlist banner, gifting and soft panels     |
+| `--color-secondary-ink`                       | `#11151c` | Text on secondary buttons                    |
+| `--color-brand-pink` / `--color-pink`         | `#FFF0F5` | Selected editorial text highlights           |
+| `--color-secondary-action`                    | `#FF1493` | Optional secondary pink fill with ink labels |
+| `--color-cream`                               | `#F7ECDD` | Compact coming-soon panel and shop filters   |
+| `--color-pink`                                | `#FCE6EA` | Wishlist banner, gifting and soft panels     |
 | `--color-border-control`                      | `#767076` | Meaningful input/control edges               |
 | `--color-focus`                               | `#2C1E23` | Visible focus outline                        |
 | `--color-border`                              | `#E2E0DA` | Decorative separators only                   |
@@ -75,7 +75,9 @@ Site modals share white surfaces, 8px panel corners, dark backdrops, serif headi
 
 ## Hero
 
-Public pages reuse `EditorialHero` with page-specific text and optional photos, CTA and disclaimer. The homepage supplies its own CurtainReveal media; interior pages retain the shared collage below. The shared photo collage uses overlapping straight photo frames with 7px warm-white (#FFFDFA) borders and soft warm shadows. A blush measuring tape is layered behind the photos and a separate front piece crosses their lower edge; both are decorative, hidden from assistive technology and ignore pointer events. There are no photo tilts, captions, torn paper, adhesive tape, or AI labels. The homepage preserves “Big opinions. Questionable sizing.”, the size 16–18 introduction and “Explore the Reviews” linking to `/reviews`. “Questionable” alone uses the script accent in the primary berry color, without a background highlight or highlight-reveal animation; “sizing.” stays serif. Shared hero emphasis uses the primary text color with no colored backing. Other headlines use plain serif or optional editorial emphasis.
+Public pages reuse `EditorialHero` with page-specific text and optional photos, CTA and disclaimer. The homepage supplies its own CurtainReveal media; interior pages retain the shared collage below. The shared photo collage uses overlapping straight photo frames with 7px warm-white (#FFFDFA) borders and soft warm shadows. There are no measuring-tape decorations, photo tilts, captions, torn paper, adhesive tape, or AI labels. The homepage preserves “Big opinions. Questionable sizing.”, the size 16–18 introduction and “Explore the Reviews” linking to `/reviews`. “Questionable” alone uses the script accent in the primary berry color, without a background highlight or highlight-reveal animation; “sizing.” stays serif. Shared hero emphasis uses the primary text color with no colored backing. Other headlines use plain serif or optional editorial emphasis.
+
+Site settings → My Closet editorial hero and Curated Finds editorial hero let each shop section choose the default two-photo portrait collage or a single landscape image. Add both portrait images for a custom collage, or leave both blank to use the existing photo pool. Landscape requires one uploaded image with alt text. The wide frame keeps the image's natural aspect ratio and the hero grows to fit its height; the copy stays vertically centered on desktop and stacks above the image on mobile.
 
 The reusable local image pool remains in `public/img/hero/`, cached for five minutes per page identity so filter changes do not reshuffle it. Homepage Sanity outfit/detail overrides take precedence. Publish owned, suitable photos in Studio; pool images are decorative project imagery and are not evidence of a review. Empty pools display neutral placeholders. Supported formats are JPEG, PNG, WebP and AVIF; deployments trace these assets.
 
@@ -136,6 +138,8 @@ Chunky Onest display headings, turquoise actions, bright-pink primary buttons wi
 
 ## Shopping image specification
 
+The Shop archive shows two photographic destinations, My Closet and Curated Finds. The current destination uses a burgundy bottom border and checkmark; both links retain visible keyboard focus and responsive hover/press feedback. Search leads the cream filter bar, filters wrap on narrow screens, and the sort control has a visible “Sort by” label. The result count gains a “Clear filters” link only when a search, filter, or non-default sort is active. On phones, destination cards stack and filter controls use two columns.
+
 Shopping cards and product detail photographs use **4:5 portrait**, with 1080 × 1350 CDN requests and responsive Next.js delivery. Wishlist thumbnails retain 4:5. Studio product Photos have crop/hotspot controls with a named **Product card — 4:5 portrait** preview; saved crop/hotspot values are honored by the frontend. The source upload is preserved. Crop dimensions below 800 × 1000 produce a nonblocking warning; 1080 × 1350 is recommended. Asset-size validation blocks publishing photographs over 20 MB, after upload; this is not a custom upload-time size gate. Existing smaller photos remain editable/publishable with a warning and are not migrated.
 
 JPEG and PNG are recommended. WebP remains supported for existing optimized photography; the picker also accepts HEIC/HEIF, which Sanity supports as uploads in the HEIF family. HEIC conversion/rendering depends on the asset pipeline; export to JPEG/PNG if needed before upload. No browser HEIC decoder or automatic client conversion was added. Review previews keep their own 4:5 specification; full-body Shannequin images retain the uncropped full-asset behavior.
@@ -166,7 +170,7 @@ The optional Shannequin quote panel has a blush background, a pink rectangle beh
 
 The shared `RequestBanner` is used by the homepage and About page and can be reused as `<RequestBanner />` with default copy or `<RequestBanner content={content} />` for existing CMS title/intro overrides. It always uses the local `/img/closet.jpg` photograph (900 × 601), optimized with responsive Next.js Image and available in production. Its heading IDs are unique per instance; the CTA opens the existing Request a Review dialog. The original requestImage content remains stored but is no longer used by this banner.
 
-The hero measuring-tape assets are `/img/tape-behind.png` (774 × 509, transparent) and `/img/tape-front.png` (223 × 220, transparent). Keep the original files intact. Both tape pieces use their native transparency without blend modes. Layer order is behind tape (0), main frame (1), smaller frame (2), front tape (3). The responsive grid reserves photo dimensions and room for the lower frame; decorations never become interactive and do not add animation or autoplay. The border and main shadow use 0 3px 8px rgb(64 39 30 / 6%), 0 14px 28px -8px rgb(64 39 30 / 18%); the smaller photo uses 0 4px 10px rgb(64 39 30 / 8%), 0 20px 36px -12px rgb(64 39 30 / 24%).
+The responsive grid reserves photo dimensions and room for the lower frame. The border and main shadow use 0 3px 8px rgb(64 39 30 / 6%), 0 14px 28px -8px rgb(64 39 30 / 18%); the smaller photo uses 0 4px 10px rgb(64 39 30 / 8%), 0 20px 36px -12px rgb(64 39 30 / 24%).
 
 ## About-page Shannequin measurements
 
@@ -196,7 +200,7 @@ Navigation: Reviews, Shop, About, Support the Reviews, Saved Items with the exis
 
 At widths of 1000px and above, the homepage hero uses a wider 1360px container and a 1:1.35 copy/media column split. From 768px upward, the curtain scene also compensates for PNG padding with 118% width and a centered negative margin. At 768–999px the composition follows the copy with a 680px media column. This keeps the feature visibly larger in Studio previews as well as full desktop windows. Below 768px the existing contained mobile sizing remains. Photos, fabric and handle always scale together.
 
-The homepage alone uses `CurtainReveal` in the existing two-column hero; interior pages keep their existing collage, measuring tape and entrance behavior. Copy, script accent, CTA, fonts and surrounding sections are preserved. Below 768px the composition follows the copy; both frames stay side by side, with a reserved 1536:1024 scene and no horizontal overflow.
+The homepage alone uses `CurtainReveal` in the existing two-column hero; interior pages keep their existing collage and entrance behavior. Copy, script accent, CTA, fonts and surrounding sections are preserved. Below 768px the composition follows the copy; both frames stay side by side, with a reserved 1536:1024 scene and no horizontal overflow.
 
 Asset roles: `hero-frames.png` is the supplied 1536 × 1024 transparent frame overlay. Its photo apertures are normalized from original-canvas rectangles (157,119,598,791) and (782,119,598,791). Two independent photos fill those openings with cover sizing. `hero-curtain.png` is the supplied 1024 × 1536 ivory fabric; visible alpha bounds x89…976/y53…1484 are compensated in CSS instead of editing the original file. Keep the PNGs intact. The supplied `hero-pull-handle.png` remains available as a visual reference; the working handle uses HTML/CSS and an inline decorative SVG arrow so it remains sharp, accessible and at least 44 × 44px.
 

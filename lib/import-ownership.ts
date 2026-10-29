@@ -13,6 +13,7 @@ export function ownedImportFields(
     'relatedProducts',
     'relatedReview',
     'reviewProgress',
+    'curatedReviewStatus',
     ...((current.importOverrides as string[]) || []),
   ]);
   // An unchanged prior imported name may follow the CSV; an intentional editor change wins.

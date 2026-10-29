@@ -17,6 +17,7 @@ export interface CatalogFields {
   shoppingSection?: string;
   onReviewWishlist?: boolean;
   reviewProgress?: 'not_requested' | 'wanted' | 'received' | 'in_progress' | 'reviewed';
+  curatedReviewStatus?: 'not_reviewed' | 'reviewed';
 }
 export function catalogSource(d: CatalogFields): CatalogSource {
   return (
@@ -33,6 +34,12 @@ export function catalogPlacements(d: CatalogFields): Placement[] {
     : catalogSource(d) === 'closet'
       ? ['closet']
       : ['finds', ...(d.onReviewWishlist ? ['reviewWishlist' as const] : [])];
+}
+export function isCuratedFind(d: CatalogFields) {
+  return catalogSource(d) === 'amazon' && catalogPlacements(d).includes('finds');
+}
+export function curatedReviewStatus(d: CatalogFields): 'not_reviewed' | 'reviewed' {
+  return d.curatedReviewStatus === 'reviewed' ? 'reviewed' : 'not_reviewed';
 }
 export function placementError(d: CatalogFields) {
   const allowed = catalogSource(d) === 'closet' ? ['closet'] : ['finds', 'reviewWishlist'];
@@ -62,7 +69,8 @@ export function reviewWishlistItems(items: DocumentContent[]) {
     (d) =>
       !d.archived &&
       catalogPlacements(d).includes('reviewWishlist') &&
-      !['received', 'in_progress', 'reviewed'].includes(reviewProgress(d)),
+      !['received', 'in_progress'].includes(reviewProgress(d)) &&
+      (isCuratedFind(d) ? curatedReviewStatus(d) !== 'reviewed' : reviewProgress(d) !== 'reviewed'),
   );
 }
 export function catalogIssues(d: DocumentContent) {
@@ -75,8 +83,7 @@ export function catalogIssues(d: DocumentContent) {
   if (incompatible) issues.push(incompatible);
   if (catalogSource(d) === 'closet') {
     if (!d.sku) issues.push('Assign a SKU');
-    if (!vintedUrl(d.vintedUrl || d.purchaseUrl))
-      issues.push('Add a marketplace listing URL');
+    if (!vintedUrl(d.vintedUrl || d.purchaseUrl)) issues.push('Add a marketplace listing URL');
     if (!['available', 'sold'].includes(closetStatus(d))) issues.push('Confirm availability');
   } else {
     if (!d.amazonAsin && isAmazonProduct(d)) issues.push('Confirm ASIN');

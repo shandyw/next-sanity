@@ -128,9 +128,11 @@ test('shared pink states, form validation and clean support controls', async ({ 
   const pair = await section.evaluate((element) => ({
     color: getComputedStyle(element).color,
     background: getComputedStyle(element).backgroundColor,
+    border: getComputedStyle(element).borderBottomColor,
   }));
-  expect(pair.background).toBe('rgb(125, 47, 80)');
   expect(contrast(pair.color, pair.background)).toBeGreaterThanOrEqual(4.5);
+  expect(pair.border).toBe('rgb(122, 31, 69)');
+  await expect(section.locator('.shopping-sections__check')).toBeVisible();
   await page.goto('/support');
   await expect(
     page.locator(

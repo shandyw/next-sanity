@@ -53,6 +53,7 @@ export function ContentImage({
         height={outputHeight}
         className={className}
         priority={priority}
+        fetchPriority={priority ? 'high' : undefined}
         sizes={sizes}
       />
     );
@@ -66,6 +67,7 @@ export function ContentImage({
         height={height}
         className={className}
         loading={priority ? 'eager' : 'lazy'}
+        fetchPriority={priority ? 'high' : undefined}
       />
     );
   return (

@@ -1,14 +1,7 @@
 import { acknowledgment } from '@/lib/catalog';
-import { ProductGrid } from './ProductGrid';
 import { EditorialLink } from './EditorialLink';
 import { AffiliateDisclosure } from './AffiliateDisclosure';
-import {
-  associatesActive,
-  isAmazonProduct,
-  experienceStatus,
-  experienceLabel,
-  type Experience,
-} from '@/lib/amazon';
+import { AMAZON_DISCLOSURE, associatesActive, experienceStatus, experienceLabel, type Experience } from '@/lib/amazon';
 import Link from 'next/link';
 import { stegaClean } from 'next-sanity';
 import { PortableText } from '@portabletext/react';
@@ -23,6 +16,7 @@ import { ReviewMedia } from './ReviewMedia';
 import { Video } from './Video';
 import { ArrowIcon } from './ArrowIcon';
 import { CardGrid } from './CardGrid';
+import { findAmazonLink } from '@/lib/looks';
 
 function Copy({
   value,
@@ -125,7 +119,8 @@ export async function ReviewArticle({
   const accent = stegaClean(d.titleAccent || '');
   const accentValid = !!accent && title.endsWith(accent);
   const sections = reviewSections.filter(({ key }) => d.reviewSections?.[key]?.copy?.length);
-  const product = d.ctaProduct?.slug ? d.ctaProduct : undefined;
+  const primaryFind = d.primaryFind;
+  const findLink = primaryFind ? findAmazonLink(primaryFind, settings) : undefined;
   const root = siteUrl();
   const structured =
     root && !d.demo
@@ -239,18 +234,15 @@ export async function ReviewArticle({
                 />
               </div>
             ) : null}
-            {!d.products?.some(isAmazonProduct) &&
-              !(d.ctaProduct && isAmazonProduct(d.ctaProduct)) &&
-              d.priceWhenReviewed !== undefined &&
-              d.reviewCurrency && (
-                <p className="body-sm">
-                  Price when reviewed:{' '}
-                  {new Intl.NumberFormat('en', {
-                    style: 'currency',
-                    currency: stegaClean(d.reviewCurrency),
-                  }).format(d.priceWhenReviewed)}
-                </p>
-              )}
+            {d.priceWhenReviewed !== undefined && d.reviewCurrency && (
+              <p className="body-sm">
+                Price when reviewed:{' '}
+                {new Intl.NumberFormat('en', {
+                  style: 'currency',
+                  currency: stegaClean(d.reviewCurrency),
+                }).format(d.priceWhenReviewed)}
+              </p>
+            )}
           </div>
         </div>
       </article>
@@ -291,25 +283,22 @@ export async function ReviewArticle({
           </div>
         </section>
       )}
-      {product && (
+      {primaryFind && findLink && (
         <section className="container review-story__product" aria-labelledby="review-product-title">
           <div>
-            <p className="eyebrow">
-              {product.shoppingSection === 'finds' ? 'Curated find' : 'From my closet'}
-            </p>
-            <h2 id="review-product-title">{product.title}</h2>
-            {product.availability === 'sold' && (
-              <p>This item has sold. Its details are still available.</p>
-            )}
+            <p className="eyebrow">Find featured in this review</p>
+            <h2 id="review-product-title">{primaryFind.title}</h2>
+            {findLink.affiliate && <p className="affiliate-note">{AMAZON_DISCLOSURE}</p>}
           </div>
-          <Link
+          <a
             className="btn btn-accent"
-            href={`/shop/${encodeURIComponent(stegaClean(product.slug))}`}
+            href={findLink.href}
+            target="_blank"
+            rel={findLink.affiliate ? 'sponsored noopener noreferrer' : 'noopener noreferrer'}
           >
-            {d.ctaLabel ||
-              (product.shoppingSection === 'finds' ? 'Explore this find' : 'View item details')}
+            View on Amazon <span className="visually-hidden">(opens in a new tab)</span>
             <ArrowIcon />
-          </Link>
+          </a>
         </section>
       )}
       {related.length > 0 && (
@@ -324,12 +313,6 @@ export async function ReviewArticle({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structured).replace(/</g, '\\u003c') }}
         />
       )}
-      {d.reviewedProducts?.length ? (
-        <section className="container" aria-labelledby="reviewed-products">
-          <h2 id="reviewed-products">Items in this review</h2>
-          <ProductGrid items={d.reviewedProducts} settings={settings} />
-        </section>
-      ) : null}
     </main>
   );
 }

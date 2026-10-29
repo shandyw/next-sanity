@@ -20,6 +20,7 @@ test('Amazon wishlist CSV creates real Curated Finds and preserves editorial own
   assert.equal(draft.onReviewWishlist, true);
   assert.equal(draft.affiliateLink, false);
   assert.equal(draft.personallyTried, false);
+  assert.equal(draft.curatedReviewStatus, 'not_reviewed');
   assert.equal(draft.title, 'A shirt, blue');
   assert.equal(draft.purchaseUrl, 'https://www.amazon.com/dp/B0C5R6Q2XZ');
   const existing: ReviewWish = {

@@ -2,6 +2,7 @@ import type { DocumentContent } from '@/lib/types';
 import { ImageCarousel } from './ImageCarousel';
 import { ContentImage } from './ContentImage';
 import { ArrowIcon } from './ArrowIcon';
+import { WishlistButton } from './WishlistButton';
 
 export function ReviewPreview({
   item,
@@ -18,6 +19,7 @@ export function ReviewPreview({
   const href = `${base}/${encodeURIComponent(item.slug)}${returnTo ? '?from=' + encodeURIComponent(returnTo) : ''}`;
   return (
     <article className="review-card__body review-preview">
+      {!item.demo && <WishlistButton id={item._id} title={item.title} />}
       {item.demo && <p className="body-sm">Illustrative sample review</p>}
       <ImageCarousel
         title={item.title}

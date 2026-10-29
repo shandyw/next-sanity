@@ -1,5 +1,7 @@
 # Private “Price This Item” assistant
 
+> Retired in Phase 2B. The pricing assistant is no longer part of the Studio workflow. Historical pricing data has not been deleted. See [Phase 2B status](PHASE-2B.md).
+
 This extends the existing Inventory tool and Shopping item document actions. Open `/studio/inventory`, select **Price This Item**, or use that action in the Shopping item editor. Existing counts, filters, sorting, search, pagination, currency totals and empty state remain intact. The empty state includes an editor Create link using existing closet defaults.
 
 ## Setup
@@ -20,7 +22,7 @@ Provider failures identify API billing/quota, invalid keys, model/Responses perm
 
 ## Workflow
 
-The five sections show saved item details/images, costs and goal, comparables, recommendation/offer calculator, and private history/actual sales. Update physical details through the existing editor: style/model, material, optional measurements, wear notes and up to eight additional label/defect photos are backward-compatible additions. Existing condition strings are retained; Excellent and Fair are additional options with definitions. These physical fields and their assets are public: never put private costs there.
+The five sections show saved item details/images, costs and goal, comparables, recommendation/offer calculator, and private history/actual sales. Update physical details through the existing editor: style/model, wear notes and up to eight additional label/defect photos. Existing condition strings are retained; Excellent and Fair are additional options with definitions. These physical fields and their assets are public: never put private costs there.
 
 Private records reference the canonical product ID without `drafts.`. Drafts take precedence. Both entry points and every endpoint exclude Curated Finds and primary affiliate listings using the established shopping section, including the missing-section closet fallback. An optional affiliate shop-new link does not exclude an owned closet item.
 

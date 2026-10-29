@@ -155,8 +155,6 @@ export interface PricingItem {
   size?: string;
   condition?: string;
   styleModel?: string;
-  material?: string;
-  measurements?: string;
   wearNotes?: string;
   imageUrls?: string[];
   vintedUrl?: string;

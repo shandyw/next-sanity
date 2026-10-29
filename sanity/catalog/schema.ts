@@ -1,12 +1,14 @@
 import { defineType, defineField, defineArrayMember } from 'sanity';
 import {
   catalogSource,
+  isCuratedFind,
   amazonFieldsVisible,
   catalogPlacements,
   placementError,
   type CatalogFields,
 } from '../../lib/catalog';
 import { ProductSourceInput } from './ProductSourceInput';
+import { CuratedReviewStatusInput } from './CuratedReviewStatusInput';
 const closet = ({ document }: { document?: Record<string, unknown> }) =>
   catalogSource((document || {}) as CatalogFields) !== 'closet';
 export const catalogProductFields = [
@@ -55,7 +57,9 @@ export const catalogProductFields = [
     name: 'reviewProgress',
     title: 'Review progress',
     type: 'string',
-    hidden: ({ document }) => catalogSource((document || {}) as CatalogFields) === 'closet',
+    hidden: ({ document }) =>
+      catalogSource((document || {}) as CatalogFields) === 'closet' ||
+      isCuratedFind((document || {}) as CatalogFields),
     options: {
       list: [
         { title: 'Not requested', value: 'not_requested' },
@@ -67,6 +71,21 @@ export const catalogProductFields = [
     },
     description:
       'Independent of publication and availability. Marking received does not claim an item has been tested.',
+  }),
+  defineField({
+    name: 'curatedReviewStatus',
+    title: 'Curated Find review status',
+    type: 'string',
+    initialValue: 'not_reviewed',
+    hidden: ({ document }) => !isCuratedFind((document || {}) as CatalogFields),
+    components: { input: CuratedReviewStatusInput },
+    options: {
+      list: [
+        { title: 'Not reviewed', value: 'not_reviewed' },
+        { title: 'Reviewed', value: 'reviewed' },
+      ],
+    },
+    description: 'Separate from wishlist request and receipt progress.',
   }),
   defineField({
     name: 'underlyingProduct',
@@ -182,7 +201,6 @@ export const catalogProductFields = [
     description:
       'Checked fields are preserved on CSV re-import. Description, custom images, placements, archive state and review relationships always belong to Studio.',
   }),
-  defineField({ name: 'lastImportedAt', title: 'Last imported', type: 'datetime', readOnly: true }),
   defineField({
     name: 'importedFacts',
     title: 'Last imported source facts (admin reference; public dataset)',

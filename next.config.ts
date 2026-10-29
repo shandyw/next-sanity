@@ -1,6 +1,8 @@
 import type { NextConfig } from 'next';
 const config: NextConfig = {
   devIndicators: false,
+  // Ship page styles with HTML so first paint does not wait for a CSS request.
+  experimental: { inlineCss: true },
   images: {
     remotePatterns: [{ protocol: 'https', hostname: 'cdn.sanity.io' }],
   },

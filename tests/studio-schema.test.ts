@@ -19,9 +19,100 @@ test('complete Studio schema validates and compiles without field conflicts', ()
   );
 });
 
+test('listing and Vinted currencies default to USD without editor controls', () => {
+  const product = schemaTypes.find((type) => type.name === 'product') as {
+    fields: {
+      name: string;
+      hidden?: boolean;
+      initialValue?: string;
+      fields?: { name: string; hidden?: boolean; initialValue?: string }[];
+    }[];
+  };
+  const listingCurrency = product.fields.find((field) => field.name === 'currency');
+  const vintedCurrency = product.fields
+    .find((field) => field.name === 'vintedPrice')
+    ?.fields?.find((field) => field.name === 'currency');
+  for (const field of [listingCurrency, vintedCurrency]) {
+    assert.equal(field?.hidden, true);
+    assert.equal(field?.initialValue, 'USD');
+  }
+});
+
+test('read-only product fields are hidden in the editor', () => {
+  type Field = {
+    name: string;
+    readOnly?: boolean | ((context: { document: Record<string, unknown> }) => boolean);
+    hidden?: boolean | ((context: { document: Record<string, unknown> }) => boolean);
+    fields?: Field[];
+    of?: Field[];
+  };
+  const product = schemaTypes.find((type) => type.name === 'product') as { fields: Field[] };
+  const byName = (fields: Field[], name: string) => {
+    const field = fields.find((item) => item.name === name);
+    assert.ok(field, name);
+    return field;
+  };
+  for (const name of ['importedFacts', 'amazonAsin', 'masterInventorySku', 'vintedPrice']) {
+    const field = byName(product.fields, name);
+    assert.equal(field.readOnly, true, `${name} should remain protected`);
+    assert.equal(field.hidden, true, `${name} should be hidden`);
+  }
+  assert.equal(
+    product.fields.some((field) => field.name === 'lastImportedAt'),
+    false,
+  );
+  const filenames = byName(byName(product.fields, 'photos').of![0].fields!, 'sourceFilenames');
+  assert.equal(filenames.readOnly, true);
+  assert.equal(filenames.hidden, true);
+
+  const availability = byName(product.fields, 'availability');
+  for (const [saleStatus, expected] of [
+    [undefined, false],
+    ['available', true],
+    ['sold', true],
+  ] as const) {
+    const context = { document: { saleStatus } };
+    assert.equal(
+      typeof availability.readOnly === 'function' && availability.readOnly(context),
+      expected,
+    );
+    assert.equal(
+      typeof availability.hidden === 'function' && availability.hidden(context),
+      expected,
+    );
+  }
+});
+
+test('Curated Finds have a two-choice review status with Not reviewed as the default', () => {
+  type Field = {
+    name: string;
+    initialValue?: string;
+    hidden?: (context: { document: Record<string, unknown> }) => boolean;
+    options?: { list?: { title: string; value: string }[] };
+  };
+  const product = schemaTypes.find((type) => type.name === 'product') as { fields: Field[] };
+  const curated = product.fields.find((field) => field.name === 'curatedReviewStatus');
+  const progress = product.fields.find((field) => field.name === 'reviewProgress');
+  assert.equal(curated?.initialValue, 'not_reviewed');
+  assert.deepEqual(curated?.options?.list, [
+    { title: 'Not reviewed', value: 'not_reviewed' },
+    { title: 'Reviewed', value: 'reviewed' },
+  ]);
+  const find = { catalogSource: 'amazon', displayPlacements: ['finds'] };
+  assert.equal(curated?.hidden?.({ document: find }), false);
+  assert.equal(progress?.hidden?.({ document: find }), true);
+  assert.equal(curated?.hidden?.({ document: { catalogSource: 'closet' } }), true);
+  const wishlistOnly = { catalogSource: 'amazon', displayPlacements: ['reviewWishlist'] };
+  assert.equal(curated?.hidden?.({ document: wishlistOnly }), true);
+  assert.equal(progress?.hidden?.({ document: wishlistOnly }), false);
+});
+
 test('Amazon product fields on closet items require an underlying Amazon product', () => {
   const product = schemaTypes.find((type) => type.name === 'product') as {
-    fields: { name: string; hidden?: boolean | ((context: { document: Record<string, unknown> }) => boolean) }[];
+    fields: {
+      name: string;
+      hidden?: boolean | ((context: { document: Record<string, unknown> }) => boolean);
+    }[];
   };
   const hidden = (name: string, document: Record<string, unknown>) => {
     const field = product.fields.find((item) => item.name === name);

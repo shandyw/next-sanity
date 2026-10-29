@@ -36,7 +36,10 @@ export function Footer({ demo, settings }: { demo: boolean; settings: Settings }
             <a href="/my-faves/">My Faves</a>
           </li> */}
           <li>
-            <a href="/shop">Shop</a>
+            <a href="/shop">Shop the Looks</a>
+          </li>
+          <li>
+            <a href="/shop/closet">My Closet</a>
           </li>
           <li>
             <a href="/about">About</a>

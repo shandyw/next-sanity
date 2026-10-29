@@ -9,7 +9,7 @@ const listingFields = {
     .enum(['New with tags', 'New without tags', 'Very good', 'Good', 'Satisfactory'])
     .optional(),
   listingPrice: z.number().finite().nonnegative(),
-  currency: z.enum(['USD', 'GBP', 'EUR', 'CAD', 'AUD', 'PLN', 'CZK', 'SEK', 'DKK']),
+  currency: z.literal('USD').default('USD'),
   availability: z.enum(['available', 'reserved', 'sold', 'unknown']),
   lastSuccessfullyCheckedAt: z.iso
     .datetime({ offset: true })

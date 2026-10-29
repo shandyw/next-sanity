@@ -398,11 +398,7 @@ export function PricingPanel({ id, onApplied }: { id: string; onApplied?: () => 
             <Text size={1}>
               {item.description || 'No description'} · {item.categories?.join(', ')}
             </Text>
-            <Text size={1}>
-              {[item.styleModel, item.material, item.measurements, item.wearNotes]
-                .filter(Boolean)
-                .join(' · ')}
-            </Text>
+            <Text size={1}>{[item.styleModel, item.wearNotes].filter(Boolean).join(' · ')}</Text>
             <Flex gap={2} wrap="wrap">
               {item.imageUrls?.map((url, i) => (
                 <img

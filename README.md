@@ -1,5 +1,7 @@
 # CurvyGirlReviews
 
+Phase 2B replaces public product inventory with **Shop the Looks** (`/shop` and `/looks/[slug]`), optional Find links in Reviews, and a Vinted-only My Closet destination (`/shop/closet`). Visitor Saved Items now holds Reviews and Looks. The external Amazon gift wishlist remains on `/support`. See [Phase 2B status](docs/PHASE-2B.md) for the current code, data-cleanup safeguards, and validation. Older catalog and importer sections below describe the retired implementation and should not be used for new content.
+
 Next.js App Router + strict TypeScript + Tailwind CSS 4 + Sanity Studio 6 and official next-sanity 13. Implemented from the approved static site in `/Users/shandyward/Documents/sites/html/curvygirlreviews/`. The original is retained in `legacy/`; that directory is not publicly served by Next.js. No deployment has been published.
 
 ## Catalog and Saved Items

@@ -1,5 +1,8 @@
 import { amazonFieldsVisible, catalogSource, type CatalogFields } from '../lib/catalog';
 import { catalogProductFields, reviewCatalogFields, productCollection } from './catalog/schema';
+import { editorialImageEntry, find } from './finds/schema';
+import { look } from './looks/schema';
+import { generateSeoSlug } from './seo-slug';
 import {
   amazonProductFields,
   amazonSettingsField,
@@ -17,7 +20,8 @@ const slug = defineField({
   name: 'slug',
   title: 'URL slug',
   type: 'slug',
-  options: { source: 'title', maxLength: 96 },
+  options: { source: 'title', maxLength: 74, slugify: generateSeoSlug },
+  description: 'Generate a short slug from about 3–5 core words, under 75 characters.',
   validation: (r) => r.required(),
 });
 const title = defineField({
@@ -206,6 +210,14 @@ const review = defineType({
   type: 'document',
   fields: [
     ...reviewCatalogFields,
+    defineField({
+      name: 'primaryFind',
+      title: 'Primary Amazon Find (optional)',
+      type: 'reference',
+      to: [{ type: 'find' }],
+      description:
+        'Choose an existing Find only when this review covers that product. Linking a Find does not imply that you tested it; state your firsthand experience separately.',
+    }),
     ...articleFields.map((field) =>
       field.name === 'body'
         ? defineField({
@@ -575,6 +587,7 @@ const product = defineType({
               type: 'array',
               of: [{ type: 'string' }],
               readOnly: true,
+              hidden: true,
               description:
                 'Remembered by the master importer so future imports reuse this image without asking for the file again.',
             }),
@@ -616,21 +629,6 @@ const product = defineType({
       validation: (r) => r.max(200),
     }),
     defineField({
-      name: 'material',
-      title: 'Material (confirmed from label when possible)',
-      type: 'string',
-      validation: (r) => r.max(300),
-    }),
-    defineField({
-      name: 'measurements',
-      title: 'Measurements (optional; include units)',
-      description:
-        'Identify whether these are your own body/garment measurements, Shannequin measurements, or seller-reported figures. Do not infer human fit from a mannequin.',
-      type: 'text',
-      rows: 3,
-      validation: (r) => r.max(2000),
-    }),
-    defineField({
       name: 'wearNotes',
       title: 'Defects and wear notes',
       type: 'text',
@@ -664,34 +662,34 @@ const product = defineType({
       title: 'Master inventory identity',
       type: 'string',
       readOnly: true,
-      description:
-        'Stable SKU association set by the master CSV importer.',
+      hidden: true,
+      description: 'Stable SKU association set by the master CSV importer.',
     }),
     defineField({
-        name: 'vintedPrice',
-        title: 'Vinted price (master inventory)',
-        type: 'object',
-        readOnly: true,
-        hidden: ({ document }) => catalogSource((document || {}) as CatalogFields) === 'amazon',
-        description:
-          'Price from your master CSV. Blank cells preserve the last stored value. A filled price also updates Current listing price.',
-        fields: [
-          defineField({
-            name: 'amount',
-            title: 'Asking price',
-            type: 'number',
-            validation: (r) => r.required().min(0),
-          }),
-          currency('currency', 'Currency'),
-        ],
-      }),
+      name: 'vintedPrice',
+      title: 'Vinted price (master inventory)',
+      type: 'object',
+      readOnly: true,
+      hidden: true,
+      description:
+        'Price from your master CSV. Blank cells preserve the last stored value. A filled price also updates Current listing price.',
+      fields: [
+        defineField({
+          name: 'amount',
+          title: 'Asking price',
+          type: 'number',
+          validation: (r) => r.required().min(0),
+        }),
+        defineField({ name: 'currency', type: 'string', initialValue: 'USD', hidden: true }),
+      ],
+    }),
     defineField({
       name: 'listingPrice',
       title: 'Current listing price',
       type: 'number',
       validation: (r) => r.min(0),
     }),
-    currency('currency', 'Listing currency'),
+    defineField({ name: 'currency', type: 'string', initialValue: 'USD', hidden: true }),
     defineField({
       name: 'availability',
       title: 'Availability (last known)',
@@ -701,6 +699,7 @@ const product = defineType({
         'Legacy/import availability. When Sale Status is assigned, it controls this field; change Sale Status above.',
       readOnly: ({ document }) =>
         ['available', 'sold'].includes(String(document?.saleStatus || '')),
+      hidden: ({ document }) => ['available', 'sold'].includes(String(document?.saleStatus || '')),
       options: { list: ['available', 'reserved', 'sold', 'unknown'] },
       validation: (r) => r.required(),
     }),
@@ -747,7 +746,6 @@ const product = defineType({
     r.custom((d) => {
       if (d?.catalogSource !== 'amazon' && d?.saleStatus && d.saleStatus !== d.availability)
         return 'Sale Status and listing availability must agree. Re-select Sale Status to synchronize them.';
-      if (d?.listingPrice !== undefined && !d.currency) return 'Select the listing currency.';
       if (d?.shoppingSection === 'finds' && (!d.purchaseUrl || !d.retailer))
         return 'Curated finds need a purchase link and retailer name.';
       if (d?.newPurchaseUrl && !d.newRetailer) return 'Add the shop-new retailer name.';
@@ -921,12 +919,67 @@ const about = defineType({
     ...requestFields,
   ],
 });
+const hasHeroImage = (value: unknown) =>
+  Boolean((value as { asset?: { _ref?: string } } | undefined)?.asset?._ref);
+const editorialHeroMedia = defineType({
+  name: 'editorialHeroMedia',
+  title: 'Editorial hero images',
+  type: 'object',
+  fields: [
+    defineField({
+      name: 'layout',
+      title: 'Image layout',
+      type: 'string',
+      initialValue: 'portrait',
+      options: {
+        layout: 'radio',
+        list: [
+          { title: 'Portrait — two images', value: 'portrait' },
+          { title: 'Landscape — one image', value: 'landscape' },
+        ],
+      },
+    }),
+    defineField({
+      ...image('portraitMain', 'Portrait image 1'),
+      hidden: ({ parent }) => (parent as { layout?: string } | undefined)?.layout === 'landscape',
+    }),
+    defineField({
+      ...image('portraitSecondary', 'Portrait image 2'),
+      hidden: ({ parent }) => (parent as { layout?: string } | undefined)?.layout === 'landscape',
+    }),
+    defineField({
+      ...image('landscapePhoto', 'Landscape image'),
+      hidden: ({ parent }) => (parent as { layout?: string } | undefined)?.layout !== 'landscape',
+    }),
+  ],
+  validation: (rule) =>
+    rule.custom((value) => {
+      if (!value) return true;
+      if (value.layout === 'landscape')
+        return hasHeroImage(value.landscapePhoto) || 'Add one landscape image before publishing.';
+      return hasHeroImage(value.portraitMain) === hasHeroImage(value.portraitSecondary)
+        ? true
+        : 'Add both portrait images, or leave both empty to use the existing photo pool.';
+    }),
+});
 const settings = defineType({
   name: 'siteSettings',
   title: 'Site settings',
   type: 'document',
   fields: [
     amazonSettingsField,
+    defineField({
+      name: 'closetHero',
+      title: 'My Closet editorial hero',
+      type: 'editorialHeroMedia',
+      description: 'Choose two portrait images or one landscape image for My Closet.',
+    }),
+    defineField({
+      name: 'findsHero',
+      title: 'Curated Finds editorial hero',
+      type: 'editorialHeroMedia',
+      description: 'Choose two portrait images or one landscape image for Curated Finds.',
+    }),
     defineField({
       name: 'leadModal',
       title: 'Marketing lead modal',
@@ -1001,15 +1054,13 @@ const settings = defineType({
       ...url('vintedShopUrl', 'Vinted shop URL'),
       validation: (rule) =>
         rule.custom((value) =>
-          !value || closetShopUrl(value)
-            ? true
-            : 'Use your HTTPS Vinted /member/ profile URL.',
+          !value || closetShopUrl(value) ? true : 'Use your HTTPS Vinted /member/ profile URL.',
         ),
     }),
     defineField({
       ...url('reviewWishlistUrl', 'My Review Wishlist URL'),
       description:
-        'Legacy external wishlist link, retained for reference. Visitors now browse /my-wishlist. Manage items in the Review Wishlist tool or enable Include in My review wishlist on a Curated Find.',
+        'Your external Amazon gift wishlist. The Support the Reviews page links here; items are managed on Amazon.',
     }),
     defineField({
       name: 'contactEmail',
@@ -1025,8 +1076,12 @@ const settings = defineType({
   ],
 });
 export const schemaTypes = [
+  editorialImageEntry,
+  find,
+  look,
   productCollection,
   seo,
+  editorialHeroMedia,
   body,
   review,
   product,

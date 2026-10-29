@@ -58,7 +58,7 @@ async function authenticate(request: Request) {
 }
 async function product(client: SanityClient, id: string) {
   const pair = await client.fetch<PricingItem[]>(
-    `*[_type=='product' && _id in $ids]{_id,_rev,_type,title,sku,description,shoppingSection,affiliateLink,availability,saleStatus,listingPrice,currency,"brandName":brand->title,"categories":categories[]->title,size,condition,styleModel,material,measurements,wearNotes,vintedUrl,purchaseUrl,"imageUrls":(coalesce(photos,[]) + coalesce(labelDefectPhotos,[]))[].asset->url}`,
+    `*[_type=='product' && _id in $ids]{_id,_rev,_type,title,sku,description,shoppingSection,affiliateLink,availability,saleStatus,listingPrice,currency,"brandName":brand->title,"categories":categories[]->title,size,condition,styleModel,wearNotes,vintedUrl,purchaseUrl,"imageUrls":(coalesce(photos,[]) + coalesce(labelDefectPhotos,[]))[].asset->url}`,
     { ids: [id, `drafts.${id}`] },
   );
   const item = pair.find((p) => p._id === `drafts.${id}`) || pair.find((p) => p._id === id);
@@ -68,11 +68,9 @@ async function product(client: SanityClient, id: string) {
       403,
       'Pricing is only available for My Closet items without an affiliate purchase listing.',
     );
+  item.currency ??= 'USD';
   if (!currencySchema.safeParse(item.currency).success)
-    throw new PricingError(
-      400,
-      'Select a valid Listing currency in the existing Shopping item before using pricing.',
-    );
+    throw new PricingError(400, 'This item has an unsupported saved listing currency.');
   const conf = client.config();
   item.imageUrls = (item.imageUrls || []).filter((url) => {
     try {

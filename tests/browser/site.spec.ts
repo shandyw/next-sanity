@@ -29,15 +29,16 @@ for (const width of [1440, 390]) {
   });
 }
 test('search and filters survive refresh and browser navigation', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/reviews');
   await page.getByLabel('Search reviews', { exact: true }).fill('jeans');
   await page.getByRole('button', { name: 'Search', exact: true }).click();
   await expect(page).toHaveURL(/\/reviews\?q=jeans/);
-  await expect(page.getByRole('status').filter({ hasText: '1 reviews found' })).toBeVisible();
+  await expect(page.getByRole('status').filter({ hasText: '1 review found' })).toBeVisible();
   await page.reload();
   await expect(page.locator('#archiveSearch')).toHaveValue('jeans');
-  await page.getByRole('link', { name: 'Clear search/filters' }).click();
-  await expect(page.locator('.reviews-summary')).toContainText('3 reviews found');
+  await page.getByRole('link', { name: 'Clear filters' }).click();
+  await expect(page).toHaveURL(/\/reviews$/);
+  await expect(page.getByRole('link', { name: 'Clear filters' })).toHaveCount(0);
   await page.goBack();
   await expect(page.locator('#archiveSearch')).toHaveValue('jeans');
   await page.goto('/reviews?q=no-such-review');

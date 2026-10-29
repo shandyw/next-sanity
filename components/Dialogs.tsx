@@ -5,7 +5,7 @@ import { SubmissionForm } from './SubmissionForm';
 
 import { ArrowIcon } from './ArrowIcon';
 export function Dialogs({ settings }: { settings: Settings }) {
-  const wishlistUrl = '/support#review-wishlist';
+  const wishlistUrl = '/support#review-gifts-title';
   void settings;
   const request = useRef<HTMLDialogElement>(null);
   const contact = useRef<HTMLDialogElement>(null);

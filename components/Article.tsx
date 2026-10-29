@@ -11,7 +11,6 @@ import { EditorialHero } from './EditorialHero';
 import { Video } from './Video';
 import { CardGrid } from './CardGrid';
 import { getDocuments, getSettings } from '@/lib/content';
-import { ProductGrid } from './ProductGrid';
 import { siteUrl } from '@/lib/seo';
 export async function Article({
   document: d,
@@ -144,15 +143,6 @@ export async function Article({
         <section>
           <h2 className="headline-lg">Related reviews</h2>
           <CardGrid items={related} homepage />
-        </section>
-      ) : null}
-      {d.products?.length || d.relatedProducts?.length ? (
-        <section>
-          <h2 className="headline-lg">In my closet</h2>
-          <ProductGrid
-            items={d.products?.length ? d.products : d.relatedProducts || []}
-            settings={settings}
-          />
         </section>
       ) : null}
       {structured && (

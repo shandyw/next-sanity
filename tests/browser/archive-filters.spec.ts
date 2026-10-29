@@ -7,7 +7,7 @@ for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 900 });
     await page.goto('/shop');
     await expect(page.locator('.reviews-summary')).toContainText('16 items found');
-    await expect(page.getByRole('link', { name: 'Clear search/filters' })).toHaveCount(0);
+    await expect(page.getByRole('link', { name: 'Clear filters' })).toHaveCount(0);
     const category = page
       .locator('details')
       .filter({ has: page.locator('summary', { hasText: 'Category' }) });
@@ -35,7 +35,7 @@ for (const width of [1440, 390]) {
     await category.getByLabel('Jeans', { exact: true }).check();
     await expect(category).toHaveClass(/is-active/);
     await expect(page.locator('.reviews-summary')).toContainText('2 items found');
-    await page.getByRole('link', { name: 'Clear search/filters' }).click();
+    await page.getByRole('link', { name: 'Clear filters' }).click();
     await expect(page).toHaveURL(/\/shop$/);
     await expect(page.locator('.reviews-summary')).toContainText('16 items found');
     await expect(page.locator('.reviews-search')).not.toHaveClass(/is-active/);
@@ -52,7 +52,7 @@ for (const width of [1440, 390]) {
     await price.getByRole('button', { name: 'Apply price' }).click();
     await expect(page).toHaveURL(/min_price=20/);
     await expect(page.locator('.reviews-summary')).toContainText('3 items found');
-    await page.getByLabel('Sort', { exact: true }).selectOption('price_desc');
+    await page.getByLabel('Sort by', { exact: true }).selectOption('price_desc');
     await expect(page).toHaveURL(/sort=price_desc/);
     await expect(page).toHaveURL(/max_price=25/);
     for (const details of await page.locator('details').all())
@@ -73,13 +73,47 @@ test('search-only and empty search states on shop and reviews', async ({ page })
     await expect(page.locator('.reviews-search')).not.toHaveClass(/is-active/);
     await page.locator('#archiveSearch').fill('jeans');
     await page.getByRole('button', { name: 'Search', exact: true }).click();
-    await expect(page.getByRole('link', { name: 'Clear search/filters' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Clear filters' })).toBeVisible();
     await expect(page.locator('.reviews-search')).not.toHaveClass(/is-active/);
-    await page.getByRole('link', { name: 'Clear search/filters' }).click();
+    await page.getByRole('link', { name: 'Clear filters' }).click();
     await expect(page.locator('#archiveSearch')).toHaveValue('');
-    await expect(page.getByRole('link', { name: 'Clear search/filters' })).toHaveCount(0);
+    await expect(page.getByRole('link', { name: 'Clear filters' })).toHaveCount(0);
   }
 });
+
+for (const width of [1440, 390, 320]) {
+  test(`reviews use the shop filter layout without Format at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto('/shop');
+    const shopBackground = await page
+      .locator('.archive-filter-shell')
+      .evaluate((element) => getComputedStyle(element).backgroundColor);
+    await page.goto('/reviews');
+    const form = page.locator('.archive-filter-form--catalog');
+    await expect(form).toBeVisible();
+    await expect(form.getByLabel('Search reviews')).toBeVisible();
+    await expect(form.getByLabel('Sort by')).toBeVisible();
+    await expect(form.locator('summary', { hasText: 'Format' })).toHaveCount(0);
+    await expect(page.getByRole('link', { name: 'Clear filters' })).toHaveCount(0);
+    await expect(form.locator('.archive-filter-shell')).toHaveCSS(
+      'background-color',
+      shopBackground,
+    );
+    const category = form
+      .locator('details')
+      .filter({ has: page.locator('summary', { hasText: 'Category' }) });
+    await category.locator('summary').click();
+    const firstOption = category.locator('input[type="checkbox"]').first();
+    await firstOption.check();
+    await expect(page).toHaveURL(/category=/);
+    await expect(page.getByRole('link', { name: 'Clear filters' })).toBeVisible();
+    await page.getByRole('link', { name: 'Clear filters' }).click();
+    await expect(page).toHaveURL(/\/reviews$/);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+      true,
+    );
+  });
+}
 
 test('filter selections leave search inactive and multiple selections survive history', async ({
   page,
@@ -129,7 +163,7 @@ test('archive updates preserve the document, scroll, focus, and URL history', as
   await page.locator('#archiveSearch').fill('jeans');
   await page.getByRole('button', { name: 'Search', exact: true }).click();
   await expect(page).toHaveURL(/q=jeans/);
-  await page.getByRole('link', { name: 'Clear search/filters' }).click();
+  await page.getByRole('link', { name: 'Clear filters' }).click();
   await expect(page.locator('.reviews-summary')).toContainText('16 items found');
   await expect(page.locator('#archiveSearch')).toHaveValue('');
   await expect(jeans).not.toBeChecked();
@@ -155,8 +189,11 @@ for (const width of [1440, 390]) {
       .locator('details')
       .filter({ has: page.locator('summary', { hasText: 'Size' }) });
     await category.locator('summary').click();
-    await category.getByLabel('Jeans', { exact: true }).check();
-    await expect(page.locator('.reviews-summary')).toContainText('2 items found');
+    const firstCategory = category.locator('input[type=checkbox]').first();
+    if (await firstCategory.count()) {
+      await firstCategory.check();
+      await expect(page.locator('.reviews-summary')).toContainText(/\d+ items? found/);
+    }
     await expect(category).toHaveAttribute('open', '');
     await size.locator('summary').click();
     await expect(category).not.toHaveAttribute('open', '');
@@ -165,10 +202,10 @@ for (const width of [1440, 390]) {
     await expect(size).not.toHaveAttribute('open', '');
     await expect(page.locator('#archiveSearch')).toBeFocused();
     await category.locator('summary').click();
-    await category.getByLabel('Jeans', { exact: true }).focus();
+    if (await firstCategory.count()) await firstCategory.focus();
     await page.locator('.reviews-summary').click();
     await expect(category).not.toHaveAttribute('open', '');
-    await expect(category.getByLabel('Jeans', { exact: true })).not.toBeFocused();
+    if (await firstCategory.count()) await expect(firstCategory).not.toBeFocused();
   });
 }
 

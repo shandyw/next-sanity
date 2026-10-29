@@ -26,7 +26,7 @@ export function Header({ mobileSocials }: { mobileSocials?: React.ReactNode }) {
       <header className="site-header" id="site-header">
         <div className="header-inner">
           <a className="wordmark" href="/" aria-label="CurvyGirlReviews home">
-            <img className="wordmark__icon" src="/img/curvy.png" alt="" />
+            <img className="wordmark__icon" src="/img/curvy.png" alt="CurvyGirlReviews Logo" />
             CurvyGirlReviews
           </a>
 
@@ -52,20 +52,46 @@ export function Header({ mobileSocials }: { mobileSocials?: React.ReactNode }) {
               <li>
                 <a href="/reviews">Reviews</a>
               </li>
+
               <li>
-                <a href="/shop">Shop</a>
+                <a href="/shop">Shop the Looks</a>
+              </li>
+              <li>
+                <a href="/shop/closet">My Closet</a>
               </li>
               <li>
                 <a href="/about/">About</a>
-              </li>
-
-              <li>
-                <a href="/support/">Support the Reviews</a>
               </li>
             </ul>
 
             <div className="nav-actions">
               <SavedFindsLink />
+
+              <button
+                type="button"
+                data-open-dialog
+                aria-haspopup="dialog"
+                className="btn btn-accent"
+              >
+                Request a Review
+                <svg
+                  className="cta-arrow editorial-hero__cta-arrow"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  aria-hidden="true"
+                  focusable="false"
+                >
+                  <path
+                    d="M4 12h16m-7-7 7 7-7 7"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  ></path>
+                </svg>
+              </button>
             </div>
             {mobileSocials}
           </nav>
