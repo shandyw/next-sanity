@@ -23,6 +23,7 @@
     "@sanity/client": "^7.26.2",
     "@sanity/image-url": "^2.0.0",
     "@sanity/ui": "4.3.0",
+    "@vercel/speed-insights": "^2.0.0",
     "next": "16.3.8",
     "next-sanity": "13.3.4",
     "openai": "7.32.0",
