@@ -1,8 +1,8 @@
 import { getSettings } from '@/lib/content';
 import { giftListUrl } from '@/lib/urls';
-import { ExternalLinkIcon } from '@/components/ExternalLinkIcon';
 import { pageMetadata } from '@/lib/seo';
 import { EditorialHero } from '@/components/EditorialHero';
+import { ArrowIcon } from '@/components/ArrowIcon';
 
 export const metadata = pageMetadata(
   'Support the Reviews',
@@ -40,8 +40,8 @@ export default async function Page() {
                   rel="noopener noreferrer"
                 >
                   View My Amazon Wishlist
-                  <ExternalLinkIcon />
                   <span className="visually-hidden"> (opens in a new tab)</span>
+                  <ArrowIcon />
                 </a>
               ) : (
                 <p className="support-choice__unavailable">
@@ -68,7 +68,7 @@ export default async function Page() {
                 data-open-dialog
                 aria-haspopup="dialog"
               >
-                Request a Review
+                Request a Review <ArrowIcon />
               </button>
             </div>
           </section>

@@ -44,7 +44,7 @@ export function ProductCard({
       >
         <WishlistButton id={d._id} title={d.title} />
       </ImageCarousel>
-      <p className="product-card__brand" aria-hidden={!brand || undefined}>
+      <p className="product-card__eyebrow" aria-hidden={!brand || undefined}>
         {brand || '\u00a0'}
       </p>
       <h2 className="review-card__title">{d.title}</h2>
@@ -71,7 +71,7 @@ export function ProductCard({
           </p>
         )} */}
         <Link className="btn btn-accent" href={detailUrl}>
-          View item <ArrowIcon />
+          View item
         </Link>
         {d.relatedReview && (
           <a className="review-card__cta" href={`/reviews/${d.relatedReview.slug}`}>

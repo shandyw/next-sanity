@@ -3,7 +3,6 @@
 import { useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowIcon } from './ArrowIcon';
 import { changeWishlist, removeWishlistItems, useWishlist } from './WishlistStore';
 
 export function WishlistItems({
@@ -46,7 +45,7 @@ export function WishlistItems({
           </p>
           <div className="wishlist-empty__actions">
             <Link className="btn btn-accent btn-lg wishlist-empty__button" href="/shop/closet">
-              Browse My Closet <ArrowIcon />
+              Browse My Closet
             </Link>
             {missing > 0 && (
               <button

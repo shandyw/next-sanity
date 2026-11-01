@@ -184,10 +184,14 @@ test('form validation rejects spam and invalid submissions', () => {
 
 test('implemented editorial tokens meet text and control contrast requirements', () => {
   const css = readFileSync(new URL('../app/globals.css', import.meta.url), 'utf8');
-  const token = (name: string) => {
-    const value = css.match(new RegExp(`--color-${name}:\\s*#([0-9a-f]{6});`, 'i'))?.[1];
+  const token = (name: string, seen = new Set<string>()): string => {
+    assert.ok(!seen.has(name), `Circular semantic token: ${name}`);
+    seen.add(name);
+    const value = css.match(
+      new RegExp(`--color-${name}:\\s*(?:#([0-9a-f]{6})|var\\(\\s*--color-([a-z-]+)\\s*\\));`, 'i'),
+    );
     assert.ok(value, `Missing semantic token: ${name}`);
-    return value;
+    return value[1] || token(value[2], seen);
   };
   function luminance(hex: string) {
     const v = hex

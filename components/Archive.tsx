@@ -11,6 +11,7 @@ import { EditorialHero } from './EditorialHero';
 import { CardGrid } from './CardGrid';
 import { ProductGrid } from './ProductGrid';
 import { sectionProducts, shoppingSizes, type ShoppingSection } from '@/lib/shopping';
+import { ArrowIcon } from './ArrowIcon';
 export function Archive({
   all: documents,
   params: incomingParams,
@@ -315,7 +316,7 @@ export function Archive({
                 data-open-dialog
                 aria-haspopup="dialog"
               >
-                Request a Review
+                Request a Review <ArrowIcon />
               </button>
             </div>
           </div>

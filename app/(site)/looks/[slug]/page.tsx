@@ -14,6 +14,7 @@ import {
   lookOccasionLabel,
 } from '@/lib/looks';
 import { pageMetadata, socialImageUrl } from '@/lib/seo';
+import { ArrowIcon } from '@/components/ArrowIcon';
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -124,6 +125,7 @@ export default async function LookPage({ params }: Props) {
                         >
                           View on Amazon{' '}
                           <span className="visually-hidden">(opens in a new tab)</span>
+                          <ArrowIcon />
                         </a>
                       )}
                     </div>

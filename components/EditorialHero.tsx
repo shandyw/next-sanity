@@ -5,8 +5,6 @@ import { stegaClean } from 'next-sanity';
 import type { ReactNode } from 'react';
 import type { ContentPhoto } from '@/lib/types';
 import { getHeroImages } from '@/lib/hero-images';
-import { ArrowIcon } from './ArrowIcon';
-import { ExternalLinkIcon } from './ExternalLinkIcon';
 
 export async function EditorialHero({
   title,
@@ -112,11 +110,6 @@ export async function EditorialHero({
               data-hero-part="action"
             >
               {cta.label}
-              {/^https?:\/\//i.test(cta.href) ? (
-                <ExternalLinkIcon />
-              ) : (
-                <ArrowIcon className="editorial-hero__cta-arrow" />
-              )}
             </a>
           )}
         </div>

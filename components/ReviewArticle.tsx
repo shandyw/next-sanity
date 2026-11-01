@@ -1,7 +1,13 @@
 import { acknowledgment } from '@/lib/catalog';
 import { EditorialLink } from './EditorialLink';
 import { AffiliateDisclosure } from './AffiliateDisclosure';
-import { AMAZON_DISCLOSURE, associatesActive, experienceStatus, experienceLabel, type Experience } from '@/lib/amazon';
+import {
+  AMAZON_DISCLOSURE,
+  associatesActive,
+  experienceStatus,
+  experienceLabel,
+  type Experience,
+} from '@/lib/amazon';
 import Link from 'next/link';
 import { stegaClean } from 'next-sanity';
 import { PortableText } from '@portabletext/react';
@@ -297,7 +303,6 @@ export async function ReviewArticle({
             rel={findLink.affiliate ? 'sponsored noopener noreferrer' : 'noopener noreferrer'}
           >
             View on Amazon <span className="visually-hidden">(opens in a new tab)</span>
-            <ArrowIcon />
           </a>
         </section>
       )}

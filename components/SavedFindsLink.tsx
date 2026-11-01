@@ -11,11 +11,9 @@ export function SavedFindsLink() {
   const icon = (
     <>
       <WishlistHeart size={36} />
-      {count > 0 && (
-        <span className="saved-finds__count" aria-hidden="true">
-          {count}
-        </span>
-      )}
+      <span className="saved-finds__count" aria-hidden="true">
+        {count}
+      </span>
     </>
   );
   return (
