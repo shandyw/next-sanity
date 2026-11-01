@@ -74,13 +74,13 @@ test('desktop assembly timings, once-only playback and keyboard CTA', async ({ p
     await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
   ).toBeTruthy();
   const cta = hero.getByRole('link', { name: 'Explore the Reviews' });
+  expect(await cta.evaluate((element) => getComputedStyle(element, '::after').maskImage)).toContain(
+    '/img/cta-arrow.svg',
+  );
+  await expect(cta.locator('svg')).toHaveCount(0);
   await cta.hover();
   await expect
-    .poll(() =>
-      hero
-        .locator('.editorial-hero__cta-arrow')
-        .evaluate((element) => getComputedStyle(element).transform),
-    )
+    .poll(() => cta.evaluate((element) => getComputedStyle(element, '::after').transform))
     .toBe('matrix(1, 0, 0, 1, 4, 0)');
   await cta.focus();
   await expect(cta).toBeFocused();
@@ -93,6 +93,32 @@ test('desktop assembly timings, once-only playback and keyboard CTA', async ({ p
   await page.screenshot({ path: 'test-results/editorial-hero-desktop.png' });
   await page.keyboard.press('Enter');
   await expect(page).toHaveURL(/\/reviews$/);
+});
+
+test('external buttons use the shared up-right arrow', async ({ page }) => {
+  await page.goto('/support');
+  const button = page.locator('.btn[target="_blank"]').first();
+  if ((await button.count()) === 0) {
+    await page.evaluate(() => {
+      const link = document.createElement('a');
+      link.className = 'btn btn-accent';
+      link.href = 'https://example.com';
+      link.target = '_blank';
+      link.textContent = 'External destination';
+      document.body.append(link);
+    });
+  }
+  const external = page.locator('.btn[target="_blank"]').first();
+  expect(await external.evaluate((node) => getComputedStyle(node, '::after').maskImage)).toContain(
+    '/img/cta-arrow-external.svg',
+  );
+  const asset = await page.request.get('/img/cta-arrow-external.svg');
+  expect(asset.ok()).toBe(true);
+  expect(await asset.text()).toContain('xmlns="http://www.w3.org/2000/svg"');
+  await external.hover();
+  await expect
+    .poll(() => external.evaluate((node) => getComputedStyle(node, '::after').transform))
+    .toBe('matrix(1, 0, 0, 1, 2, -2)');
 });
 
 for (const width of [390, 320]) {
@@ -139,8 +165,8 @@ test('reduced motion skips entrance and arrow movement', async ({ page }) => {
   expect(await page.evaluate(() => window.heroAnimationCalls)).toEqual([]);
   expect(
     await hero
-      .locator('.editorial-hero__cta-arrow')
-      .evaluate((element) => getComputedStyle(element).transform),
+      .getByRole('link', { name: 'Explore the Reviews' })
+      .evaluate((element) => getComputedStyle(element, '::after').transform),
   ).toBe('none');
 });
 

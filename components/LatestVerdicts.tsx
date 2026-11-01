@@ -24,7 +24,7 @@ export function LatestVerdicts({ reviews }: { reviews: DocumentContent[] }) {
             <p>Honest fit notes. No sugarcoating.</p>
           </div>
         )}
-        <div className="review-checklist" aria-labelledby="checklist-title">
+        {/* <div className="review-checklist" aria-labelledby="checklist-title">
           <p id="checklist-title">On my review checklist</p>
           <ol>
             {['Fit', 'Fabric', 'Comfort'].map((criterion, index) => (
@@ -33,7 +33,7 @@ export function LatestVerdicts({ reviews }: { reviews: DocumentContent[] }) {
               </li>
             ))}
           </ol>
-        </div>
+        </div> */}
       </div>
     </section>
   );

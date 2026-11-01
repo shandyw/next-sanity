@@ -7,7 +7,7 @@ for (const width of [1440, 390]) {
     await page.goto('/shop');
     if (width < 1024) await page.getByRole('button', { name: 'Open menu' }).click();
     await expect(page.locator('.saved-finds')).toHaveAttribute('href', '/wishlist');
-    await expect(page.locator('.saved-finds__count')).toHaveCount(0);
+    await expect(page.locator('.saved-finds__count')).toHaveText('0');
     if (width < 1024) await expect(page.locator('.social-links--mobile-nav')).toBeVisible();
     else await expect(page.locator('.social-links--mobile-nav')).toBeHidden();
     await expect(page.locator('.footer-base__links a[href="/wishlist"]')).toHaveCount(1);
@@ -15,7 +15,10 @@ for (const width of [1440, 390]) {
     else await expect(page.locator('.social-tab')).toBeVisible();
     await expect(page.locator('.site-footer .social-links')).toHaveCount(1);
     if (width < 1024) await page.getByRole('button', { name: 'Close menu' }).click();
-    const save = page.locator('.review-card .wishlist-action button').first();
+    const firstLook = page.locator('.look-card').first();
+    test.skip((await firstLook.count()) === 0, 'No published Looks in this dataset.');
+    const title = await firstLook.locator('h2').innerText();
+    const save = firstLook.getByRole('button', { name: /Save item/ });
     await save.click();
     if (width < 1024) await page.getByRole('button', { name: 'Open menu' }).click();
     const shortcut = page.getByRole('link', { name: 'Saved Items: 1 saved item', exact: true });
@@ -24,15 +27,15 @@ for (const width of [1440, 390]) {
     await shortcut.focus();
     await page.keyboard.press('Enter');
     await expect(page).toHaveURL(/\/wishlist$/);
-    await expect(page.locator('.wishlist-row')).toHaveCount(1);
+    await expect(page.getByRole('link', { name: title })).toBeVisible();
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
     ).toBeTruthy();
     const second = await context.newPage();
     await second.goto('/wishlist');
-    await second.getByRole('button', { name: 'Clear saved items', exact: true }).click();
+    await second.getByRole('button', { name: `Remove ${title} from saved items` }).click();
     await expect(page.locator('.saved-finds')).toHaveAttribute('href', '/wishlist');
-    await expect(page.locator('.saved-finds__count')).toHaveCount(0);
+    await expect(page.locator('.saved-finds__count')).toHaveText('0');
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
     ).toBeTruthy();
@@ -62,7 +65,7 @@ test('bookmark shows the exact count and handles blocked storage', async ({ page
   );
   await page.reload();
   await expect(page.locator('.saved-finds')).toHaveAttribute('href', '/wishlist');
-  await expect(page.locator('.saved-finds__count')).toHaveCount(0);
+  await expect(page.locator('.saved-finds__count')).toHaveText('0');
 });
 
 for (const width of [1440, 390]) {
@@ -72,10 +75,10 @@ for (const width of [1440, 390]) {
     if (width < 1024) await page.getByRole('button', { name: 'Open menu' }).click();
     const heart = page.getByRole('link', { name: 'Saved Items: 0 saved items', exact: true });
     await expect(heart).toBeVisible();
-    await expect(heart.locator('.saved-finds__count')).toHaveCount(0);
+    await expect(heart.locator('.saved-finds__count')).toHaveText('0');
     await heart.focus();
     await page.keyboard.press('Enter');
     await expect(page).toHaveURL(/\/wishlist$/);
-    await expect(page.locator('.wishlist-empty')).toBeVisible();
+    await expect(page.getByText('No available Reviews or Looks are saved yet.')).toBeVisible();
   });
 }

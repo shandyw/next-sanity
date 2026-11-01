@@ -4,9 +4,9 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 import './globals.css';
 import { siteUrl } from '@/lib/seo';
 const bodyFont = localFont({
-  src: '../node_modules/@fontsource-variable/manrope/files/manrope-latin-wght-normal.woff2',
-  variable: '--font-manrope',
-  weight: '200 800',
+  src: '../node_modules/@fontsource-variable/montserrat/files/montserrat-latin-wght-normal.woff2',
+  variable: '--font-montserrat',
+  weight: '100 900',
   style: 'normal',
   display: 'swap',
   preload: true,

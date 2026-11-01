@@ -1,6 +1,7 @@
 import type { PageContent } from '@/lib/types';
 import Image from 'next/image';
 import { useId } from 'react';
+import { ArrowIcon } from './ArrowIcon';
 export function RequestBanner({
   content = {},
 }: { content?: Pick<PageContent, 'requestTitle' | 'requestIntro'> } = {}) {

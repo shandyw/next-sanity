@@ -1,7 +1,19 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
+import { usePathname } from 'next/navigation';
 import { SavedFindsLink } from './SavedFindsLink';
 export function Header({ mobileSocials }: { mobileSocials?: React.ReactNode }) {
+  const pathname = usePathname();
+  const activeSection =
+    pathname === '/shop/closet' || pathname.startsWith('/shop/closet/')
+      ? 'closet'
+      : pathname === '/shop' || pathname.startsWith('/shop/') || pathname.startsWith('/looks/')
+        ? 'shop'
+        : pathname === '/reviews' || pathname.startsWith('/reviews/')
+          ? 'reviews'
+          : pathname === '/about' || pathname.startsWith('/about/')
+            ? 'about'
+            : null;
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -50,17 +62,28 @@ export function Header({ mobileSocials }: { mobileSocials?: React.ReactNode }) {
           >
             <ul className="primary-nav__list">
               <li>
-                <a href="/reviews">Reviews</a>
+                <a href="/reviews" aria-current={activeSection === 'reviews' ? 'page' : undefined}>
+                  Reviews
+                </a>
               </li>
 
               <li>
-                <a href="/shop">Shop the Looks</a>
+                <a href="/shop" aria-current={activeSection === 'shop' ? 'page' : undefined}>
+                  Shop the Looks
+                </a>
               </li>
               <li>
-                <a href="/shop/closet">My Closet</a>
+                <a
+                  href="/shop/closet"
+                  aria-current={activeSection === 'closet' ? 'page' : undefined}
+                >
+                  My Closet
+                </a>
               </li>
               <li>
-                <a href="/about/">About</a>
+                <a href="/about/" aria-current={activeSection === 'about' ? 'page' : undefined}>
+                  About
+                </a>
               </li>
             </ul>
 
@@ -74,23 +97,6 @@ export function Header({ mobileSocials }: { mobileSocials?: React.ReactNode }) {
                 className="btn btn-accent"
               >
                 Request a Review
-                <svg
-                  className="cta-arrow editorial-hero__cta-arrow"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  aria-hidden="true"
-                  focusable="false"
-                >
-                  <path
-                    d="M4 12h16m-7-7 7 7-7 7"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  ></path>
-                </svg>
               </button>
             </div>
             {mobileSocials}

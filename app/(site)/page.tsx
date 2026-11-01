@@ -4,7 +4,7 @@ import { LatestVerdicts } from '@/components/LatestVerdicts';
 import { ContentImage } from '@/components/ContentImage';
 import { EditorialHero } from '@/components/EditorialHero';
 import { Shannequin } from '@/components/Shannequin';
-import { RequestBanner } from '@/components/RequestBanner';
+// import { RequestBanner } from '@/components/RequestBanner';
 import { Video } from '@/components/Video';
 import { pageMetadata } from '@/lib/seo';
 import { ArrowIcon } from '@/components/ArrowIcon';
@@ -12,7 +12,8 @@ import Link from 'next/link';
 import { getLooks, lookImage, lookOccasionLabel } from '@/lib/looks';
 import { getSettings } from '@/lib/content';
 import { ClosetBanner } from '@/components/ClosetBanner';
-import { WishlistButton } from '@/components/WishlistButton';
+import { HomeLooksCarousel } from '@/components/HomeLooksCarousel';
+import { HomeFeaturedLook } from '@/components/HomeFeaturedLook';
 export const metadata = pageMetadata(
   'Real Curves. Unfiltered Reviews.',
   'Honest plus-size fashion reviews, clothing finds, and review requests.',
@@ -71,51 +72,67 @@ export default async function Home() {
 
       <LatestVerdicts reviews={reviews} />
 
-      <section className="container home-looks" aria-labelledby="home-looks-heading">
-        <div className="home-section-heading">
-          <h2 id="home-looks-heading">Shop the Looks</h2>
-          <Link className="text-link" href="/shop">
-            Browse all Looks →
-          </Link>
-        </div>
-        {looks.length ? (
-          <div className="look-grid">
-            {looks.slice(0, 3).map((look) => (
-              <article className="look-card" key={look._id}>
-                <Link
-                  className="look-card__image"
-                  href={`/looks/${encodeURIComponent(look.slug)}`}
-                  aria-label={`View ${look.title}`}
-                >
-                  <ContentImage image={lookImage(look)} width={720} height={900} />
-                </Link>
-                <div className="look-card__copy">
-                  <WishlistButton id={look._id} title={look.title} />
-                  <p className="eyebrow">{lookOccasionLabel(look.occasion)}</p>
-                  <h3>
-                    <Link href={`/looks/${encodeURIComponent(look.slug)}`}>{look.title}</Link>
-                  </h3>
-                </div>
-              </article>
-            ))}
+      {looks.length === 1 ? (
+        <HomeFeaturedLook look={looks[0]} />
+      ) : (
+        <section className="home-looks">
+          <div className="container" aria-labelledby="home-looks-heading">
+            <div className="home-section-heading">
+              <div>
+                <h2 id="home-looks-heading">Shop the Looks</h2>
+                <p>Outfits for wherever life takes you.</p>
+              </div>
+              <Link className="text-link" href="/shop">
+                Browse all Looks →
+              </Link>
+            </div>
+            {looks.length ? (
+              <HomeLooksCarousel>
+                {looks.map((look) => (
+                  <article className="look-card" key={look._id}>
+                    <Link
+                      className="look-card__image home-look-carousel__image"
+                      href={`/looks/${encodeURIComponent(look.slug)}`}
+                      aria-label={`View ${look.title}`}
+                    >
+                      <ContentImage
+                        image={lookImage(look)}
+                        width={720}
+                        height={960}
+                        sizes="(max-width: 767px) 90vw, (max-width: 1023px) 44vw, 29vw"
+                      />
+                    </Link>
+                    <div className="look-card__copy home-look-carousel__copy">
+                      <p className="eyebrow">{lookOccasionLabel(look.occasion)}</p>
+                      <h3>
+                        <Link href={`/looks/${encodeURIComponent(look.slug)}`}>{look.title}</Link>
+                      </h3>
+                    </div>
+                  </article>
+                ))}
+              </HomeLooksCarousel>
+            ) : (
+              <p>Outfit stories are coming soon.</p>
+            )}
           </div>
-        ) : (
-          <p>Outfit stories are coming soon.</p>
-        )}
-      </section>
+        </section>
+      )}
 
       {categories.length > 0 && (
-        <section className="container home-categories" aria-labelledby="home-categories-heading">
-          <h2 id="home-categories-heading">Browse by Category</h2>
-          <div className="look-filters">
-            {categories.map((category) => (
-              <Link
-                key={category._id}
-                href={`/reviews?category=${encodeURIComponent(category.slug || category._id)}`}
-              >
-                {category.title}
-              </Link>
-            ))}
+        <section className="home-categories" aria-labelledby="home-categories-heading">
+          <div className="container">
+            <h2 id="home-categories-heading">Browse by Category</h2>
+            <div className="look-filters">
+              {categories.map((category) => (
+                <Link
+                  className="btn btn-filter"
+                  key={category._id}
+                  href={`/reviews?category=${encodeURIComponent(category.slug || category._id)}`}
+                >
+                  {category.title}
+                </Link>
+              ))}
+            </div>
           </div>
         </section>
       )}
@@ -162,27 +179,37 @@ export default async function Home() {
       </section>
 
       {content.videoUrl && (
-        <section className="container home-video" aria-label="Fashion video">
-          <Video
-            url={content.videoUrl}
-            transcript={content.videoTranscript}
-            captions={content.videoCaptionsUrl}
-          />
+        <section className="home-video" aria-label="Fashion video">
+          <div className="container">
+            <Video
+              url={content.videoUrl}
+              transcript={content.videoTranscript}
+              captions={content.videoCaptionsUrl}
+            />
+          </div>
         </section>
       )}
 
       <Shannequin image={about.shannequinImage} />
-      <div className="container home-closet">
-        <ClosetBanner settings={settings} />
+      <div className="home-closet">
+        <div className="container">
+          <ClosetBanner settings={settings} />
+        </div>
       </div>
-      <section className="container home-support" aria-labelledby="home-support-heading">
-        <h2 id="home-support-heading">Support the Reviews</h2>
-        <p>Help choose what I try on next or visit my Amazon gift wishlist.</p>
-        <Link className="btn btn-accent" href="/support">
-          Ways to support
-        </Link>
+      <section className="home-support">
+        <div className="container" aria-labelledby="home-support-heading">
+          <div className="p-10">
+            <h2 id="home-support-heading">Support the Reviews</h2>
+            <p className="home-support__intro">
+              Help choose what I try on next or visit my Amazon gift wishlist.
+            </p>
+            <Link className="btn btn-accent" href="/support">
+              Ways to support
+            </Link>
+          </div>
+        </div>
       </section>
-      <RequestBanner content={content} />
+      {/* <RequestBanner content={content} /> */}
     </main>
   );
 }

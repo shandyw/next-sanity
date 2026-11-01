@@ -34,9 +34,6 @@ export function ReviewMedia({
             aria-controls={`${id}-${videoIndex}`}
             onClick={() => choose(videoIndex)}
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-              <path d="m8 4 12 8-12 8Z" />
-            </svg>
             Watch my try-on
           </button>
         )}

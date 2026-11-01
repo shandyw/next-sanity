@@ -2,7 +2,6 @@ import Image from 'next/image';
 import { stegaClean } from 'next-sanity';
 import type { Settings } from '@/lib/types';
 import { closetShopUrl } from '@/lib/urls';
-import { ExternalLinkIcon } from './ExternalLinkIcon';
 
 export function ClosetBanner({
   settings,
@@ -19,13 +18,15 @@ export function ClosetBanner({
   return (
     <section className="closet-banner" aria-labelledby="closet-banner-title">
       <div className="closet-banner__copy">
-        <p className="closet-banner__eyebrow">Shop my closet</p>
-        <Heading id="closet-banner-title">Shop My Closet</Heading>
-        <p>I sell clothing, shoes, and accessories from my personal closet on Vinted.</p>
+        <p className="closet-banner__eyebrow">Lets Go</p>
+        <h2 id="closet-banner-title">Shop My Closet</h2>
+        <p className="closet-banner__intro">
+          I sell clothing, shoes, and accessories from my personal closet on Vinted.
+        </p>
         {vinted && (
           <div className="closet-banner__actions">
-            <a className="btn btn-ghost" href={vinted} target="_blank" rel="noopener noreferrer">
-              Shop My Vinted Closet <ExternalLinkIcon />
+            <a className="btn btn-accent" href={vinted} target="_blank" rel="noopener noreferrer">
+              Shop My Vinted Closet
               <span className="visually-hidden"> (opens in a new tab)</span>
             </a>
           </div>
