@@ -1,21 +1,65 @@
-import { amazonFieldsVisible, catalogSource, type CatalogFields } from '../lib/catalog';
-import { catalogProductFields, reviewCatalogFields, productCollection } from './catalog/schema';
 import { editorialImageEntry, find } from './finds/schema';
 import { look } from './looks/schema';
 import { generateSeoSlug } from './seo-slug';
-import {
-  amazonProductFields,
-  amazonSettingsField,
-  productPhotoSourceFields,
-} from './amazon-fields';
-import { reviewWishlistFields } from './review-wishlist/schema';
 import { measurementAreas } from '../lib/shannequin-measurements';
 import { reviewSections } from '../lib/review-layout';
-import { PRODUCT_IMAGE, productImageResolutionWarning } from '../lib/product-images';
 import { defineType, defineField, defineArrayMember } from 'sanity';
-import { vintedUrl, closetShopUrl, safeExternal, safeVideoUrl } from '../lib/urls';
-import { SaleStatusInput } from './inventory/SaleStatusInput';
-import { INVENTORY_API_VERSION, isInventorySkuUnique } from './inventory/model';
+import { closetShopUrl, safeExternal, safeVideoUrl } from '../lib/urls';
+import { amazonSettingsField } from './amazon-fields';
+const reviewCatalogFields = [
+  defineField({
+    name: 'readerProvided',
+    title: 'Reader-provided item',
+    type: 'boolean',
+    initialValue: false,
+  }),
+  defineField({
+    name: 'senderNamePermission',
+    title: 'Permission to display the sender name',
+    type: 'boolean',
+    initialValue: false,
+    hidden: ({ document }) => !document?.readerProvided,
+    description:
+      'Enable only after obtaining permission for the public display name and thank-you text.',
+  }),
+  defineField({
+    name: 'senderDisplayName',
+    title: 'Public sender display name',
+    type: 'string',
+    hidden: ({ document }) => !document?.readerProvided || !document?.senderNamePermission,
+    validation: (r) =>
+      r
+        .max(80)
+        .custom((v, c) =>
+          !v || c.document?.senderNamePermission === true
+            ? true
+            : 'Remove the sender name or obtain permission. Never store contact details here.',
+        ),
+  }),
+  defineField({
+    name: 'thankYouMessage',
+    title: 'Public thank-you message',
+    type: 'text',
+    rows: 2,
+    hidden: ({ document }) => !document?.readerProvided || !document?.senderNamePermission,
+    description:
+      'No emails, phone numbers or private details. Without permission the site uses a fixed anonymous thank-you.',
+    validation: (r) =>
+      r
+        .max(300)
+        .custom((v, c) =>
+          !v
+            ? true
+            : c.document?.senderNamePermission !== true
+              ? 'Custom text requires permission; otherwise use the anonymous default.'
+              : /\S+@\S+|https?:\/\/|\+?\d[\d ().-]{7,}\d/.test(v)
+                ? 'Remove contact details and URLs.'
+                : true,
+        ),
+  }),
+];
+
+
 const slug = defineField({
   name: 'slug',
   title: 'URL slug',
@@ -281,15 +325,6 @@ const review = defineType({
         'Displays the shared Shannequin panel when supplied. Its image is managed once in Homepage → Shannequin full-body photograph.',
       validation: (r) => r.max(500),
     }),
-    ref('ctaProduct', 'product', 'Bottom CTA — shopping item or curated find (optional)'),
-    defineField({
-      name: 'ctaLabel',
-      title: 'Bottom CTA button label (optional)',
-      type: 'string',
-      description:
-        'Defaults to View item details or Explore this find. The button opens the selected item’s detail page.',
-      validation: (r) => r.max(80),
-    }),
     defineField({
       name: 'titleHighlight',
       title: 'Legacy preview highlight (unused)',
@@ -408,357 +443,6 @@ const review = defineType({
       return true;
     }),
 });
-const product = defineType({
-  name: 'product',
-  title: 'Product',
-  type: 'document',
-  preview: { select: { title: 'title', subtitle: 'sku', media: 'photos.0' } },
-  fields: [
-    ...catalogProductFields,
-    ...reviewWishlistFields,
-    ...amazonProductFields,
-    { ...title, validation: (r) => r.required().max(500) },
-    slug,
-    defineField({
-      name: 'sku',
-      hidden: ({ document }) => catalogSource((document || {}) as CatalogFields) !== 'closet',
-      title: 'SKU',
-      type: 'string',
-      description:
-        'Your unique inventory identifier, e.g. CGR-001. Leading zeros are preserved. Legacy items may leave this blank.',
-      validation: (rule) =>
-        rule.max(64).custom(async (value, context) => {
-          if (!value) return true;
-          if (!/^[A-Za-z0-9][A-Za-z0-9_-]*$/.test(value))
-            return 'Use letters, numbers, hyphens or underscores without spaces.';
-          try {
-            const unique = await isInventorySkuUnique(
-              context
-                .getClient({ apiVersion: INVENTORY_API_VERSION })
-                .withConfig({ perspective: 'raw', useCdn: false }),
-              String(context.document?._id || ''),
-              value,
-            );
-            return unique || 'This SKU is already assigned to another item (including drafts).';
-          } catch {
-            return 'Unable to check SKU uniqueness. Reconnect and validate before publishing.';
-          }
-        }),
-    }),
-    defineField({
-      name: 'saleStatus',
-      hidden: ({ document }) => catalogSource((document || {}) as CatalogFields) !== 'closet',
-      title: 'Sale Status',
-      type: 'string',
-      initialValue: 'available',
-      options: {
-        list: [
-          { title: 'Available', value: 'available' },
-          { title: 'Sold', value: 'sold' },
-        ],
-      },
-      components: { input: SaleStatusInput },
-      validation: (rule) =>
-        rule.custom(
-          (value) => !value || ['available', 'sold'].includes(value) || 'Select Available or Sold.',
-        ),
-    }),
-    defineField({
-      name: 'shoppingSection',
-      title: 'Legacy shopping section',
-      hidden: true,
-      type: 'string',
-      initialValue: 'closet',
-      options: {
-        list: [
-          { title: 'My Closet', value: 'closet' },
-          { title: 'Curated Finds', value: 'finds' },
-        ],
-      },
-      description: 'Existing items without this field remain in My Closet.',
-    }),
-    defineField({
-      ...url('purchaseUrl', 'Purchase link'),
-      description:
-        'Vinted listing for closet items; retailer product page for curated finds. The master CSV URL column fills this link. A blank URL cell preserves existing links.',
-      validation: (r) =>
-        r.custom((value, context) =>
-          !value ||
-          (catalogSource((context.document || {}) as CatalogFields) === 'amazon'
-            ? safeExternal(value)
-            : vintedUrl(value))
-            ? true
-            : 'Use an HTTPS retailer URL, or a Vinted item listing.',
-        ),
-    }),
-    defineField({
-      name: 'retailer',
-      title: 'Retailer name',
-      type: 'string',
-      hidden: ({ document }) => !amazonFieldsVisible((document || {}) as CatalogFields),
-      description: 'Shown in Shop at [Retailer] buttons for curated finds.',
-    }),
-    defineField({
-      name: 'affiliateLink',
-      title: 'Purchase link earns commission',
-      type: 'boolean',
-      hidden: ({ document }) => !amazonFieldsVisible((document || {}) as CatalogFields),
-      initialValue: false,
-    }),
-    defineField({
-      name: 'personallyTried',
-      title: 'Personally tried',
-      type: 'boolean',
-      hidden: ({ document }) => !amazonFieldsVisible((document || {}) as CatalogFields),
-      initialValue: false,
-      description:
-        'Select only if you have worn or tested this item. Otherwise curated items say Not yet tried.',
-    }),
-    defineField({
-      name: 'availableSizes',
-      title: 'Available sizes (curated finds)',
-      type: 'array',
-      hidden: ({ document }) => !amazonFieldsVisible((document || {}) as CatalogFields),
-      of: [{ type: 'string' }],
-      validation: (r) => r.unique(),
-    }),
-    defineField({
-      name: 'priceMaintained',
-      title: 'Retailer price is reliably maintained',
-      type: 'boolean',
-      hidden: ({ document }) => !amazonFieldsVisible((document || {}) as CatalogFields),
-      initialValue: false,
-      description:
-        'Curated prices and price filters are shown only when this is enabled. Confirm prices at the retailer.',
-    }),
-    defineField({
-      ...url('newPurchaseUrl', 'Optional shop-new purchase link'),
-      description:
-        'For a closet item you also recommend buying new. Keep the same product and related review.',
-    }),
-    defineField({ name: 'newRetailer', title: 'Shop-new retailer name', type: 'string' }),
-    defineField({
-      name: 'newAffiliateLink',
-      title: 'Shop-new link earns commission',
-      type: 'boolean',
-      initialValue: false,
-    }),
-    defineField({ name: 'description', title: 'Description', type: 'text' }),
-    defineField({
-      name: 'photos',
-      title: 'Photos (owned or authorized)',
-      description:
-        '4:5 portrait. Minimum 800 × 1000 px after cropping; recommended 1080 × 1350 px. Maximum 20 MB per photo. Use the Product card 4:5 preview to check framing. JPEG/PNG recommended; export HEIC to JPEG/PNG if conversion is needed.',
-      type: 'array',
-      of: [
-        defineArrayMember({
-          type: 'image',
-          options: {
-            hotspot: {
-              previews: [
-                { title: 'Product card — 4:5 portrait', aspectRatio: PRODUCT_IMAGE.aspectRatio },
-              ],
-            },
-            accept: 'image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif',
-          },
-          validation: (rule) => [
-            rule.custom(async (value, context) => {
-              if (!value?.asset?._ref) return true;
-              try {
-                const asset = await context
-                  .getClient({ apiVersion: INVENTORY_API_VERSION })
-                  .fetch<{ size?: number } | null>('*[_id == $id][0]{size}', {
-                    id: value.asset._ref,
-                  });
-                return !asset?.size || asset.size <= PRODUCT_IMAGE.maxBytes
-                  ? true
-                  : 'This photo exceeds 20 MB. Compress or replace it before publishing.';
-              } catch {
-                return 'Unable to check image size. Reconnect and validate before publishing.';
-              }
-            }),
-            rule.custom(productImageResolutionWarning).warning(),
-          ],
-          fields: [
-            ...productPhotoSourceFields,
-            defineField({
-              name: 'sourceFilenames',
-              title: 'Original import filenames',
-              type: 'array',
-              of: [{ type: 'string' }],
-              readOnly: true,
-              hidden: true,
-              description:
-                'Remembered by the master importer so future imports reuse this image without asking for the file again.',
-            }),
-            {
-              name: 'alt',
-              title: 'Image description',
-              type: 'string',
-              validation: (r) => r.required(),
-            },
-          ],
-        }),
-      ],
-    }),
-    ref('brand', 'brand', 'Brand'),
-    refs('categories', 'clothingCategory', 'Clothing categories'),
-    defineField({ name: 'size', title: 'Label size', type: 'string' }),
-    defineField({
-      name: 'condition',
-      title: 'Condition',
-      type: 'string',
-      options: {
-        list: [
-          { title: 'New with tags — unworn, original tags attached', value: 'New with tags' },
-          { title: 'New without tags — unworn, tags removed', value: 'New without tags' },
-          { title: 'Excellent — minimal signs of wear', value: 'Excellent' },
-          { title: 'Very good (legacy) — light signs of wear', value: 'Very good' },
-          { title: 'Good — noticeable normal wear, usable', value: 'Good' },
-          { title: 'Fair — significant wear or defects, disclose below', value: 'Fair' },
-          { title: 'Satisfactory (legacy) — significant wear, usable', value: 'Satisfactory' },
-        ],
-      },
-      description:
-        'Confirm condition yourself. Images cannot authenticate designer items. Existing condition values are preserved.',
-    }),
-    defineField({
-      name: 'styleModel',
-      title: 'Style / model name',
-      type: 'string',
-      validation: (r) => r.max(200),
-    }),
-    defineField({
-      name: 'wearNotes',
-      title: 'Defects and wear notes',
-      type: 'text',
-      rows: 3,
-      description:
-        'Public item details. Private costs and pricing history live in the pricing assistant, never here.',
-      validation: (r) => r.max(2000),
-    }),
-    defineField({
-      name: 'labelDefectPhotos',
-      title: 'Additional label and defect photos (public assets)',
-      type: 'array',
-      validation: (r) => r.max(8),
-      of: [
-        defineArrayMember({
-          type: 'image',
-          options: { hotspot: true },
-          fields: [
-            defineField({
-              name: 'alt',
-              title: 'Image description',
-              type: 'string',
-              validation: (r) => r.required(),
-            }),
-          ],
-        }),
-      ],
-    }),
-    defineField({
-      name: 'masterInventorySku',
-      title: 'Master inventory identity',
-      type: 'string',
-      readOnly: true,
-      hidden: true,
-      description: 'Stable SKU association set by the master CSV importer.',
-    }),
-    defineField({
-      name: 'vintedPrice',
-      title: 'Vinted price (master inventory)',
-      type: 'object',
-      readOnly: true,
-      hidden: true,
-      description:
-        'Price from your master CSV. Blank cells preserve the last stored value. A filled price also updates Current listing price.',
-      fields: [
-        defineField({
-          name: 'amount',
-          title: 'Asking price',
-          type: 'number',
-          validation: (r) => r.required().min(0),
-        }),
-        defineField({ name: 'currency', type: 'string', initialValue: 'USD', hidden: true }),
-      ],
-    }),
-    defineField({
-      name: 'listingPrice',
-      title: 'Current listing price',
-      type: 'number',
-      validation: (r) => r.min(0),
-    }),
-    defineField({ name: 'currency', type: 'string', initialValue: 'USD', hidden: true }),
-    defineField({
-      name: 'availability',
-      title: 'Availability (last known)',
-      type: 'string',
-      initialValue: 'available',
-      description:
-        'Legacy/import availability. When Sale Status is assigned, it controls this field; change Sale Status above.',
-      readOnly: ({ document }) =>
-        ['available', 'sold'].includes(String(document?.saleStatus || '')),
-      hidden: ({ document }) => ['available', 'sold'].includes(String(document?.saleStatus || '')),
-      options: { list: ['available', 'reserved', 'sold', 'unknown'] },
-      validation: (r) => r.required(),
-    }),
-    defineField({
-      name: 'vintedUrl',
-      title: 'External Vinted listing',
-      type: 'url',
-      hidden: ({ document }) => catalogSource((document || {}) as CatalogFields) === 'amazon',
-      validation: (r) =>
-        r.custom((v) => (!v || vintedUrl(v) ? true : 'Enter an HTTPS Vinted /items/ listing URL.')),
-    }),
-    defineField({ name: 'externalListingId', title: 'External listing ID', type: 'string' }),
-    defineField({
-      name: 'dataSource',
-      title: 'Data source',
-      type: 'string',
-      initialValue: 'manual',
-      options: { list: ['manual', 'import'] },
-      validation: (r) => r.required(),
-    }),
-    defineField({
-      name: 'importSource',
-      title: 'Authorized import source key',
-      type: 'string',
-      description:
-        'Used with external listing ID for stable matching. Leave empty for manual products.',
-    }),
-    defineField({
-      name: 'importEnabled',
-      title: 'Allow listing updates from imports',
-      type: 'boolean',
-      initialValue: false,
-      description:
-        'Switch off to protect manually curated listing fields. Imports never change photos, title, description, or review links after creation.',
-    }),
-    defineField({
-      name: 'lastSuccessfullyCheckedAt',
-      title: 'Last successfully checked',
-      type: 'datetime',
-    }),
-    ref('relatedReview', 'review', 'Related review'),
-  ],
-  validation: (r) =>
-    r.custom((d) => {
-      if (d?.catalogSource !== 'amazon' && d?.saleStatus && d.saleStatus !== d.availability)
-        return 'Sale Status and listing availability must agree. Re-select Sale Status to synchronize them.';
-      if (d?.shoppingSection === 'finds' && (!d.purchaseUrl || !d.retailer))
-        return 'Curated finds need a purchase link and retailer name.';
-      if (d?.newPurchaseUrl && !d.newRetailer) return 'Add the shop-new retailer name.';
-      if (
-        d?.slug &&
-        typeof d.slug === 'object' &&
-        'current' in d.slug &&
-        ['closet', 'finds'].includes(String(d.slug.current))
-      )
-        return 'Choose a slug other than closet or finds; these are shopping section routes.';
-      return true;
-    }),
-});
 const blog = defineType({
   name: 'blogPost',
   title: 'Blog post',
@@ -767,7 +451,6 @@ const blog = defineType({
     ...articleFields,
     refs('categories', 'blogCategory', 'Blog categories'),
     refs('relatedReviews', 'review', 'Related reviews'),
-    refs('relatedProducts', 'product', 'Related closet products'),
   ],
 });
 const named = (name: string, label: string) =>
@@ -919,67 +602,12 @@ const about = defineType({
     ...requestFields,
   ],
 });
-const hasHeroImage = (value: unknown) =>
-  Boolean((value as { asset?: { _ref?: string } } | undefined)?.asset?._ref);
-const editorialHeroMedia = defineType({
-  name: 'editorialHeroMedia',
-  title: 'Editorial hero images',
-  type: 'object',
-  fields: [
-    defineField({
-      name: 'layout',
-      title: 'Image layout',
-      type: 'string',
-      initialValue: 'portrait',
-      options: {
-        layout: 'radio',
-        list: [
-          { title: 'Portrait — two images', value: 'portrait' },
-          { title: 'Landscape — one image', value: 'landscape' },
-        ],
-      },
-    }),
-    defineField({
-      ...image('portraitMain', 'Portrait image 1'),
-      hidden: ({ parent }) => (parent as { layout?: string } | undefined)?.layout === 'landscape',
-    }),
-    defineField({
-      ...image('portraitSecondary', 'Portrait image 2'),
-      hidden: ({ parent }) => (parent as { layout?: string } | undefined)?.layout === 'landscape',
-    }),
-    defineField({
-      ...image('landscapePhoto', 'Landscape image'),
-      hidden: ({ parent }) => (parent as { layout?: string } | undefined)?.layout !== 'landscape',
-    }),
-  ],
-  validation: (rule) =>
-    rule.custom((value) => {
-      if (!value) return true;
-      if (value.layout === 'landscape')
-        return hasHeroImage(value.landscapePhoto) || 'Add one landscape image before publishing.';
-      return hasHeroImage(value.portraitMain) === hasHeroImage(value.portraitSecondary)
-        ? true
-        : 'Add both portrait images, or leave both empty to use the existing photo pool.';
-    }),
-});
 const settings = defineType({
   name: 'siteSettings',
   title: 'Site settings',
   type: 'document',
   fields: [
     amazonSettingsField,
-    defineField({
-      name: 'closetHero',
-      title: 'My Closet editorial hero',
-      type: 'editorialHeroMedia',
-      description: 'Choose two portrait images or one landscape image for My Closet.',
-    }),
-    defineField({
-      name: 'findsHero',
-      title: 'Curated Finds editorial hero',
-      type: 'editorialHeroMedia',
-      description: 'Choose two portrait images or one landscape image for Curated Finds.',
-    }),
     defineField({
       name: 'leadModal',
       title: 'Marketing lead modal',
@@ -1079,12 +707,9 @@ export const schemaTypes = [
   editorialImageEntry,
   find,
   look,
-  productCollection,
   seo,
-  editorialHeroMedia,
   body,
   review,
-  product,
   blog,
   author,
   named('clothingCategory', 'Clothing category'),

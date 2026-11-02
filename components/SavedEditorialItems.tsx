@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { changeWishlist, removeWishlistItems, useWishlist } from './WishlistStore';
 
 export function SavedEditorialItems({
@@ -11,13 +11,14 @@ export function SavedEditorialItems({
 }) {
   const { ids, ready, available } = useWishlist();
   const [message, setMessage] = useState('');
+  const heading = useRef<HTMLHeadingElement>(null);
   const saved = items.filter((item) => ids.includes(item.id));
   const currentIds = new Set(items.map((item) => item.id));
   const unavailable = ids.filter((id) => !currentIds.has(id));
 
   return (
     <section aria-labelledby="saved-items-heading" className="saved-editorial">
-      <h2 id="saved-items-heading">Your saved Reviews and Looks</h2>
+      <h2 id="saved-items-heading" ref={heading} tabIndex={-1}>Your saved Reviews and Looks</h2>
       <p role="status">
         {!ready
           ? 'Loading saved items…'
@@ -49,6 +50,18 @@ export function SavedEditorialItems({
           <Link href="/reviews">read Reviews</Link>.
         </p>
       ) : null}
+      {ready && available && ids.length > 0 && (
+        <button
+          type="button"
+          className="btn btn-ghost"
+          onClick={() => {
+            setMessage(changeWishlist().message);
+            heading.current?.focus();
+          }}
+        >
+          Clear saved items
+        </button>
+      )}
       {ready && available && unavailable.length > 0 && (
         <div className="saved-editorial__unavailable">
           <p>

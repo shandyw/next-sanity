@@ -32,7 +32,7 @@ export function HomeFeaturedLook({ look }: { look: Look }) {
           </Link>
           <div className="home-featured-look__copy">
             <p className="eyebrow home-featured-look__eyebrow">Shop the Look</p>
-            <h3 id="home-looks-heading">{look.title}</h3>
+            <h3>{look.title}</h3>
             {look.description && <p className="home-featured-look__intro">{look.description}</p>}
             {finds.length > 0 && (
               <div className="home-featured-look__finds">

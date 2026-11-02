@@ -1,4 +1,4 @@
-import { acknowledgment } from '@/lib/catalog';
+import { acknowledgment } from '@/lib/acknowledgment';
 import { EditorialLink } from './EditorialLink';
 import { AffiliateDisclosure } from './AffiliateDisclosure';
 import {

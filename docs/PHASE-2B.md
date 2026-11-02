@@ -1,6 +1,6 @@
 # Phase 2B status
 
-This is a **local code change**. It has not been deployed, and no live Sanity document or asset has been deleted.
+The Phase 2B website is deployed to Vercel production and was manually verified by the owner. The authorized legacy-product deletion completed on 2026-11-01; no Sanity assets were deleted. The legacy source-code cleanup is implemented locally on the Preview branch and has not been deployed.
 
 ## Public experience
 
@@ -16,16 +16,16 @@ Finds have no public detail route. Product title, category, and an Amazon produc
 
 ## Legacy code and data
 
-Legacy product, inventory, and wishlist tools are detached from Studio navigation. The legacy pricing API route and importer npm command were removed. Their source modules and product schema remain in the repository temporarily so existing production records can still be inspected and the data cleanup can be reviewed. Public pages no longer call `getDocuments('product')`.
+The legacy `product` schema, inventory and wishlist tools, pricing assistant, importers, and product-only frontend modules have been removed locally. The pricing API route and importer npm command were removed earlier. Shared Amazon, acknowledgement, review, and Saved Items behavior remains in the active code. Public pages do not call `getDocuments('product')`.
 
-The read-only [deletion dry run](PHASE-2B-DELETION-DRY-RUN.md) found **22 `product` documents** in the `production` dataset: 10 published/other and 12 drafts. It found no incoming strong or weak references from other documents and no image or file assets shared between target products and other documents. No assets are proposed for deletion. Re-run the audit immediately before any deletion because the dataset may change.
+The read-only [deletion dry run](PHASE-2B-DELETION-DRY-RUN.md) found **22 `product` documents** in the `production` dataset: 10 published/other and 12 drafts. It found no incoming strong or weak references from other documents and no image or file assets shared between target products and other documents. The immediately preceding preflight confirmed the same target set. One atomic transaction deleted exactly those 22 approved documents. Post-deletion verification found **0 products**, **72 remaining documents**, unchanged revisions for every non-target document, and all **36 image assets** intact. See the [execution record](PHASE-2B-FINAL-DELETION-VERIFICATION.md).
 
-A full Sanity export, including drafts and 36 assets, is stored locally at `imports/phase2b-production-2026-10-28.tar.gz` (gitignored, 38 MB). SHA-256: `f92208082af9927df44b18b281adb8a135672a84949b8c3f315697994ba22927`. The archive listing and checksum were verified. Recovery should use Sanity's dataset import procedure into a separate dataset first; do not overwrite production without a reviewed recovery plan. Copy this backup to durable private storage before live deletion; local `imports/` alone is not a durable backup.
+A full Sanity export, including drafts and 36 assets, is stored locally at `imports/phase2b-production-2026-10-28.tar.gz` (gitignored, 38 MB). SHA-256: `f92208082af9927df44b18b281adb8a135672a84949b8c3f315697994ba22927`. The archive listing and checksum were verified. The owner confirmed a private offsite copy; it was not independently accessed during the audit. Historical listing and reference prices remain in that backup. Recovery should first import into a separate dataset; restoring to production requires separate review and authorization.
 
-Live deletion is pending. The owner identified Vercel as the host and `https://www.curvygirlreviews.com` as the production URL. A live check on 2026-10-29 found that both `/` and `/shop` return HTTP 302 redirects to `curvygirlreviews-com.l.ink`; the destination identifies itself as a PHP link service, so the replacement Next.js frontend is not verified at that URL. `SITE_URL` is unset locally. Do not delete the 22 documents until the replacement frontend is deployed and verified at its actual public URL, the backup is stored durably, the dry run is refreshed, and the exact targets are approved.
+After deletion, `/`, `/shop`, `/shop/closet`, `/support`, and `/reviews` each returned HTTP 200 at `https://curvygirlreviews.com`. These are route smoke checks; they do not replace a full manual review. The earlier deployment blocker is resolved.
 
 ## Validation and release notes
 
-The local production build, TypeScript check, lint, and 102 unit tests passed. Focused Playwright checks passed for desktop/mobile Shop and Closet, Look opening and saving, affiliate link attributes, redirects, legacy saved-ID cleanup, reflow, and automated WCAG 2.1 AA rules. Manual screen-reader and editorial-image review still needs to happen before release.
+For the deployed Phase 2B overhaul, the earlier local production build, TypeScript check, lint, and 102 unit tests passed. The subsequent local legacy-code cleanup passed TypeScript, lint (one unrelated unused-import warning in `RequestBanner.tsx`), 32 remaining unit tests, a complete production build, and focused Playwright checks for Shop, Closet, Looks, Saved Items, Support redirects, Review filters, and active editorial heroes. Manual screen-reader and editorial-image review still needs to happen before the next release.
 
-`SITE_URL` must be set to the HTTPS origin that actually serves this Next.js deployment before launch. Without it, the generated sitemap is empty and social metadata falls back to localhost. There is no Phase 3 image-generation implementation in this change.
+Keep `SITE_URL` set to the HTTPS origin that serves this Next.js deployment. There is no Phase 3 image-generation implementation in this change.

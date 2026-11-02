@@ -86,6 +86,7 @@ test('dismissal works and provider errors never suppress the lead prompt', async
   ).toBeNull();
   await page.mouse.click(2, 2);
   await expect(dialog).not.toBeVisible();
+  await expect.poll(() => page.evaluate(() => sessionStorage.getItem('curvygirlreviews:lead:dismissed:v1'))).toBe('true');
   await page.reload();
   await page.addScriptTag({ content: fixture });
   await page.waitForTimeout(1500);

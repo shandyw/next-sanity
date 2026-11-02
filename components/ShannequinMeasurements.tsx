@@ -93,6 +93,7 @@ export function ShannequinMeasurements({
                 key={area.id}
                 type="button"
                 className={`measurement-hotspot measurement-hotspot--${area.side}`}
+                data-area={area.id}
                 style={{ '--point-x': `${area.x}%`, '--point-y': `${area.y}%` } as CSSProperties}
                 aria-label={`Show ${label.toLowerCase()} measurement`}
                 aria-expanded={active === area.id}

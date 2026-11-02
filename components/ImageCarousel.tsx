@@ -33,8 +33,11 @@ export function ImageCarousel({
   function show(index: number) {
     const node = track.current;
     if (!node) return;
+    const next = Math.max(0, Math.min(images.length - 1, index));
+    activeIndex.current = next;
+    setActive(next);
     node.scrollTo({
-      left: Math.max(0, Math.min(images.length - 1, index)) * node.clientWidth,
+      left: next * node.clientWidth,
       behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
         ? 'instant'
         : 'smooth',

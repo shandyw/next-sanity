@@ -386,16 +386,9 @@ test('Looks reference Finds once, preserve order and attach hotspots to included
   assert.equal(validateItems([{ find: { _ref: 'a' } }, { find: { _ref: 'b' } }]), true);
 });
 
-test('Review keeps legacy product links and adds an optional primary Find', () => {
+test('Review keeps editorial fields and an optional primary Find', () => {
   const review = document('review');
-  for (const name of [
-    'reviewedProducts',
-    'ctaProduct',
-    'photos',
-    'videoUrl',
-    'fitNotes',
-    'shannequinQuote',
-  ])
+  for (const name of ['photos', 'videoUrl', 'fitNotes', 'shannequinQuote'])
     assert.ok(field(review.fields, name));
   assert.equal(field(review.fields, 'primaryFind').to?.[0].type, 'find');
 });

@@ -4,6 +4,7 @@ import AxeBuilder from '@axe-core/playwright';
 for (const width of [1440, 390]) {
   test(`saved finds shortcut and footer socials at ${width}px`, async ({ page, context }) => {
     await page.setViewportSize({ width, height: 900 });
+    await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/shop');
     if (width < 1024) await page.getByRole('button', { name: 'Open menu' }).click();
     await expect(page.locator('.saved-finds')).toHaveAttribute('href', '/wishlist');
@@ -42,7 +43,7 @@ for (const width of [1440, 390]) {
     const axe = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])
       .analyze();
-    expect(axe.violations.map((v) => v.id)).toEqual([]);
+    expect(axe.violations.map((v) => ({ id: v.id, targets: v.nodes.map((n) => n.target) }))).toEqual([]);
   });
 }
 

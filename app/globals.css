@@ -496,8 +496,7 @@ h3 {
   margin: 0 0 var(--space-sm);
 }
 
-.review-card__media + .review-card__eyebrow,
-.review-card__media + .product-card__eyebrow {
+.review-card__media + .review-card__eyebrow {
   margin-block-start: var(--space-md);
 }
 
@@ -1704,22 +1703,6 @@ body,
   display: flex;
 }
 
-/* .product-card__brand {
-  margin: 0 0 6px;
-  color: var(--color-primary-deep);
-  font-size: 14px;
-  font-weight: var(--font-weight-bold);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-} */
-.product-card__description {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
-  overflow: hidden;
-  overflow-wrap: anywhere;
-}
 .review-card__cta,
 .review-card__shop-link {
   display: inline-flex;
@@ -3358,10 +3341,6 @@ select.filter-control:not([multiple])[size='1'] {
   height: 90px;
   object-fit: cover;
 }
-.wishlist-item__name .product-card__brand {
-  display: block;
-  margin: 0 0 6px;
-}
 .wishlist-item__shop {
   min-width: 160px;
 }
@@ -4176,7 +4155,7 @@ summary:focus-visible,
   /* .review-preview .review-card__title {
     margin-top: -14px;
   } */
-  .shannequin {
+  .shannequin .container {
     grid-template-columns: minmax(0, 1fr);
     gap: 24px;
     padding-block: 32px;
@@ -4186,52 +4165,6 @@ summary:focus-visible,
   }
 }
 
-/* Shopping photography: match the 4:5 Studio crop preview and CDN request. */
-.product-description {
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-}
-
-.product-card {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  min-width: 0;
-}
-.product-card > .product-card__brand {
-  min-height: 1lh;
-}
-.product-card .review-card__title {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
-  height: 3lh;
-  flex-shrink: 0;
-  overflow: hidden;
-  overflow-wrap: anywhere;
-}
-.product-card__actions {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  margin-top: auto;
-}
-.product-card .review-card__media {
-  aspect-ratio: 4 / 5;
-}
-.product-card .review-card__media img {
-  object-fit: cover;
-  object-position: center;
-}
-.product-detail .review-detail__main-image {
-  aspect-ratio: 4 / 5;
-  object-position: center;
-}
-.product-detail .review-detail__thumbnail {
-  width: 76px;
-  height: 95px;
-}
 
 /* Card galleries support native touch scrolling and retain visible keyboard focus. */
 .card-slider__track {
@@ -4868,6 +4801,12 @@ summary:focus-visible,
     width: 100%;
     max-width: 440px;
   }
+  .measurement-hotspot[data-area='chest'] { left: 34%; }
+  .measurement-hotspot[data-area='waist'] { left: 52%; }
+  .measurement-hotspot[data-area='hips'] { left: 32%; }
+  .measurement-hotspot[data-area='arm'],
+  .measurement-hotspot[data-area='wrist'] { left: 76%; }
+  .measurement-hotspot[data-area='inseam'] { left: 53%; }
 }
 @media (prefers-reduced-motion: reduce) {
   .measurement-popup {
@@ -4894,10 +4833,6 @@ summary:focus-visible,
   max-width: 65ch;
 }
 
-.product-detail .review-detail__content > .wishlist-action {
-  position: static;
-  margin-block: 16px;
-}
 .review-story__acknowledgment {
   max-width: 65ch;
   margin-block: 12px;

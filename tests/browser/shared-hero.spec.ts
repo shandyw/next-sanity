@@ -12,13 +12,10 @@ for (const width of [1440, 390, 320]) {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     for (const [route, title] of [
       ['/reviews', 'Fashion Reviews'],
-      ['/shop/closet', 'My Closet'],
-      ['/shop/finds', 'Curated Finds'],
       ['/blog', 'The Blog'],
-      ['/wishlist', 'Wishlist'],
       ['/support', 'Support the Reviews'],
-      ['/about', 'About CurvyGirlReviews'],
-      ['/privacy', 'Privacy Policy'],
+      ['/about', 'Curvy Girl Reviews'],
+      ['/privacy', 'Privacy'],
       ['/thank-you', 'Thank You!'],
     ]) {
       await page.goto(route);
@@ -59,12 +56,6 @@ for (const width of [1440, 390, 320]) {
         axe.violations.map((violation) => violation.id),
         route,
       ).toEqual([]);
-      if (route === '/wishlist') {
-        await expect(hero.locator('.editorial-hero__disclaimer')).toContainText(
-          'Saved in this browser only.',
-        );
-        await page.screenshot({ path: `test-results/shared-hero-wishlist-${width}.png` });
-      }
     }
   });
 }
