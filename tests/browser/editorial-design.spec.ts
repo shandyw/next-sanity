@@ -52,7 +52,8 @@ for (const width of [1440, 768, 390, 320]) {
     await expect(page.locator('.home-looks')).toBeVisible();
     await expect(page.locator('#meet-shannequin')).toBeVisible();
     await expect(page.locator('#meet-shannequin a')).toHaveAttribute('href', '/about#shannequin');
-    await expect(page.locator('.site-footer .newsletter-field label')).toBeVisible();
+    await expect(page.locator('.site-footer .newsletter-field label')).toHaveClass('visually-hidden');
+    await expect(page.locator('.site-footer').getByLabel('Email address')).toBeVisible();
     const cta = page.getByRole('link', { name: 'Explore the Reviews', exact: true });
     for (const state of ['rest', 'hover', 'focus', 'active']) {
       if (state === 'hover') await cta.hover();

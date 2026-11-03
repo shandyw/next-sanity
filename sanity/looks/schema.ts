@@ -11,7 +11,53 @@ export const lookOccasions = [
 ] as const;
 
 type LookItem = { find?: { _ref?: string }; hotspot?: { x?: number; y?: number } };
-type LookVariation = { image?: { selected?: boolean; approvalStatus?: string } };
+type LookImage = { image?: unknown };
+
+const lookImageSources = [
+  { title: 'My original photograph', value: 'original' },
+  { title: 'Separately licensed / authorized photograph', value: 'licensed' },
+  { title: 'AI-generated styling concept', value: 'aiGenerated' },
+];
+
+export const lookImageEntry = defineType({
+  name: 'lookImageEntry',
+  title: 'Look image',
+  type: 'object',
+  fields: [
+    defineField({ name: 'image', title: 'Image', type: 'image', options: { hotspot: true } }),
+    defineField({
+      name: 'alt',
+      title: 'Image description (use for alt text)',
+      type: 'string',
+      validation: (rule) =>
+        rule.custom((value, context) =>
+          !(context.parent as LookImage | undefined)?.image || value?.trim()
+            ? true
+            : 'Describe the image for alt text.',
+        ),
+    }),
+    defineField({
+      name: 'sourceKind',
+      title: 'Image source',
+      type: 'string',
+      options: { list: lookImageSources },
+      validation: (rule) =>
+        rule.custom((value, context) =>
+          !(context.parent as LookImage | undefined)?.image ||
+          lookImageSources.some((source) => source.value === value)
+            ? true
+            : 'Choose an image source.',
+        ),
+    }),
+  ],
+  preview: {
+    select: { media: 'image', source: 'sourceKind' },
+    prepare: ({ media, source }) => ({
+      title: source === 'aiGenerated' ? 'AI styling concept' : 'Look photograph',
+      media,
+    }),
+  },
+});
 
 export const look = defineType({
   name: 'look',
@@ -144,18 +190,16 @@ export const look = defineType({
     defineField({
       name: 'coverImage',
       title: 'Cover image',
-      type: 'editorialImageEntry',
+      type: 'lookImageEntry',
       group: 'images',
-      description:
-        'Choose an approved editorial image. An AI styling concept must be labeled as such and must not imply exact product photography.',
+      description: 'Add an image description and choose its source before publishing the image.',
     }),
     defineField({
       name: 'variations',
       title: 'Outfit image variations',
       type: 'array',
       group: 'images',
-      description:
-        'Preparation for future image generation. Add only images you have rights to use; approve before publication.',
+      description: 'Optional alternate Look images. The first complete image is used if no cover image is set.',
       of: [
         defineArrayMember({
           type: 'object',
@@ -170,37 +214,21 @@ export const look = defineType({
             defineField({
               name: 'image',
               title: 'Variation image',
-              type: 'editorialImageEntry',
+              type: 'lookImageEntry',
             }),
           ],
           preview: {
             select: {
               title: 'stylePreset',
               media: 'image.image',
-              approval: 'image.approvalStatus',
             },
-            prepare: ({ title, media, approval }) => ({
+            prepare: ({ title, media }) => ({
               title: title || 'Outfit variation',
-              subtitle: approval === 'approved' ? 'Approved' : 'Draft',
               media,
             }),
           },
         }),
       ],
-      validation: (r) =>
-        r.custom((value) => {
-          const variations = (value || []) as LookVariation[];
-          if (variations.filter((variation) => variation.image?.selected).length > 1)
-            return 'Select only one outfit variation.';
-          if (
-            variations.some(
-              (variation) =>
-                variation.image?.selected && variation.image.approvalStatus !== 'approved',
-            )
-          )
-            return 'Approve a variation before selecting it.';
-          return true;
-        }),
     }),
   ],
   preview: {

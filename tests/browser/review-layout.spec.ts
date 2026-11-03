@@ -38,7 +38,7 @@ test.beforeAll(async () => {
                 : args.path === 'next-sanity'
                   ? `export const stegaClean=value=>value;`
                   : args.path === '@/lib/content'
-                    ? `export const demoEnabled=false;export const getDocuments=async()=>[];export const getSettings=async()=>({});export const getContent=async()=>({shannequinImage:{asset:{_ref:'shared-cutout'},alt:'Shared full-body Shannequin photograph'}});`
+                    ? `export const demoEnabled=false;export const getDocuments=async()=>[];export const getSettings=async()=>({});export const getContent=async(type)=>{if(type!=='aboutPage')throw new Error('Shannequin image must come from About page');return {shannequinImage:{asset:{_ref:'shared-cutout'},alt:'Shared full-body Shannequin photograph'}}};`
                     : args.path === '@/lib/seo'
                       ? `export const siteUrl=()=>new URL('https://example.test');`
                     : args.path === '@/lib/looks'

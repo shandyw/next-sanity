@@ -2,7 +2,6 @@ import { getSettings } from '@/lib/content';
 import { giftListUrl } from '@/lib/urls';
 import { pageMetadata } from '@/lib/seo';
 import { EditorialHero } from '@/components/EditorialHero';
-import { ArrowIcon } from '@/components/ArrowIcon';
 
 export const metadata = pageMetadata(
   'Support the Reviews',
@@ -14,7 +13,12 @@ export default async function Page() {
   const wishlist = giftListUrl(settings.reviewWishlistUrl);
   return (
     <main id="main" className="container">
-      <EditorialHero title="Support the Reviews" intro="Help choose what I try on next." />
+      <EditorialHero
+        title="Support the Reviews"
+        intro="Help choose what I try on next."
+        layout="landscape"
+        landscapePhoto={settings.supportHeroImage}
+      />
       <div className="support-board">
         <p className="support-board__note">
           <span>You pick. I try.</span>
@@ -29,8 +33,9 @@ export default async function Page() {
                 Send me something to review
               </h2>
               <p className="support-choice__copy">
-                Choose an item from My Review Wishlist. Use Amazon’s gift-list options to send it to
-                me; an ordinary product link does not arrange delivery.
+                Choose an item from <em>My Review Wishlist</em>. Use Amazon’s gift-list options to
+                send it to me.<br></br>
+                <small>An ordinary product link does not arrange delivery</small>
               </p>
               {wishlist ? (
                 <a
@@ -41,7 +46,6 @@ export default async function Page() {
                 >
                   View My Amazon Wishlist
                   <span className="visually-hidden"> (opens in a new tab)</span>
-                  <ArrowIcon />
                 </a>
               ) : (
                 <p className="support-choice__unavailable">
@@ -68,7 +72,7 @@ export default async function Page() {
                 data-open-dialog
                 aria-haspopup="dialog"
               >
-                Request a Review <ArrowIcon />
+                Request a Review
               </button>
             </div>
           </section>

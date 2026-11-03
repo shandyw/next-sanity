@@ -11,6 +11,11 @@ export function safeVideoUrl(value: string | undefined): string | undefined {
   }
   return safeExternal(value);
 }
+export function safeBackgroundVideoUrl(value: string | undefined): string | undefined {
+  const safe = safeVideoUrl(value);
+  if (!safe) return;
+  return /\.(mp4|webm)$/i.test(new URL(safe, 'https://local.invalid').pathname) ? safe : undefined;
+}
 export function closetShopUrl(value: string | undefined): string | undefined {
   const safe = safeExternal(value);
   if (!safe) return;

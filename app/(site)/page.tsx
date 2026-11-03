@@ -4,6 +4,7 @@ import { LatestVerdicts } from '@/components/LatestVerdicts';
 import { ContentImage } from '@/components/ContentImage';
 import { EditorialHero } from '@/components/EditorialHero';
 import { Shannequin } from '@/components/Shannequin';
+import Image from 'next/image';
 // import { RequestBanner } from '@/components/RequestBanner';
 import { Video } from '@/components/Video';
 import { pageMetadata } from '@/lib/seo';
@@ -82,8 +83,8 @@ export default async function Home() {
                 <h2 id="home-looks-heading">Shop the Looks</h2>
                 <p>Outfits for wherever life takes you.</p>
               </div>
-              <Link className="text-link" href="/shop">
-                Browse all Looks →
+              <Link className="btn btn-ghost" href="/shop">
+                Browse all Looks
               </Link>
             </div>
             {looks.length ? (
@@ -122,7 +123,7 @@ export default async function Home() {
         <section className="home-categories" aria-labelledby="home-categories-heading">
           <div className="container">
             <h2 id="home-categories-heading">Browse by Category</h2>
-            <div className="look-filters">
+            <div className="cgr-filters">
               {categories.map((category) => (
                 <Link
                   className="btn btn-filter"
@@ -197,9 +198,11 @@ export default async function Home() {
         </div>
       </div>
       <section className="home-support">
-        <div className="container" aria-labelledby="home-support-heading">
-          <div className="p-10">
-            <h2 id="home-support-heading">Support the Reviews</h2>
+        <div className="container home-support__grid" aria-labelledby="home-support-heading">
+          <div className="home-support-banner__copy">
+            <h2 className="headline-lg" id="home-support-heading">
+              Support the Reviews
+            </h2>
             <p className="home-support__intro">
               Help choose what I try on next or visit my Amazon gift wishlist.
             </p>
@@ -207,9 +210,17 @@ export default async function Home() {
               Ways to support
             </Link>
           </div>
+          <div className="home-support-banner__media">
+            <Image
+              className="home-support-banner__art"
+              src="/img/browsing.jpg"
+              alt="Just browsing"
+              fill
+              sizes="(max-width: 767px) 90vw, 45vw"
+            />
+          </div>
         </div>
       </section>
-      {/* <RequestBanner content={content} /> */}
     </main>
   );
 }

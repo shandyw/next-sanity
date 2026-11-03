@@ -122,6 +122,21 @@ for (const width of [1440, 1024, 390, 320]) {
   });
 }
 
+test('expanding measurements keeps the existing columns anchored', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/about');
+  const heading = page.locator('#shannequin .shannequin__copy h2');
+  const media = page.locator('#shannequin .shannequin__media');
+  const top = async (locator: typeof heading) =>
+    locator.evaluate((element) => element.getBoundingClientRect().top + window.scrollY);
+  const headingBefore = await top(heading);
+  const mediaBefore = await top(media);
+  await page.locator('#shannequin .measurements__all summary').click();
+  await expect(page.locator('#shannequin .measurements__all')).toHaveAttribute('open', '');
+  await expect.poll(() => top(heading)).toBeCloseTo(headingBefore, 0);
+  await expect.poll(() => top(media)).toBeCloseTo(mediaBefore, 0);
+});
+
 test('About measurements remain readable without JavaScript', async ({ browser }) => {
   const context = await browser.newContext({ javaScriptEnabled: false });
   const page = await context.newPage();

@@ -73,6 +73,8 @@ export interface PageContent {
   heroIntro?: string;
   heroBack?: ContentPhoto;
   heroFront?: ContentPhoto;
+  heroVideoUrl?: string;
+  heroCopyTone?: 'light' | 'dark';
   aboutImage?: ContentPhoto;
   aboutHeading?: string;
   aboutIntro?: string;
@@ -93,6 +95,8 @@ export interface PageContent {
   promises?: { title: string; description: string }[];
 }
 export interface Settings {
+  reviewsHero?: { mainPhoto?: ContentPhoto; smallPhoto?: ContentPhoto };
+  supportHeroImage?: ContentPhoto;
   amazonAssociates?: { active?: boolean; tag?: string; clickEventsEnabled?: boolean };
   leadModal?: {
     enabled?: boolean;

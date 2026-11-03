@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import { ContentImage } from '@/components/ContentImage';
 import { findImage, lookImage, type Look } from '@/lib/looks';
-import { ArrowIcon } from './ArrowIcon';
 
 export function HomeFeaturedLook({ look }: { look: Look }) {
   const href = `/looks/${encodeURIComponent(look.slug)}`;
@@ -17,8 +16,8 @@ export function HomeFeaturedLook({ look }: { look: Look }) {
             <p className="home-section-heading__intro">Outfits for wherever life takes you.</p>
           </div>
 
-          <Link className="text-link" href="/shop">
-            <span>Browse all Looks</span> <ArrowIcon />
+          <Link className="btn btn-ghost" href="/shop">
+            Browse all Looks
           </Link>
         </div>
         <article className="home-featured-look">

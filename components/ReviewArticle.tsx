@@ -71,7 +71,7 @@ export async function ReviewArticle({
   document: DocumentContent;
   returnTo: string;
 }) {
-  const [homepage, settings] = await Promise.all([getContent('homepage'), getSettings()]);
+  const [aboutPage, settings] = await Promise.all([getContent('aboutPage'), getSettings()]);
   void returnTo;
   const relatedSlugs = new Set(d.relatedReviews?.map((review) => review.slug) || []);
   const related = relatedSlugs.size
@@ -254,12 +254,12 @@ export async function ReviewArticle({
       </article>
       {d.shannequinQuote?.trim() && (
         <section className="review-shannequin" aria-labelledby="review-shannequin-title">
-          <div className="container review-shannequin__inner">
+          <div className="container nopad review-shannequin__inner">
             <div className="review-shannequin__media">
               <div className="review-shannequin__backing" aria-hidden="true" />
-              {homepage.shannequinImage?.asset?._ref ? (
+              {aboutPage.shannequinImage?.asset?._ref ? (
                 <ContentImage
-                  image={homepage.shannequinImage}
+                  image={aboutPage.shannequinImage}
                   preserveFullImage
                   width={600}
                   height={900}
@@ -290,26 +290,30 @@ export async function ReviewArticle({
         </section>
       )}
       {primaryFind && findLink && (
-        <section className="container review-story__product" aria-labelledby="review-product-title">
-          <div>
-            <p className="eyebrow">Find featured in this review</p>
-            <h2 id="review-product-title">{primaryFind.title}</h2>
-            {findLink.affiliate && <p className="affiliate-note">{AMAZON_DISCLOSURE}</p>}
+        <section className="review-story__product" aria-labelledby="review-product-title">
+          <div className="container">
+            <div>
+              <p className="eyebrow">Find featured in this review</p>
+              <h2 id="review-product-title">{primaryFind.title}</h2>
+              {findLink.affiliate && <p className="affiliate-note">{AMAZON_DISCLOSURE}</p>}
+            </div>
+            <a
+              className="btn btn-accent"
+              href={findLink.href}
+              target="_blank"
+              rel={findLink.affiliate ? 'sponsored noopener noreferrer' : 'noopener noreferrer'}
+            >
+              View on Amazon <span className="visually-hidden">(opens in a new tab)</span>
+            </a>
           </div>
-          <a
-            className="btn btn-accent"
-            href={findLink.href}
-            target="_blank"
-            rel={findLink.affiliate ? 'sponsored noopener noreferrer' : 'noopener noreferrer'}
-          >
-            View on Amazon <span className="visually-hidden">(opens in a new tab)</span>
-          </a>
         </section>
       )}
       {related.length > 0 && (
-        <section className="container review-story__related">
-          <h2>Related reviews</h2>
-          <CardGrid items={related} homepage />
+        <section className="review-story__related">
+          <div className="container">
+            <h2>Related reviews</h2>
+            <CardGrid items={related} homepage />
+          </div>
         </section>
       )}
       {structured && (

@@ -1,10 +1,12 @@
 import { ContentImage } from '@/components/ContentImage';
 import { HeroEntrance } from '@/components/HeroEntrance';
+import { HeroBackgroundVideo } from '@/components/HeroBackgroundVideo';
 import Image from 'next/image';
 import { stegaClean } from 'next-sanity';
 import type { ReactNode } from 'react';
 import type { ContentPhoto } from '@/lib/types';
 import { getHeroImages } from '@/lib/hero-images';
+import { safeBackgroundVideoUrl } from '@/lib/urls';
 
 export async function EditorialHero({
   title,
@@ -18,6 +20,8 @@ export async function EditorialHero({
   mainPhoto,
   smallPhoto,
   landscapePhoto,
+  videoSrc,
+  copyTone = 'light',
   media,
 }: {
   title: string;
@@ -27,17 +31,20 @@ export async function EditorialHero({
   disclaimer?: ReactNode;
   cta?: { label: string; href: string };
   scriptAccent?: string;
-  layout?: 'portrait' | 'landscape';
+  layout?: 'portrait' | 'landscape' | 'video';
   mainPhoto?: ContentPhoto;
   smallPhoto?: ContentPhoto;
   landscapePhoto?: ContentPhoto;
+  videoSrc?: string;
+  copyTone?: 'light' | 'dark';
   media?: ReactNode;
 }) {
-  const landscape =
-    !media &&
-    layout === 'landscape' &&
-    Boolean(landscapePhoto?.asset?._ref || landscapePhoto?.demoSrc);
-  const images = media || landscape ? [] : await getHeroImages(stegaClean(title));
+  const video = !media && layout === 'video' ? safeBackgroundVideoUrl(videoSrc) : undefined;
+  const landscape = !media && layout === 'landscape';
+  const images =
+    media || landscape || video || (mainPhoto?.asset?._ref && smallPhoto?.asset?._ref)
+      ? []
+      : await getHeroImages(stegaClean(title));
   const accentIndex =
     emphasis && scriptAccent ? stegaClean(emphasis).indexOf(stegaClean(scriptAccent)) : -1;
   const photo = (image: ContentPhoto | undefined, src: string | undefined, main: boolean) => {
@@ -63,9 +70,11 @@ export async function EditorialHero({
   };
   return (
     <section
-      className={`editorial-hero${emphasis ? ' editorial-hero--emphasized' : ''}${landscape ? ' editorial-hero--landscape' : ''}`}
+      className={`editorial-hero${emphasis ? ' editorial-hero--emphasized' : ''}${landscape ? ' editorial-hero--landscape' : ''}${video ? ' editorial-hero--video' : ''}`}
       aria-labelledby="heroHeading"
+      data-copy-tone={video ? copyTone : undefined}
     >
+      {video && <HeroBackgroundVideo src={video} />}
       <HeroEntrance>
         <div className="editorial-hero__copy">
           <p className="editorial-hero__eyebrow" data-hero-part="eyebrow">
@@ -113,7 +122,7 @@ export async function EditorialHero({
             </a>
           )}
         </div>
-        {media || (
+        {media || (!video && (
           <div
             className={`editorial-hero__collage${landscape ? ' editorial-hero__collage--landscape' : ''}`}
           >
@@ -148,7 +157,7 @@ export async function EditorialHero({
               </>
             )}
           </div>
-        )}
+        ))}
       </HeroEntrance>
     </section>
   );

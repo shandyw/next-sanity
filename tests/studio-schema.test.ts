@@ -23,4 +23,9 @@ test('Studio schema validates and excludes retired inventory document types', ()
   assert.equal(fields('review').some((field) => field.name === 'primaryFind'), true);
   assert.equal(fields('review').some((field) => field.name === 'reviewedProducts' || field.name === 'ctaProduct'), false);
   assert.equal(fields('siteSettings').some((field) => field.name === 'amazonAssociates'), true);
+  const reviewsHero = fields('siteSettings').find((field) => field.name === 'reviewsHero');
+  assert.equal(reviewsHero?.type, 'object');
+  const heroFields = reviewsHero as typeof reviewsHero & { fields?: { name: string; type: string }[] };
+  assert.deepEqual(heroFields?.fields?.map((field) => field.name), ['mainPhoto', 'smallPhoto']);
+  assert.equal(fields('siteSettings').find((field) => field.name === 'supportHeroImage')?.type, 'image');
 });

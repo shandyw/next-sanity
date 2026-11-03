@@ -1,10 +1,10 @@
 import { editorialImageEntry, find } from './finds/schema';
-import { look } from './looks/schema';
+import { look, lookImageEntry } from './looks/schema';
 import { generateSeoSlug } from './seo-slug';
 import { measurementAreas } from '../lib/shannequin-measurements';
 import { reviewSections } from '../lib/review-layout';
 import { defineType, defineField, defineArrayMember } from 'sanity';
-import { closetShopUrl, safeExternal, safeVideoUrl } from '../lib/urls';
+import { closetShopUrl, safeBackgroundVideoUrl, safeExternal, safeVideoUrl } from '../lib/urls';
 import { amazonSettingsField } from './amazon-fields';
 const reviewCatalogFields = [
   defineField({
@@ -322,7 +322,7 @@ const review = defineType({
       type: 'text',
       rows: 3,
       description:
-        'Displays the shared Shannequin panel when supplied. Its image is managed once in Homepage → Shannequin full-body photograph.',
+        'Displays the shared Shannequin panel when supplied. Its image is managed once in About page → Shannequin full-body photograph.',
       validation: (r) => r.max(500),
     }),
     defineField({
@@ -510,6 +510,33 @@ const about = defineType({
   fields: [
     title,
     defineField({ name: 'intro', title: 'Page introduction', type: 'text' }),
+    defineField({
+      name: 'heroVideoUrl',
+      title: 'Hero background video URL',
+      type: 'string',
+      description:
+        'Optional direct MP4 or WebM URL (HTTPS or a local /videos/ path). Replaces both hero images. The silent video plays only while visible.',
+      validation: (rule) =>
+        rule.custom((value) =>
+          !value || safeBackgroundVideoUrl(value)
+            ? true
+            : 'Enter a direct HTTPS or local MP4/WebM video URL.',
+        ),
+    }),
+    defineField({
+      name: 'heroCopyTone',
+      title: 'Hero copy panel',
+      type: 'string',
+      initialValue: 'light',
+      options: {
+        list: [
+          { title: 'Light', value: 'light' },
+          { title: 'Dark', value: 'dark' },
+        ],
+        layout: 'radio',
+      },
+      hidden: ({ document }) => !document?.heroVideoUrl,
+    }),
     defineField({ name: 'eyebrow', title: 'Short introduction label', type: 'string' }),
     defineField({ name: 'heading', title: 'Biography heading', type: 'string' }),
     defineField({
@@ -523,7 +550,7 @@ const about = defineType({
     {
       ...image('shannequinImage', 'Shannequin full-body photograph'),
       description:
-        'Shared by the homepage and every review’s Shannequin panel. Use a full-body transparent cutout; the original proportions are preserved.',
+        'Shared by the About page, homepage, and every review’s Shannequin panel. Use a full-body transparent cutout; the original proportions are preserved.',
     },
     defineField({
       name: 'shannequinMeasurements',
@@ -607,6 +634,20 @@ const settings = defineType({
   title: 'Site settings',
   type: 'document',
   fields: [
+    defineField({
+      name: 'reviewsHero',
+      title: 'Reviews page hero',
+      type: 'object',
+      description: 'Choose the two photographs shown at the top of the Reviews page.',
+      fields: [
+        image('mainPhoto', 'Main photo'),
+        image('smallPhoto', 'Second photo'),
+      ],
+    }),
+    {
+      ...image('supportHeroImage', 'Support page hero image'),
+      description: 'One landscape photograph for the Support page hero. Add an image description for accessibility.',
+    },
     amazonSettingsField,
     defineField({
       name: 'leadModal',
@@ -705,6 +746,7 @@ const settings = defineType({
 });
 export const schemaTypes = [
   editorialImageEntry,
+  lookImageEntry,
   find,
   look,
   seo,

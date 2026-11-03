@@ -60,8 +60,8 @@ export function lookOccasionLabel(value?: string) {
 }
 
 const lookFields = `_id,title,"slug":slug.current,description,occasion,publishedAt,
-  "coverImage":select(coverImage.approvalStatus == "approved" && coverImage.sourceKind in ["original","licensed","aiGenerated"] && (coverImage.sourceKind != "licensed" || defined(coverImage.sourceCredit)) => coverImage{image,alt,approvalStatus,sourceKind,sourceCredit,selected}),
-  "variations":variations[image.selected == true && image.approvalStatus == "approved" && image.sourceKind in ["original","licensed","aiGenerated"] && (image.sourceKind != "licensed" || defined(image.sourceCredit))]{image{image,alt,approvalStatus,sourceKind,sourceCredit,selected}},
+  coverImage{image,alt,sourceKind},
+  variations[]{image{image,alt,sourceKind}},
   items[]{_key,role,stylingNote,hotspot,
     "find":find->{_id,title,experienceStatus,amazonUrl,affiliateUrl,affiliateShortLinkVerified,
       "productImages":productImages[approvalStatus == "approved" && sourceKind in ["original","licensed"] && (sourceKind != "licensed" || defined(sourceCredit))]{image,alt,approvalStatus,sourceKind,sourceCredit,selected}}},
@@ -93,9 +93,21 @@ function approvedImage(entry?: ImageEntry): ContentPhoto | undefined {
   return { ...entry.image, alt: entry.alt };
 }
 
+function displayableLookImage(entry?: ImageEntry): ContentPhoto | undefined {
+  if (
+    !entry?.image?.asset?._ref ||
+    !entry.alt?.trim() ||
+    !['original', 'licensed', 'aiGenerated'].includes(entry.sourceKind || '')
+  )
+    return;
+  return { ...entry.image, alt: entry.alt };
+}
+
 export function lookImage(look: Look) {
-  const selected = look.variations?.find((variation) => variation.image?.selected);
-  return approvedImage(look.coverImage) || approvedImage(selected?.image);
+  return (
+    displayableLookImage(look.coverImage) ||
+    look.variations?.map((variation) => displayableLookImage(variation.image)).find(Boolean)
+  );
 }
 
 export function findImage(find?: LookFind) {

@@ -1,7 +1,7 @@
 import { stegaClean } from 'next-sanity';
 import Link from 'next/link';
 import Image from 'next/image';
-import type { DocumentContent, SearchParams } from '@/lib/types';
+import type { DocumentContent, SearchParams, Settings } from '@/lib/types';
 import { browse, values, first, archiveUrl } from '@/lib/browse';
 import { ArchiveFilters, type ArchiveFilter } from './ArchiveFilters';
 import { EditorialHero } from './EditorialHero';
@@ -12,10 +12,12 @@ export function Archive({
   all,
   params,
   kind = 'review',
+  heroPhotos,
 }: {
   all: DocumentContent[];
   params: SearchParams;
   kind?: 'review' | 'blogPost' | 'favorites';
+  heroPhotos?: Settings['reviewsHero'];
 }) {
   const blog = kind === 'blogPost';
   const catalog = kind === 'review';
@@ -60,6 +62,8 @@ export function Archive({
     <main id="main" className="reviews-page container">
       <EditorialHero
         title={blog ? 'The Blog' : kind === 'favorites' ? 'My Faves' : 'Fashion Reviews'}
+        mainPhoto={heroPhotos?.mainPhoto}
+        smallPhoto={heroPhotos?.smallPhoto}
         intro={
           blog
             ? 'Stories, outfit finds, and honest takes.'
