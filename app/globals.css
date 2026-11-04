@@ -3156,7 +3156,8 @@ select.filter-control:not([multiple])[size='1'] {
 
 /* Links with hover underlines grow from their center, using existing brand colors. */
 .primary-nav__list a,
-.review-card__title-link {
+.review-card__title-link,
+.footer-bar__links a {
   position: relative;
   text-decoration: none;
 }
@@ -3177,10 +3178,25 @@ select.filter-control:not([multiple])[size='1'] {
     left 250ms ease,
     right 250ms ease;
 }
-.primary-nav__list a::after {
+.footer-bar__links a::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  right: 50%;
+  height: 2px;
+  background: var(--color-surface, currentColor);
+  pointer-events: none;
+  transition:
+    left 250ms ease,
+    right 250ms ease;
+}
+.primary-nav__list a::after,
+.footer-bar__links a::after {
   bottom: 4px;
 }
 .primary-nav__list a:is(:hover, :focus-visible, [aria-current='page'])::after,
+.footer-bar__links a:is(:hover, :focus-visible, [aria-current='page'])::after,
 .review-card__title-link:is(:hover, :focus-visible)::after {
   left: 0;
   right: 0;
@@ -3872,13 +3888,17 @@ summary:focus-visible,
   font-family: var(--font-body);
   text-transform: uppercase;
   letter-spacing: 0.12em;
+  transition:
+    border-color var(--transition),
+    color var(--transition);
+  border-bottom: 2px solid #0000;
+  align-items: center;
   font-weight: 600;
+  display: inline-flex;
+  min-height: 44px;
+  text-decoration: none;
 }
-.footer-bar__links a:hover {
-  text-decoration: underline;
-  text-underline-offset: 4px;
-  color: var(--color-surface);
-}
+
 .about-page__section {
   display: grid;
   grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
