@@ -19,13 +19,46 @@ test('Studio schema validates and excludes retired inventory document types', ()
   const schema = Schema.compile({ name: 'curvygirlreviews', types: schemaTypes });
   for (const name of ['review', 'find', 'look', 'homepage', 'aboutPage', 'siteSettings', 'brand'])
     assert.ok(schema.get(name), name);
-  assert.equal(schemaTypes.some((type) => type.name === 'product' || type.name === 'productCollection'), false);
-  assert.equal(fields('review').some((field) => field.name === 'primaryFind'), true);
-  assert.equal(fields('review').some((field) => field.name === 'reviewedProducts' || field.name === 'ctaProduct'), false);
-  assert.equal(fields('siteSettings').some((field) => field.name === 'amazonAssociates'), true);
+  assert.equal(
+    schemaTypes.some((type) => type.name === 'product' || type.name === 'productCollection'),
+    false,
+  );
+  assert.equal(
+    fields('review').some((field) => field.name === 'primaryFind'),
+    true,
+  );
+  assert.equal(
+    fields('review').some(
+      (field) => field.name === 'reviewedProducts' || field.name === 'ctaProduct',
+    ),
+    false,
+  );
+  assert.equal(
+    fields('siteSettings').some((field) => field.name === 'amazonAssociates'),
+    true,
+  );
   const reviewsHero = fields('siteSettings').find((field) => field.name === 'reviewsHero');
   assert.equal(reviewsHero?.type, 'object');
-  const heroFields = reviewsHero as typeof reviewsHero & { fields?: { name: string; type: string }[] };
-  assert.deepEqual(heroFields?.fields?.map((field) => field.name), ['mainPhoto', 'smallPhoto']);
-  assert.equal(fields('siteSettings').find((field) => field.name === 'supportHeroImage')?.type, 'image');
+  const heroFields = reviewsHero as typeof reviewsHero & {
+    fields?: { name: string; type: string }[];
+  };
+  assert.deepEqual(
+    heroFields?.fields?.map((field) => field.name),
+    ['mainPhoto', 'smallPhoto'],
+  );
+  assert.equal(
+    fields('siteSettings').find((field) => field.name === 'supportHeroImage')?.type,
+    'image',
+  );
+  const aboutFields = fields('aboutPage');
+  assert.equal(aboutFields.find((field) => field.name === 'portrait')?.type, 'image');
+  for (const name of ['myMeasurements', 'shannequinMeasurements']) {
+    const measurementField = aboutFields.find((field) => field.name === name) as
+      { name: string; type: string; fields?: { name: string }[] } | undefined;
+    assert.equal(measurementField?.type, 'object');
+    assert.deepEqual(
+      measurementField?.fields?.map((field) => field.name),
+      ['chest', 'waist', 'hips', 'arm', 'wrist', 'inseam'],
+    );
+  }
 });

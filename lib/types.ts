@@ -90,6 +90,7 @@ export interface PageContent {
   heading?: string;
   paragraphs?: string[];
   portrait?: ContentPhoto;
+  myMeasurements?: import('./shannequin-measurements').ShannequinMeasurements;
   shannequinImage?: ContentPhoto;
   shannequinMeasurements?: import('./shannequin-measurements').ShannequinMeasurements;
   promises?: { title: string; description: string }[];

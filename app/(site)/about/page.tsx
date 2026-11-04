@@ -2,6 +2,10 @@ import { getContent, demoEnabled } from '@/lib/content';
 import { ContentImage } from '@/components/ContentImage';
 import { EditorialHero } from '@/components/EditorialHero';
 import { Shannequin } from '@/components/Shannequin';
+import {
+  ShannequinMeasurements,
+  ShannequinMeasurementList,
+} from '@/components/ShannequinMeasurements';
 import { RequestBanner } from '@/components/RequestBanner';
 import { pageMetadata } from '@/lib/seo';
 export const metadata = pageMetadata(
@@ -38,15 +42,22 @@ export default async function About() {
         <div className="container">
           <div className="about-page__section" aria-labelledby="aboutSectionTitle">
             <figure className="about-page__portrait">
-              <div className="about-page__photo-frame">
-                <ContentImage
-                  image={content.portrait}
-                  demoSrc="https://images.unsplash.com/photo-1475178626620-a4d074967452?w=680&amp;h=680&amp;fit=crop&amp;q=80&amp;fm=jpg"
-                  width={680}
-                  height={680}
-                  priority
-                />
-              </div>
+              <ShannequinMeasurements
+                measurements={content.myMeasurements}
+                hasImage={Boolean(content.portrait?.asset?._ref)}
+              >
+                <div className="about-page__photo-frame">
+                  <ContentImage
+                    image={content.portrait}
+                    demoSrc="https://images.unsplash.com/photo-1475178626620-a4d074967452?w=680&amp;h=680&amp;fit=crop&amp;q=80&amp;fm=jpg"
+                    width={680}
+                    height={1000}
+                    preserveFullImage
+                    sizes="(max-width: 767px) 90vw, 50vw"
+                    priority
+                  />
+                </div>
+              </ShannequinMeasurements>
               {demoEnabled && !content.portrait && (
                 <figcaption>Placeholder photo — not Shandy.</figcaption>
               )}
@@ -65,6 +76,21 @@ export default async function About() {
                   {p}
                 </p>
               ))}
+              <div className="about-page__measurement-hint">
+                {content.portrait?.asset?._ref && (
+                  <div className="shannequin__measurement-hint">
+                    <span aria-hidden="true">+</span>
+                    <div>
+                      <strong>Get to know my measurements</strong>
+                      <p>Hover or tap a point on my photo to explore.</p>
+                    </div>
+                  </div>
+                )}
+                <ShannequinMeasurementList
+                  measurements={content.myMeasurements}
+                  summaryLabel="View all my measurements"
+                />
+              </div>
             </div>
           </div>
         </div>

@@ -96,26 +96,8 @@ export async function ReviewArticle({
     ),
   }));
   const video = safeExternal(stegaClean(d.videoUrl));
-  const videoItem = video
-    ? [
-        {
-          label: 'My try-on',
-          video: true,
-          content: <Video url={video} captions={d.videoCaptionsUrl} transcript={d.transcript} />,
-          thumbnail: (
-            <span className="review-story__video-thumb" aria-hidden="true">
-              <svg viewBox="0 0 24 24" width="36" height="36" fill="currentColor">
-                <path d="m8 4 12 8-12 8Z" />
-              </svg>
-              Video
-            </span>
-          ),
-        },
-      ]
-    : [];
-  const media =
-    d.format === 'video' ? [...videoItem, ...photoItems] : [...photoItems, ...videoItem];
-  if (!media.length)
+  const media = photoItems;
+  if (!media.length && !video)
     media.push({
       label: 'Review photograph awaiting publication',
       content: <ContentImage width={800} height={1000} />,
@@ -191,7 +173,15 @@ export async function ReviewArticle({
         )}
         <AffiliateDisclosure active={associatesActive(settings)} />
         <div className="review-story__columns">
-          <ReviewMedia key={`${d._id}-${d.format || 'written'}`} items={media} />
+          <ReviewMedia
+            key={`${d._id}-${d.format || 'written'}`}
+            items={media}
+            video={
+              video ? (
+                <Video url={video} captions={d.videoCaptionsUrl} transcript={d.transcript} />
+              ) : undefined
+            }
+          />
           <div className="review-story__sections">
             {sections.length ? (
               sections.map(({ key, heading }) => (

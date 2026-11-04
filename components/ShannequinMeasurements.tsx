@@ -172,12 +172,14 @@ export function ShannequinMeasurements({
 
 export function ShannequinMeasurementList({
   measurements = {},
+  summaryLabel = 'View all measurements',
 }: {
   measurements?: ShannequinMeasurements;
+  summaryLabel?: string;
 }) {
   return (
     <details className="measurements__all">
-      <summary>View all measurements</summary>
+      <summary>{summaryLabel}</summary>
       <dl>
         {measurementAreas.map((area) => (
           <div key={area.id}>

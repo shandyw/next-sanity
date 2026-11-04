@@ -59,7 +59,6 @@ const reviewCatalogFields = [
   }),
 ];
 
-
 const slug = defineField({
   name: 'slug',
   title: 'URL slug',
@@ -102,12 +101,15 @@ const image = (name: string, label: string) =>
   });
 const url = (name: string, label: string) =>
   defineField({ name, title: label, type: 'url', validation: (r) => r.uri({ scheme: ['https'] }) });
-const videoUrl = (label: string) =>
+const videoUrl = (
+  label: string,
+  description = 'Use an HTTPS URL or a site-relative path such as /videos/intro.mp4.',
+) =>
   defineField({
     name: 'videoUrl',
     title: label,
     type: 'url',
-    description: 'Use an HTTPS URL or a site-relative path such as /videos/intro.mp4.',
+    description,
     validation: (r) =>
       r
         .uri({ scheme: ['https'], allowRelative: true })
@@ -382,7 +384,10 @@ const review = defineType({
       },
       validation: (r) => r.required(),
     }),
-    videoUrl('Video URL (authorized MP4 or WebM)'),
+    videoUrl(
+      'Video URL (MP4, WebM, or YouTube)',
+      'Paste a direct MP4/WebM URL, a regular YouTube watch URL, or a youtu.be share URL. YouTube videos play in an embedded player.',
+    ),
     defineField({
       name: 'videoCaptionsUrl',
       title: 'English captions (.vtt path on this site)',
@@ -503,6 +508,58 @@ const homepage = defineType({
     ...requestFields,
   ],
 });
+const measurementFields = measurementAreas.map((area) =>
+  defineField({
+    name: area.id,
+    title: area.label,
+    type: 'object',
+    fields: [
+      defineField({
+        name: 'label',
+        title: 'Label',
+        type: 'string',
+        initialValue: area.label,
+        validation: (r) => r.max(24),
+      }),
+      defineField({
+        name: 'value',
+        title: 'Measurement',
+        type: 'number',
+        validation: (r) => r.positive(),
+      }),
+      defineField({
+        name: 'unit',
+        title: 'Source unit',
+        type: 'string',
+        initialValue: 'in',
+        options: {
+          list: [
+            { title: 'Inches', value: 'in' },
+            { title: 'Centimeters', value: 'cm' },
+          ],
+        },
+        validation: (r) =>
+          r.custom((unit, context) =>
+            typeof (context.parent as { value?: number })?.value === 'number' &&
+            !['in', 'cm'].includes(String(unit))
+              ? 'Choose the source unit for this measurement.'
+              : true,
+          ),
+      }),
+      defineField({
+        name: 'description',
+        title: 'What was measured',
+        type: 'text',
+        rows: 2,
+        description:
+          area.id === 'arm'
+            ? 'Specify upper-arm circumference or arm length; these are different measurements.'
+            : 'Briefly describe where and how this measurement was taken.',
+        validation: (r) => r.max(180),
+      }),
+    ],
+  }),
+);
 const about = defineType({
   name: 'aboutPage',
   title: 'About page',
@@ -546,7 +603,19 @@ const about = defineType({
       of: [{ type: 'text' }],
       validation: (r) => r.max(6),
     }),
-    image('portrait', 'Portrait'),
+    {
+      ...image('portrait', 'My full-body photograph'),
+      description:
+        'Used for the About page measurement hotspots. Use an uncropped full-body photo so the points align with your body.',
+    },
+    defineField({
+      name: 'myMeasurements',
+      title: 'My measurements',
+      type: 'object',
+      description:
+        'Your public measurements for the About page portrait. Separate from Shannequin’s measurements. Missing values display “Measurement coming soon”.',
+      fields: measurementFields,
+    }),
     {
       ...image('shannequinImage', 'Shannequin full-body photograph'),
       description:
@@ -558,58 +627,7 @@ const about = defineType({
       type: 'object',
       description:
         'Enter actual measurements only. The field keys identify each area permanently. Missing values display “Measurement coming soon”. Inches and centimeters are converted automatically.',
-      fields: measurementAreas.map((area) =>
-        defineField({
-          name: area.id,
-          title: area.label,
-          type: 'object',
-          fields: [
-            defineField({
-              name: 'label',
-              title: 'Label',
-              type: 'string',
-              initialValue: area.label,
-              validation: (r) => r.max(24),
-            }),
-            defineField({
-              name: 'value',
-              title: 'Measurement',
-              type: 'number',
-              validation: (r) => r.positive(),
-            }),
-            defineField({
-              name: 'unit',
-              title: 'Source unit',
-              type: 'string',
-              initialValue: 'in',
-              options: {
-                list: [
-                  { title: 'Inches', value: 'in' },
-                  { title: 'Centimeters', value: 'cm' },
-                ],
-              },
-              validation: (r) =>
-                r.custom((unit, context) =>
-                  typeof (context.parent as { value?: number })?.value === 'number' &&
-                  !['in', 'cm'].includes(String(unit))
-                    ? 'Choose the source unit for this measurement.'
-                    : true,
-                ),
-            }),
-            defineField({
-              name: 'description',
-              title: 'What was measured',
-              type: 'text',
-              rows: 2,
-              description:
-                area.id === 'arm'
-                  ? 'Specify upper-arm circumference or arm length; these are different measurements.'
-                  : 'Briefly describe where and how this measurement was taken.',
-              validation: (r) => r.max(180),
-            }),
-          ],
-        }),
-      ),
+      fields: measurementFields,
     }),
     defineField({
       name: 'promises',
@@ -639,14 +657,12 @@ const settings = defineType({
       title: 'Reviews page hero',
       type: 'object',
       description: 'Choose the two photographs shown at the top of the Reviews page.',
-      fields: [
-        image('mainPhoto', 'Main photo'),
-        image('smallPhoto', 'Second photo'),
-      ],
+      fields: [image('mainPhoto', 'Main photo'), image('smallPhoto', 'Second photo')],
     }),
     {
       ...image('supportHeroImage', 'Support page hero image'),
-      description: 'One landscape photograph for the Support page hero. Add an image description for accessibility.',
+      description:
+        'One landscape photograph for the Support page hero. Add an image description for accessibility.',
     },
     amazonSettingsField,
     defineField({
