@@ -116,6 +116,14 @@ export const editorialImageEntry = defineType({
       hidden: ({ parent }) => (parent as FindImage | undefined)?.sourceKind !== 'aiGenerated',
     }),
     defineField({
+      name: 'fashionModel',
+      title: 'AI Fashion Model identity (optional)',
+      type: 'reference',
+      to: [{ type: 'aiFashionModel' }],
+      hidden: ({ parent }) => (parent as FindImage | undefined)?.sourceKind !== 'aiGenerated',
+      description: 'Preserves the selected fictional model identity for future reproducibility.',
+    }),
+    defineField({
       name: 'generatedAt',
       title: 'Generated date',
       type: 'datetime',

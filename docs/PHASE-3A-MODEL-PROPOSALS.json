@@ -1,0 +1,116 @@
+[
+  {
+    "name": "Mara Ellis",
+    "slug": "mara-ellis",
+    "active": false,
+    "clothingSize": "16",
+    "bodyShape": "pear",
+    "measurements": { "height": 63, "bust": 43, "waist": 36, "hips": 48 },
+    "appearance": {
+      "skinTone": "warm medium-brown skin",
+      "hairColor": "deep black",
+      "hairTexture": "tight natural coils",
+      "hairstyle": "short rounded crop",
+      "eyeColor": "dark brown",
+      "ageAppearance": "adult, early 30s",
+      "facialFeatures": "soft oval face and a small beauty mark near the left cheek"
+    },
+    "identityPrompt": "Fictional adult woman with warm medium-brown skin, a soft oval face, a small beauty mark near her left cheek, dark brown eyes, and short rounded deep-black coils. She is 5 feet 3 inches tall with a fuller hip and thigh proportion, a defined waist, and natural body variation.",
+    "referenceImageApproval": "draft"
+  },
+  {
+    "name": "Nia Calder",
+    "slug": "nia-calder",
+    "active": false,
+    "clothingSize": "18",
+    "bodyShape": "hourglass",
+    "measurements": { "height": 68, "bust": 47, "waist": 38, "hips": 49 },
+    "appearance": {
+      "skinTone": "deep brown skin with neutral undertones",
+      "hairColor": "dark espresso",
+      "hairTexture": "springy curls",
+      "hairstyle": "shoulder-length layered curls",
+      "eyeColor": "brown",
+      "ageAppearance": "adult, late 30s",
+      "facialFeatures": "high cheekbones and a broad smile"
+    },
+    "identityPrompt": "Fictional adult woman with deep brown skin, high cheekbones, a broad smile, brown eyes, and shoulder-length dark espresso curls. She is 5 feet 8 inches tall with a full bust and hips, a visibly defined waist, and realistic softness through her arms and abdomen.",
+    "referenceImageApproval": "draft"
+  },
+  {
+    "name": "Elena Vega",
+    "slug": "elena-vega",
+    "active": false,
+    "clothingSize": "16/18",
+    "bodyShape": "apple",
+    "measurements": { "height": 65, "bust": 45, "waist": 41, "hips": 46 },
+    "appearance": {
+      "skinTone": "olive tan skin",
+      "hairColor": "dark auburn",
+      "hairTexture": "soft waves",
+      "hairstyle": "chin-length wavy bob",
+      "eyeColor": "hazel",
+      "ageAppearance": "adult, mid 40s",
+      "facialFeatures": "arched brows and a rounded chin"
+    },
+    "identityPrompt": "Fictional adult woman with olive tan skin, hazel eyes, arched brows, a rounded chin, and a chin-length dark auburn wavy bob. She is 5 feet 5 inches tall with a fuller midsection, moderately broad shoulders, slimmer hips, and natural adult body proportions.",
+    "referenceImageApproval": "draft"
+  },
+  {
+    "name": "Camille Brooks",
+    "slug": "camille-brooks",
+    "active": false,
+    "clothingSize": "18",
+    "bodyShape": "invertedTriangle",
+    "measurements": { "height": 70, "bust": 48, "waist": 40, "hips": 46 },
+    "appearance": {
+      "skinTone": "light skin with scattered freckles",
+      "hairColor": "chestnut brown",
+      "hairTexture": "loose curls",
+      "hairstyle": "long side-parted curls",
+      "eyeColor": "gray-blue",
+      "ageAppearance": "adult, early 50s",
+      "facialFeatures": "long face, soft smile lines, and visible freckles"
+    },
+    "identityPrompt": "Fictional adult woman with lightly freckled skin, gray-blue eyes, soft smile lines, a long face, and long side-parted chestnut curls. She is 5 feet 10 inches tall with broader shoulders and a fuller bust than hips, a natural waist, and realistic adult proportions.",
+    "referenceImageApproval": "draft"
+  },
+  {
+    "name": "Priya Shah",
+    "slug": "priya-shah",
+    "active": false,
+    "clothingSize": "16/18",
+    "bodyShape": "rectangle",
+    "measurements": { "height": 66, "bust": 44, "waist": 39, "hips": 45 },
+    "appearance": {
+      "skinTone": "medium golden-brown skin",
+      "hairColor": "dark brown",
+      "hairTexture": "straight with natural volume",
+      "hairstyle": "collarbone-length blunt cut",
+      "eyeColor": "dark brown",
+      "ageAppearance": "adult, late 20s",
+      "facialFeatures": "strong brows and a gently squared jaw"
+    },
+    "identityPrompt": "Fictional adult woman with medium golden-brown skin, dark brown eyes, strong brows, a gently squared jaw, and a collarbone-length dark brown blunt cut. She is 5 feet 6 inches tall with bust, waist, and hip widths that transition gradually, plus realistic softness and body asymmetry.",
+    "referenceImageApproval": "draft"
+  },
+  {
+    "name": "Jules Park",
+    "slug": "jules-park",
+    "active": false,
+    "clothingSize": "18",
+    "bodyShape": "pear",
+    "measurements": { "height": 64, "bust": 46, "waist": 40, "hips": 51 },
+    "appearance": {
+      "skinTone": "light-medium skin with cool undertones",
+      "hairColor": "soft black",
+      "hairTexture": "fine and straight",
+      "hairstyle": "short textured pixie",
+      "eyeColor": "dark brown",
+      "ageAppearance": "adult, mid 30s",
+      "facialFeatures": "round face and a subtle dimple on the right cheek"
+    },
+    "identityPrompt": "Fictional adult woman with light-medium cool-toned skin, dark brown eyes, a round face, a subtle right-cheek dimple, and a short soft-black textured pixie cut. She is 5 feet 4 inches tall with a fuller hip and thigh proportion, a softly defined waist, and natural adult body variation.",
+    "referenceImageApproval": "draft"
+  }
+]

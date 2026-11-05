@@ -41,7 +41,7 @@ function builder(kind: string): Entry & Record<string, unknown> {
   });
 }
 
-test('Studio focuses on Reviews, Looks, Finds, and website settings', () => {
+test('Studio keeps editorial content, Finds, AI models, and website settings organized', () => {
   const studio = config as unknown as {
     tools?: { title: string }[];
     plugins: { name?: string; tools?: { options?: { structure?: (S: unknown) => Entry } }[] }[];
@@ -64,7 +64,7 @@ test('Studio focuses on Reviews, Looks, Finds, and website settings', () => {
   const root = structure(S);
   assert.deepEqual(
     root.children?.map((item) => item.label),
-    ['Content', 'Amazon Finds', 'Website'],
+    ['Content', 'Amazon Finds', 'AI Studio', 'Website'],
   );
   assert.deepEqual(
     root.children?.[0].childEntry?.children?.map((item) => item.label),
@@ -73,6 +73,20 @@ test('Studio focuses on Reviews, Looks, Finds, and website settings', () => {
   assert.equal(root.children?.[1].childEntry?.children?.[0].label, 'Quick Add Find');
   assert.ok(
     root.children?.[1].childEntry?.children?.some((item) => item.label === 'Needs Attention'),
+  );
+  const aiStudio = root.children?.[2].childEntry?.children;
+  assert.deepEqual(
+    aiStudio?.map((item) => item.label),
+    ['Fashion Models', 'Active Models', 'Inactive Models'],
+  );
+  assert.equal(aiStudio?.[0].kind, 'type:aiFashionModel');
+  assert.equal(
+    aiStudio?.[1].childEntry?.filterValue,
+    '_type == "aiFashionModel" && active == true',
+  );
+  assert.equal(
+    aiStudio?.[2].childEntry?.filterValue,
+    '_type == "aiFashionModel" && active == false',
   );
   assert.deepEqual(
     studio.schema.templates([]).find((item) => item.id === 'quick-add-find'),

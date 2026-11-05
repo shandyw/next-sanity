@@ -6,6 +6,7 @@ import { reviewSections } from '../lib/review-layout';
 import { defineType, defineField, defineArrayMember } from 'sanity';
 import { closetShopUrl, safeBackgroundVideoUrl, safeExternal, safeVideoUrl } from '../lib/urls';
 import { amazonSettingsField } from './amazon-fields';
+import { aiFashionModel } from './ai-fashion-model/schema';
 const reviewCatalogFields = [
   defineField({
     name: 'readerProvided',
@@ -763,6 +764,7 @@ const settings = defineType({
 export const schemaTypes = [
   editorialImageEntry,
   lookImageEntry,
+  aiFashionModel,
   find,
   look,
   seo,

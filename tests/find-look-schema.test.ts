@@ -377,7 +377,10 @@ test('Looks reference Finds once, preserve order and attach hotspots to included
     'lookImageEntry',
   );
   const image = document('lookImageEntry');
-  assert.deepEqual(image.fields.map((item) => item.name), ['image', 'alt', 'sourceKind']);
+  assert.deepEqual(
+    image.fields.map((item) => item.name),
+    ['image', 'alt', 'sourceKind', 'fashionModel'],
+  );
   const validateDescription = customValidation(field(image.fields, 'alt'));
   const validateSource = customValidation(field(image.fields, 'sourceKind'));
   assert.equal(validateDescription(undefined, { parent: {} }), true);
@@ -391,7 +394,9 @@ test('Looks reference Finds once, preserve order and attach hotspots to included
     /Choose an image source/,
   );
   assert.equal(
-    validateDescription('A summer outfit', { parent: { image: { asset: { _ref: 'image-test' } } } }),
+    validateDescription('A summer outfit', {
+      parent: { image: { asset: { _ref: 'image-test' } } },
+    }),
     true,
   );
   assert.equal(

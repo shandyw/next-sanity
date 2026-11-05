@@ -67,6 +67,29 @@ export default defineConfig({
                   ]),
               ),
             S.listItem()
+              .title('AI Studio')
+              .child(
+                S.list()
+                  .title('AI Studio')
+                  .items([
+                    S.documentTypeListItem('aiFashionModel').title('Fashion Models'),
+                    S.listItem()
+                      .title('Active Models')
+                      .child(
+                        S.documentTypeList('aiFashionModel')
+                          .title('Active Models')
+                          .filter('_type == "aiFashionModel" && active == true'),
+                      ),
+                    S.listItem()
+                      .title('Inactive Models')
+                      .child(
+                        S.documentTypeList('aiFashionModel')
+                          .title('Inactive Models')
+                          .filter('_type == "aiFashionModel" && active == false'),
+                      ),
+                  ]),
+              ),
+            S.listItem()
               .title('Website')
               .child(
                 S.list()

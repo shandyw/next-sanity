@@ -49,6 +49,15 @@ export const lookImageEntry = defineType({
             : 'Choose an image source.',
         ),
     }),
+    defineField({
+      name: 'fashionModel',
+      title: 'AI Fashion Model identity (optional)',
+      type: 'reference',
+      to: [{ type: 'aiFashionModel' }],
+      hidden: ({ parent }) =>
+        (parent as { sourceKind?: string } | undefined)?.sourceKind !== 'aiGenerated',
+      description: 'Preserves the selected fictional model identity for future reproducibility.',
+    }),
   ],
   preview: {
     select: { media: 'image', source: 'sourceKind' },
@@ -199,7 +208,8 @@ export const look = defineType({
       title: 'Outfit image variations',
       type: 'array',
       group: 'images',
-      description: 'Optional alternate Look images. The first complete image is used if no cover image is set.',
+      description:
+        'Optional alternate Look images. The first complete image is used if no cover image is set.',
       of: [
         defineArrayMember({
           type: 'object',

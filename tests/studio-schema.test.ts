@@ -17,7 +17,16 @@ test('Studio schema validates and excludes retired inventory document types', ()
   );
   assert.deepEqual(errors, []);
   const schema = Schema.compile({ name: 'curvygirlreviews', types: schemaTypes });
-  for (const name of ['review', 'find', 'look', 'homepage', 'aboutPage', 'siteSettings', 'brand'])
+  for (const name of [
+    'review',
+    'find',
+    'look',
+    'aiFashionModel',
+    'homepage',
+    'aboutPage',
+    'siteSettings',
+    'brand',
+  ])
     assert.ok(schema.get(name), name);
   assert.equal(
     schemaTypes.some((type) => type.name === 'product' || type.name === 'productCollection'),
