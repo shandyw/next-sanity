@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
+import { ArrowIcon } from './ArrowIcon';
 
 type PhotoItem = { label: string; content: ReactNode; thumbnail: ReactNode };
 
@@ -28,6 +29,19 @@ export function ReviewMedia({ items, video }: { items: PhotoItem[]; video?: Reac
     updateScrollControls();
     return () => observer.disconnect();
   }, [items.length]);
+
+  useEffect(() => {
+    if (!videoOpen) return;
+    const player = dialog.current?.querySelector('video');
+    if (!player) return;
+    const reset = () => {
+      player.pause();
+      player.currentTime = 0;
+    };
+    if (player.readyState >= HTMLMediaElement.HAVE_METADATA) reset();
+    else player.addEventListener('loadedmetadata', reset, { once: true });
+    return () => player.removeEventListener('loadedmetadata', reset);
+  }, [videoOpen]);
 
   function choose(index: number) {
     setActive(index);
@@ -146,7 +160,7 @@ export function ReviewMedia({ items, video }: { items: PhotoItem[]; video?: Reac
                   strip.current?.scrollBy({ left: -strip.current.clientWidth, behavior: 'smooth' })
                 }
               >
-                ←
+                <ArrowIcon></ArrowIcon>
               </button>
               <button
                 type="button"
@@ -156,7 +170,7 @@ export function ReviewMedia({ items, video }: { items: PhotoItem[]; video?: Reac
                   strip.current?.scrollBy({ left: strip.current.clientWidth, behavior: 'smooth' })
                 }
               >
-                →
+                <ArrowIcon></ArrowIcon>
               </button>
             </div>
           )}

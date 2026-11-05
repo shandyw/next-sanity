@@ -4519,6 +4519,12 @@ summary:focus-visible,
   color: var(--color-primary-ink);
   cursor: pointer;
 }
+.review-story__thumbnail-controls button:hover {
+  background: var(--color-pink);
+}
+.review-story__thumbnail-controls button:first-of-type {
+  transform: scaleX(-1);
+}
 .review-story__thumbnail-controls button:disabled {
   opacity: 0.45;
   cursor: default;

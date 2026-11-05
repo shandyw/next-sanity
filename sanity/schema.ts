@@ -103,7 +103,7 @@ const url = (name: string, label: string) =>
   defineField({ name, title: label, type: 'url', validation: (r) => r.uri({ scheme: ['https'] }) });
 const videoUrl = (
   label: string,
-  description = 'Use an HTTPS URL or a site-relative path such as /videos/intro.mp4.',
+  description = 'Use an HTTPS URL or a site-relative path such as /videos/intro.mp4. Omit /public from paths to files in the public folder.',
 ) =>
   defineField({
     name: 'videoUrl',
@@ -386,7 +386,7 @@ const review = defineType({
     }),
     videoUrl(
       'Video URL (MP4, WebM, or YouTube)',
-      'Paste a direct MP4/WebM URL, a regular YouTube watch URL, or a youtu.be share URL. YouTube videos play in an embedded player.',
+      'Paste a direct MP4/WebM URL, a regular YouTube watch URL, or a youtu.be share URL. For a file in public/videos, enter /videos/filename.mp4 (omit /public).',
     ),
     defineField({
       name: 'videoCaptionsUrl',

@@ -1,6 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { youtubeEmbedUrl } from '../lib/urls';
+import { safeVideoUrl, youtubeEmbedUrl } from '../lib/urls';
+
+test('local files in public/videos resolve to their browser path', () => {
+  assert.equal(safeVideoUrl('/public/videos/try-on.mp4'), '/videos/try-on.mp4');
+  assert.equal(safeVideoUrl('/videos/try-on.mp4'), '/videos/try-on.mp4');
+  assert.equal(safeVideoUrl('//example.test/try-on.mp4'), undefined);
+});
 
 test('regular and share YouTube links become privacy-enhanced embeds', () => {
   const expected = 'https://www.youtube-nocookie.com/embed/M7lc1UVf-VE';

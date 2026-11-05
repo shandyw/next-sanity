@@ -7,7 +7,8 @@ export function safeExternal(value: string | undefined): string | undefined {
 }
 export function safeVideoUrl(value: string | undefined): string | undefined {
   if (value?.startsWith('/') && !value.startsWith('//') && !/[\\\s]/.test(value)) {
-    return value;
+    // Next.js serves public/videos/clip.mp4 at /videos/clip.mp4.
+    return value.startsWith('/public/') ? value.slice('/public'.length) : value;
   }
   return safeExternal(value);
 }

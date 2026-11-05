@@ -15,7 +15,7 @@ import type { PortableTextBlock } from '@portabletext/types';
 import type { ContentPhoto, DocumentContent, Settings } from '@/lib/types';
 import { getContent, getDocuments, getSettings } from '@/lib/content';
 import { reviewPhotos, reviewSections } from '@/lib/review-layout';
-import { safeExternal } from '@/lib/urls';
+import { safeVideoUrl } from '@/lib/urls';
 import { siteUrl } from '@/lib/seo';
 import { ContentImage } from './ContentImage';
 import { ReviewMedia } from './ReviewMedia';
@@ -95,7 +95,7 @@ export async function ReviewArticle({
       <ContentImage image={photo} width={240} height={300} sizes="(max-width: 767px) 28vw, 16vw" />
     ),
   }));
-  const video = safeExternal(stegaClean(d.videoUrl));
+  const video = safeVideoUrl(stegaClean(d.videoUrl));
   const media = photoItems;
   if (!media.length && !video)
     media.push({
