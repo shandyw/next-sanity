@@ -1,4 +1,4 @@
-import { safeVideoUrl } from '@/lib/urls';
+import { safeVideoUrl, youtubeEmbedUrl } from '@/lib/urls';
 export function Video({
   url,
   transcript,
@@ -10,13 +10,24 @@ export function Video({
 }) {
   const safe = safeVideoUrl(url);
   if (!safe) return null;
+  const youtube = youtubeEmbedUrl(safe);
   return (
     <div className="video-player">
-      <video controls playsInline preload="metadata" src={safe} aria-label="Fashion review video">
-        {captions?.startsWith('/') && (
-          <track kind="captions" src={captions} srcLang="en" label="English" default />
-        )}
-      </video>
+      {youtube ? (
+        <iframe
+          title="Fashion review video"
+          src={youtube}
+          allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowFullScreen
+          referrerPolicy="strict-origin-when-cross-origin"
+        />
+      ) : (
+        <video controls playsInline preload="metadata" src={safe} aria-label="Fashion review video">
+          {captions?.startsWith('/') && (
+            <track kind="captions" src={captions} srcLang="en" label="English" default />
+          )}
+        </video>
+      )}
       {transcript && (
         <details className="review-detail__video-transcript">
           <summary>Read transcript</summary>

@@ -55,7 +55,7 @@ export default async function LookPage({ params }: Props) {
         <p className="eyebrow">{lookOccasionLabel(look.occasion)}</p>
         <h1>{look.title}</h1>
         <WishlistButton id={look._id} title={look.title} />
-        {look.description && <p>{look.description}</p>}
+        {look.description && <p className="look__intro">{look.description}</p>}
       </header>
       <figure className="look-detail__hero">
         <ContentImage
@@ -105,28 +105,40 @@ export default async function LookPage({ params }: Props) {
               {items.map((item, index) => {
                 const find = item.find!;
                 const link = findAmazonLink(find, settings);
+                const fullTitle = stegaClean(find.title);
+                const titleCharacters = Array.from(fullTitle);
+                const displayTitle =
+                  titleCharacters.length > 140
+                    ? `${titleCharacters.slice(0, 139).join('')}…`
+                    : find.title;
                 return (
                   <article className="look-item" id={`look-item-${index + 1}`} key={item._key}>
                     <ContentImage image={findImage(find)} width={520} height={650} />
                     <div className="look-item__copy">
                       {item.role && <p className="eyebrow">{item.role}</p>}
-                      <h3>{find.title}</h3>
+                      <h3 aria-label={titleCharacters.length > 140 ? fullTitle : undefined}>
+                        {displayTitle}
+                      </h3>
                       {item.stylingNote && <p>{item.stylingNote}</p>}
                       {find.experienceStatus === 'tested' && <p>Personally tested</p>}
                       {find.experienceStatus === 'received' && <p>Received, not yet tested</p>}
                       {link && (
-                        <a
-                          className="btn btn-accent"
-                          href={link.href}
-                          target="_blank"
-                          rel={
-                            link.affiliate ? 'sponsored noopener noreferrer' : 'noopener noreferrer'
-                          }
-                        >
-                          View on Amazon{' '}
-                          <span className="visually-hidden">(opens in a new tab)</span>
-                          <ArrowIcon />
-                        </a>
+                        <div className="look-item__cta">
+                          <a
+                            className="btn btn-accent"
+                            href={link.href}
+                            target="_blank"
+                            rel={
+                              link.affiliate
+                                ? 'sponsored noopener noreferrer'
+                                : 'noopener noreferrer'
+                            }
+                          >
+                            View on Amazon{' '}
+                            <span className="visually-hidden">(opens in a new tab)</span>
+                            <ArrowIcon />
+                          </a>
+                        </div>
                       )}
                     </div>
                   </article>

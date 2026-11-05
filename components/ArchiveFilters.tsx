@@ -66,19 +66,15 @@ function Dropdown({
 
 export function ArchiveFilters({
   base,
-  shop,
   catalog,
   query,
   filters,
   sort,
   priceSortable,
   stateKey,
-  curated = false,
 }: {
   base: string;
   stateKey: string;
-  curated?: boolean;
-  shop: boolean;
   catalog: boolean;
   query: string;
   filters: ArchiveFilter[];
@@ -123,7 +119,7 @@ export function ArchiveFilters({
       className={`archive-filter-form${catalog ? ' archive-filter-form--catalog' : ''}`}
     >
       <label className="archive-search-label" htmlFor="archiveSearch">
-        {shop ? 'Search items' : catalog ? 'Search reviews' : 'Search published articles'}
+        {catalog ? 'Search reviews' : 'Search published articles'}
       </label>
       <div className="archive-filter-shell">
         <div className="archive-search-row">
@@ -132,13 +128,7 @@ export function ArchiveFilters({
               id="archiveSearch"
               type="search"
               name="q"
-              placeholder={
-                shop
-                  ? curated
-                    ? 'Search curated finds'
-                    : 'Search my closet'
-                  : 'Search fashion reviews'
-              }
+              placeholder={catalog ? 'Search fashion reviews' : 'Search published articles'}
               value={search}
               onChange={(event) => setSearch(event.target.value)}
             />
@@ -164,7 +154,7 @@ export function ArchiveFilters({
         <div
           className="archive-dropdown-row"
           role="group"
-          aria-label={shop ? 'Item filters' : 'Article filters'}
+          aria-label="Article filters"
         >
           {filters.map((filter) => (
             <Dropdown

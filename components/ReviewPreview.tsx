@@ -29,7 +29,7 @@ export function ReviewPreview({
         ))}
       />
       {item.brand?.title?.trim() && <p className="review-card__eyebrow">{item.brand.title}</p>}
-      <Heading className="review-card__title">
+      <Heading className="review-card__title headline-lg">
         <a className="review-card__title-link" href={href}>
           <span className="review-preview__title-backing">{item.title}</span>
         </a>
@@ -37,7 +37,7 @@ export function ReviewPreview({
       {item.excerpt && <p className="review-card__blurb">{item.excerpt}</p>}
       {item.sizeWorn && <p className="review-card__meta">Tried in size {item.sizeWorn}</p>}
       <a
-        className="text-link"
+        className="text-link text-link--editorial"
         href={href}
         aria-label={`${base === '/blog' ? 'Read the post' : 'Read the review'}: ${item.title}`}
       >

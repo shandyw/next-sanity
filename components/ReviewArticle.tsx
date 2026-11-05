@@ -1,4 +1,4 @@
-import { acknowledgment } from '@/lib/catalog';
+import { acknowledgment } from '@/lib/acknowledgment';
 import { EditorialLink } from './EditorialLink';
 import { AffiliateDisclosure } from './AffiliateDisclosure';
 import {
@@ -15,7 +15,7 @@ import type { PortableTextBlock } from '@portabletext/types';
 import type { ContentPhoto, DocumentContent, Settings } from '@/lib/types';
 import { getContent, getDocuments, getSettings } from '@/lib/content';
 import { reviewPhotos, reviewSections } from '@/lib/review-layout';
-import { safeExternal } from '@/lib/urls';
+import { safeVideoUrl } from '@/lib/urls';
 import { siteUrl } from '@/lib/seo';
 import { ContentImage } from './ContentImage';
 import { ReviewMedia } from './ReviewMedia';
@@ -71,7 +71,7 @@ export async function ReviewArticle({
   document: DocumentContent;
   returnTo: string;
 }) {
-  const [homepage, settings] = await Promise.all([getContent('homepage'), getSettings()]);
+  const [aboutPage, settings] = await Promise.all([getContent('aboutPage'), getSettings()]);
   void returnTo;
   const relatedSlugs = new Set(d.relatedReviews?.map((review) => review.slug) || []);
   const related = relatedSlugs.size
@@ -95,27 +95,9 @@ export async function ReviewArticle({
       <ContentImage image={photo} width={240} height={300} sizes="(max-width: 767px) 28vw, 16vw" />
     ),
   }));
-  const video = safeExternal(stegaClean(d.videoUrl));
-  const videoItem = video
-    ? [
-        {
-          label: 'My try-on',
-          video: true,
-          content: <Video url={video} captions={d.videoCaptionsUrl} transcript={d.transcript} />,
-          thumbnail: (
-            <span className="review-story__video-thumb" aria-hidden="true">
-              <svg viewBox="0 0 24 24" width="36" height="36" fill="currentColor">
-                <path d="m8 4 12 8-12 8Z" />
-              </svg>
-              Video
-            </span>
-          ),
-        },
-      ]
-    : [];
-  const media =
-    d.format === 'video' ? [...videoItem, ...photoItems] : [...photoItems, ...videoItem];
-  if (!media.length)
+  const video = safeVideoUrl(stegaClean(d.videoUrl));
+  const media = photoItems;
+  if (!media.length && !video)
     media.push({
       label: 'Review photograph awaiting publication',
       content: <ContentImage width={800} height={1000} />,
@@ -191,7 +173,15 @@ export async function ReviewArticle({
         )}
         <AffiliateDisclosure active={associatesActive(settings)} />
         <div className="review-story__columns">
-          <ReviewMedia key={`${d._id}-${d.format || 'written'}`} items={media} />
+          <ReviewMedia
+            key={`${d._id}-${d.format || 'written'}`}
+            items={media}
+            video={
+              video ? (
+                <Video url={video} captions={d.videoCaptionsUrl} transcript={d.transcript} />
+              ) : undefined
+            }
+          />
           <div className="review-story__sections">
             {sections.length ? (
               sections.map(({ key, heading }) => (
@@ -254,12 +244,12 @@ export async function ReviewArticle({
       </article>
       {d.shannequinQuote?.trim() && (
         <section className="review-shannequin" aria-labelledby="review-shannequin-title">
-          <div className="container review-shannequin__inner">
+          <div className="container nopad review-shannequin__inner">
             <div className="review-shannequin__media">
               <div className="review-shannequin__backing" aria-hidden="true" />
-              {homepage.shannequinImage?.asset?._ref ? (
+              {aboutPage.shannequinImage?.asset?._ref ? (
                 <ContentImage
-                  image={homepage.shannequinImage}
+                  image={aboutPage.shannequinImage}
                   preserveFullImage
                   width={600}
                   height={900}
@@ -290,26 +280,30 @@ export async function ReviewArticle({
         </section>
       )}
       {primaryFind && findLink && (
-        <section className="container review-story__product" aria-labelledby="review-product-title">
-          <div>
-            <p className="eyebrow">Find featured in this review</p>
-            <h2 id="review-product-title">{primaryFind.title}</h2>
-            {findLink.affiliate && <p className="affiliate-note">{AMAZON_DISCLOSURE}</p>}
+        <section className="review-story__product" aria-labelledby="review-product-title">
+          <div className="container">
+            <div>
+              <p className="eyebrow">Find featured in this review</p>
+              <h2 id="review-product-title">{primaryFind.title}</h2>
+              {findLink.affiliate && <p className="affiliate-note">{AMAZON_DISCLOSURE}</p>}
+            </div>
+            <a
+              className="btn btn-accent"
+              href={findLink.href}
+              target="_blank"
+              rel={findLink.affiliate ? 'sponsored noopener noreferrer' : 'noopener noreferrer'}
+            >
+              View on Amazon <span className="visually-hidden">(opens in a new tab)</span>
+            </a>
           </div>
-          <a
-            className="btn btn-accent"
-            href={findLink.href}
-            target="_blank"
-            rel={findLink.affiliate ? 'sponsored noopener noreferrer' : 'noopener noreferrer'}
-          >
-            View on Amazon <span className="visually-hidden">(opens in a new tab)</span>
-          </a>
         </section>
       )}
       {related.length > 0 && (
-        <section className="container review-story__related">
-          <h2>Related reviews</h2>
-          <CardGrid items={related} homepage />
+        <section className="review-story__related">
+          <div className="container">
+            <h2>Related reviews</h2>
+            <CardGrid items={related} homepage />
+          </div>
         </section>
       )}
       {structured && (

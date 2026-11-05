@@ -1,6 +1,5 @@
 import type { DocumentContent } from '@/lib/types';
 import { CardGrid } from './CardGrid';
-import { ArrowIcon } from './ArrowIcon';
 
 /** Receives the published, newest-first review feed; search state is deliberately not an input. */
 export function LatestVerdicts({ reviews }: { reviews: DocumentContent[] }) {
@@ -10,9 +9,8 @@ export function LatestVerdicts({ reviews }: { reviews: DocumentContent[] }) {
       <div className="container">
         <div className="section-heading">
           <h2 id="trendingHeading">The Latest Verdicts</h2>
-          <a className="text-link archive-link" href="/reviews">
+          <a className="btn btn-ghost" href="/reviews">
             <span>View all reviews</span>
-            <ArrowIcon />
           </a>
         </div>
         {latest.length ? (

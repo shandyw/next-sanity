@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { ContentImage } from '@/components/ContentImage';
+import { ArrowIcon } from '@/components/ArrowIcon';
 import { WishlistButton } from '@/components/WishlistButton';
 import { getLooks, lookImage, lookOccasionLabel, lookOccasionLabels } from '@/lib/looks';
 import type { SearchParams } from '@/lib/types';
@@ -29,12 +30,13 @@ export default async function ShopPage({ searchParams }: Props) {
         <h1>Shop the Looks</h1>
         <p>Outfits, ideas, and Finds to make them your own.</p>
       </header>
-      <nav className="look-filters" aria-label="Filter Looks by occasion">
-        <Link href="/shop" aria-current={!active ? 'page' : undefined}>
+      <nav className="cgr-filters" aria-label="Filter Looks by occasion">
+        <Link className="btn btn-filter" href="/shop" aria-current={!active ? 'page' : undefined}>
           All
         </Link>
         {Object.entries(lookOccasionLabels).map(([value, label]) => (
           <Link
+            className="btn btn-filter"
             key={value}
             href={`/shop?occasion=${value}`}
             aria-current={active === value ? 'page' : undefined}
@@ -61,8 +63,11 @@ export default async function ShopPage({ searchParams }: Props) {
                   <Link href={`/looks/${encodeURIComponent(look.slug)}`}>{look.title}</Link>
                 </h2>
                 {look.description && <p>{look.description}</p>}
-                <Link className="text-link" href={`/looks/${encodeURIComponent(look.slug)}`}>
-                  View the Look →
+                <Link
+                  className="text-link text-link--editorial"
+                  href={`/looks/${encodeURIComponent(look.slug)}`}
+                >
+                  <span>View the Look</span> <ArrowIcon />
                 </Link>
               </div>
             </article>
@@ -77,7 +82,7 @@ export default async function ShopPage({ searchParams }: Props) {
               : 'New outfit stories will appear here as they are published.'}
           </p>
           {active && (
-            <Link className="text-link" href="/shop">
+            <Link className="btn btn-ghost" href="/shop">
               View all Looks
             </Link>
           )}

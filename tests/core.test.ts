@@ -2,15 +2,6 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { browse, archiveUrl } from '../lib/browse';
-import {
-  importRecordSchema,
-  importEnvelopeSchema,
-  stableProductId,
-  createProduct,
-  listingUpdate,
-  updateDecision,
-} from '../lib/import-products';
-import { vintedUrl, isStale } from '../lib/urls';
 import { submissionSchema } from '../lib/forms';
 import type { DocumentContent } from '../lib/types';
 const collection: DocumentContent[] = Array.from({ length: 31 }, (_, i) => ({
@@ -69,98 +60,6 @@ test('removed Format filter no longer changes review results or archive links', 
     '/reviews?category=jeans',
   );
 });
-test('shop availability and historical reviewed prices use separate fields', () => {
-  const d: DocumentContent = {
-    ...collection[0],
-    _type: 'product',
-    availability: 'sold',
-    listingPrice: 4,
-    priceWhenReviewed: 100,
-  };
-  assert.equal(browse([d], { max_price: '5' }, true).count, 1);
-  assert.equal(browse([d], { max_price: '5' }).count, 1);
-  assert.equal(browse([d], { availability: 'available' }, true).count, 0);
-});
-const record = {
-  externalListingId: '123',
-  title: 'Owned jacket',
-  listingPrice: 20,
-  currency: 'USD',
-  availability: 'available',
-  vintedUrl: 'https://www.vinted.com/items/123-jacket',
-  lastSuccessfullyCheckedAt: '2026-09-01T12:00:00Z',
-};
-test('import validates IDs, prices, URLs, and rejects unknown editorial fields', () => {
-  assert.ok(importRecordSchema.safeParse(record).success);
-  assert.equal(importRecordSchema.parse({ ...record, currency: undefined }).currency, 'USD');
-  for (const change of [
-    { vintedUrl: 'http://127.0.0.1/private' },
-    { vintedUrl: 'https://vinted.com.evil.test/items/1' },
-    { listingPrice: -1 },
-    { currency: 'GBP' },
-    { externalListingId: '../bad' },
-    { body: 'overwrite review' },
-    { lastSuccessfullyCheckedAt: '2099-01-01T00:00:00Z' },
-    { photoAssetRefs: [{ assetRef: 'https://untrusted.test/image.jpg', alt: 'x' }] },
-  ])
-    assert.equal(importRecordSchema.safeParse({ ...record, ...change }).success, false);
-  assert.equal(
-    importEnvelopeSchema.safeParse({ version: 2, source: 'x', products: [] }).success,
-    false,
-  );
-});
-test('stable IDs, manual ownership, reruns, stale snapshots and field ownership', () => {
-  const r = importRecordSchema.parse(record);
-  const id = stableProductId('feed', r.externalListingId);
-  assert.equal(id, stableProductId('feed', r.externalListingId));
-  assert.notEqual(id, stableProductId('other', r.externalListingId));
-  const created = createProduct('feed', r);
-  assert.equal(created._id, id);
-  const existing = {
-    _id: id,
-    _rev: 'rev',
-    dataSource: 'import',
-    importSource: 'feed',
-    externalListingId: '123',
-    importEnabled: true,
-    lastSuccessfullyCheckedAt: '2026-08-01T00:00:00Z',
-  };
-  assert.equal(updateDecision(existing, 'feed', r), 'update');
-  assert.equal(
-    updateDecision({ ...existing, importEnabled: false }, 'feed', r),
-    'manual ownership',
-  );
-  assert.equal(
-    updateDecision({ ...existing, dataSource: 'manual' }, 'feed', r),
-    'identity mismatch',
-  );
-  assert.equal(
-    updateDecision(
-      { ...existing, lastSuccessfullyCheckedAt: r.lastSuccessfullyCheckedAt },
-      'feed',
-      r,
-    ),
-    'unchanged or older snapshot',
-  );
-  assert.deepEqual(Object.keys(listingUpdate(r)).sort(), [
-    'availability',
-    'currency',
-    'lastImportedAt',
-    'lastSuccessfullyCheckedAt',
-    'listingPrice',
-    'vintedUrl',
-  ]);
-});
-test('external URLs and stale availability are conservative', () => {
-  assert.equal(vintedUrl('javascript:alert(1)'), undefined);
-  assert.equal(
-    vintedUrl('https://www.vinted.com/items/123-jacket?tracking=1'),
-    'https://www.vinted.com/items/123-jacket',
-  );
-  assert.equal(isStale(undefined), true);
-  assert.equal(isStale('invalid'), true);
-  assert.equal(isStale('2026-09-01T00:00:00Z', Date.parse('2026-09-02T00:00:00Z')), false);
-});
 test('form validation rejects spam and invalid submissions', () => {
   assert.ok(
     submissionSchema.safeParse({ kind: 'newsletter', email: 'reader@example.test', website: '' })
@@ -213,22 +112,4 @@ test('implemented editorial tokens meet text and control contrast requirements',
   assert.ok(contrast(token('border-control'), token('page-background')) >= 3);
   assert.ok(contrast(token('success'), 'FFFFFF') >= 3);
   assert.ok(contrast(token('error-text'), 'FFFFFF') >= 4.5);
-});
-
-test('new product category, brand and condition filter values match the full product dataset', () => {
-  const items: DocumentContent[] = Array.from({ length: 25 }, (_, i) => ({
-    ...collection[0],
-    _id: `product-${i}`,
-    _type: 'product',
-    title: `Boots ${i}`,
-    categories: [{ _id: 'category-shoes', slug: 'shoes', title: 'Shoes' }],
-    brand: { _id: 'fresh-brand', title: 'Fresh Brand' },
-    condition: i === 24 ? 'Like new' : 'Good',
-  }));
-  assert.equal(
-    browse(items, { category: 'shoes', brand: 'Fresh Brand', condition: 'Like new' }, true).count,
-    1,
-  );
-  assert.equal(browse(items, { condition: 'Like new' }, true).items[0]._id, 'product-24');
-  assert.equal(browse(items, { category: 'dresses' }, true).count, 0);
 });

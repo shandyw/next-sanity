@@ -5,7 +5,6 @@ import { draftMode } from 'next/headers';
 import { configured, fetchContent } from './sanity';
 import type { DocumentContent, PageContent, Settings } from './types';
 import demo from './demo.json';
-import { localDemoProducts } from './demo-products';
 import { exampleReview, exampleReviewSlug, localDemoReviews } from './demo-review';
 export const demoEnabled =
   process.env.NODE_ENV !== 'production' && process.env.ENABLE_DEMO_CONTENT === 'true';
@@ -15,16 +14,11 @@ export const getDocuments = cache(
     if (configured) {
       const preview = (await draftMode()).isEnabled;
       const documents = await fetchContent<DocumentContent[]>(
-        `*[_type==$type && defined(slug.current) ${type === 'product' ? '' : '&& ($preview || (defined(publishedAt) && publishedAt <= now()))'}] | order(${type === 'product' ? '_createdAt' : 'publishedAt'} desc, _id asc) ${projection}`,
+        `*[_type==$type && defined(slug.current) && ($preview || (defined(publishedAt) && publishedAt <= now()))] | order(publishedAt desc, _id asc) ${projection}`,
         { type, preview },
       );
-      return type === 'product'
-        ? localDemoProducts(documents)
-        : type === 'review'
-          ? localDemoReviews(documents)
-          : documents;
+      return type === 'review' ? localDemoReviews(documents) : documents;
     }
-    if (type === 'product') return localDemoProducts([]);
     if (!demoEnabled || type !== 'review') return [];
     return [...demo]
       .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))

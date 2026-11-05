@@ -19,7 +19,7 @@ export function ClosetBanner({
     <section className="closet-banner" aria-labelledby="closet-banner-title">
       <div className="closet-banner__copy">
         <p className="closet-banner__eyebrow">Lets Go</p>
-        <h2 id="closet-banner-title">Shop My Closet</h2>
+        <Heading id="closet-banner-title">Shop My Closet</Heading>
         <p className="closet-banner__intro">
           I sell clothing, shoes, and accessories from my personal closet on Vinted.
         </p>

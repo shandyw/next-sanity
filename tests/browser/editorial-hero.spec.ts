@@ -175,7 +175,7 @@ test('without JavaScript the complete composition and real review link remain av
 }) => {
   const context = await browser.newContext({ javaScriptEnabled: false });
   const page = await context.newPage();
-  await page.goto('http://localhost:3000/');
+  await page.goto('/');
   const hero = page.locator('.editorial-hero');
   await expect(hero.getByRole('heading', { level: 1 })).toBeVisible();
   await expect(hero.locator('.editorial-hero__highlight')).toHaveCount(0);

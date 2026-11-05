@@ -9,12 +9,6 @@ export interface ContentPhoto {
   hotspot?: { x: number; y: number; width: number; height: number };
   demoSrc?: string;
 }
-export interface EditorialHeroMedia {
-  layout?: 'portrait' | 'landscape';
-  portraitMain?: ContentPhoto;
-  portraitSecondary?: ContentPhoto;
-  landscapePhoto?: ContentPhoto;
-}
 export interface Named {
   _id: string;
   title: string;
@@ -22,23 +16,7 @@ export interface Named {
 }
 export interface DocumentContent {
   _id: string;
-  sku?: string;
-  catalogSource?: 'closet' | 'amazon';
-  displayPlacements?: ('closet' | 'finds' | 'reviewWishlist')[];
-  archived?: boolean;
-  saleStatus?: 'available' | 'sold';
-  reviewProgress?: 'not_requested' | 'wanted' | 'received' | 'in_progress' | 'reviewed';
-  curatedReviewStatus?: 'not_reviewed' | 'reviewed';
-  desiredSize?: string;
-  desiredColor?: string;
-  styleModel?: string;
-  lastImportedAt?: string;
-  reviewedProducts?: DocumentContent[];
-  readerProvided?: boolean;
-  senderDisplayName?: string;
-  senderNamePermission?: boolean;
-  thankYouMessage?: string;
-  _type: 'review' | 'blogPost' | 'product';
+  _type: 'review' | 'blogPost';
   title: string;
   slug: string;
   titleHighlight?: string;
@@ -51,27 +29,11 @@ export interface DocumentContent {
   >;
   shannequinQuote?: string;
   experienceStatus?: 'tested' | 'mannequin' | 'curated';
-  whyPicked?: string;
-  testedSize?: string;
-  fitObservations?: string;
-  sellerSpecifications?: string;
-  whatToCheck?: string;
-  editorialReviewedAt?: string;
-  contentReviewStatus?: 'needs_review' | 'approved';
-  indexingIntent?: 'noindex' | 'index';
-  amazonAffiliateUrl?: string;
-  amazonShortLinkVerified?: boolean;
-  newAmazonAffiliateUrl?: string;
-  newAmazonShortLinkVerified?: boolean;
-  relatedGuides?: { title: string; slug: string }[];
-  onReviewWishlist?: boolean;
-  amazonAsin?: string;
-  importedImageUrl?: string;
-  priority?: 'high' | 'medium' | 'low';
-  requestedQuantity?: number;
-  receivedQuantity?: number;
-  ctaLabel?: string;
-  ctaProduct?: DocumentContent;
+  personallyTried?: boolean;
+  readerProvided?: boolean;
+  senderDisplayName?: string;
+  senderNamePermission?: boolean;
+  thankYouMessage?: string;
   primaryFind?: {
     _id: string;
     title: string;
@@ -91,8 +53,6 @@ export interface DocumentContent {
   categories?: Named[];
   brand?: Named;
   sizeWorn?: string;
-  size?: string;
-  condition?: string;
   fitNotes?: string;
   format?: 'written' | 'video' | 'both';
   videoUrl?: string;
@@ -100,26 +60,7 @@ export interface DocumentContent {
   videoCaptionsUrl?: string;
   priceWhenReviewed?: number;
   reviewCurrency?: string;
-  listingPrice?: number;
-  currency?: string;
-  availability?: 'available' | 'reserved' | 'sold' | 'unknown';
-  vintedUrl?: string;
-  shoppingSection?: 'closet' | 'finds';
-  purchaseUrl?: string;
-  retailer?: string;
-  affiliateLink?: boolean;
-  personallyTried?: boolean;
-  availableSizes?: string[];
-  priceMaintained?: boolean;
-  newPurchaseUrl?: string;
-  newRetailer?: string;
-  newAffiliateLink?: boolean;
-  lastSuccessfullyCheckedAt?: string;
-  dataSource?: 'manual' | 'import';
-  relatedReview?: { title: string; slug: string };
-  products?: DocumentContent[];
   relatedReviews?: { title: string; slug: string }[];
-  relatedProducts?: DocumentContent[];
   favorite?: boolean;
   demo?: boolean;
   seo?: { title?: string; description?: string; socialImage?: ContentPhoto };
@@ -132,6 +73,8 @@ export interface PageContent {
   heroIntro?: string;
   heroBack?: ContentPhoto;
   heroFront?: ContentPhoto;
+  heroVideoUrl?: string;
+  heroCopyTone?: 'light' | 'dark';
   aboutImage?: ContentPhoto;
   aboutHeading?: string;
   aboutIntro?: string;
@@ -147,13 +90,14 @@ export interface PageContent {
   heading?: string;
   paragraphs?: string[];
   portrait?: ContentPhoto;
+  myMeasurements?: import('./shannequin-measurements').ShannequinMeasurements;
   shannequinImage?: ContentPhoto;
   shannequinMeasurements?: import('./shannequin-measurements').ShannequinMeasurements;
   promises?: { title: string; description: string }[];
 }
 export interface Settings {
-  closetHero?: EditorialHeroMedia;
-  findsHero?: EditorialHeroMedia;
+  reviewsHero?: { mainPhoto?: ContentPhoto; smallPhoto?: ContentPhoto };
+  supportHeroImage?: ContentPhoto;
   amazonAssociates?: { active?: boolean; tag?: string; clickEventsEnabled?: boolean };
   leadModal?: {
     enabled?: boolean;

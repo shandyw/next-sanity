@@ -370,11 +370,33 @@ test('Looks reference Finds once, preserve order and attach hotspots to included
     hotspot.fields?.map((item) => item.name),
     ['x', 'y'],
   );
-  assert.equal(field(look.fields, 'coverImage').type, 'editorialImageEntry');
+  assert.equal(field(look.fields, 'coverImage').type, 'lookImageEntry');
   assert.equal(field(look.fields, 'variations').of?.[0].type, 'object');
   assert.equal(
-    field(look.fields, 'variations').of?.[0].fields?.find((f) => f.name === 'image')?.validation,
-    undefined,
+    field(look.fields, 'variations').of?.[0].fields?.find((f) => f.name === 'image')?.type,
+    'lookImageEntry',
+  );
+  const image = document('lookImageEntry');
+  assert.deepEqual(image.fields.map((item) => item.name), ['image', 'alt', 'sourceKind']);
+  const validateDescription = customValidation(field(image.fields, 'alt'));
+  const validateSource = customValidation(field(image.fields, 'sourceKind'));
+  assert.equal(validateDescription(undefined, { parent: {} }), true);
+  assert.equal(validateSource(undefined, { parent: {} }), true);
+  assert.match(
+    String(validateDescription('', { parent: { image: { asset: { _ref: 'image-test' } } } })),
+    /Describe the image/,
+  );
+  assert.match(
+    String(validateSource(undefined, { parent: { image: { asset: { _ref: 'image-test' } } } })),
+    /Choose an image source/,
+  );
+  assert.equal(
+    validateDescription('A summer outfit', { parent: { image: { asset: { _ref: 'image-test' } } } }),
+    true,
+  );
+  assert.equal(
+    validateSource('original', { parent: { image: { asset: { _ref: 'image-test' } } } }),
+    true,
   );
   const validateItems = customValidation(items);
   assert.equal(validateItems(undefined), true);
@@ -386,16 +408,9 @@ test('Looks reference Finds once, preserve order and attach hotspots to included
   assert.equal(validateItems([{ find: { _ref: 'a' } }, { find: { _ref: 'b' } }]), true);
 });
 
-test('Review keeps legacy product links and adds an optional primary Find', () => {
+test('Review keeps editorial fields and an optional primary Find', () => {
   const review = document('review');
-  for (const name of [
-    'reviewedProducts',
-    'ctaProduct',
-    'photos',
-    'videoUrl',
-    'fitNotes',
-    'shannequinQuote',
-  ])
+  for (const name of ['photos', 'videoUrl', 'fitNotes', 'shannequinQuote'])
     assert.ok(field(review.fields, name));
   assert.equal(field(review.fields, 'primaryFind').to?.[0].type, 'find');
 });

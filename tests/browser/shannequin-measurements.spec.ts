@@ -77,10 +77,18 @@ for (const width of [1440, 1024, 390, 320]) {
     await page.mouse.move(0, 0);
     await waist.hover();
     await expect(popup).toBeVisible();
-    await popup.hover();
-    await page.waitForTimeout(250);
-    await expect(popup).toBeVisible();
-    await page.mouse.move(0, 0);
+    if (width >= 1200) {
+      await popup.hover();
+      await page.waitForTimeout(250);
+      await expect(popup).toBeVisible();
+    } else {
+      await waist.click();
+      await expect(popup).toBeVisible();
+      await page.mouse.move(0, 0);
+      await expect(popup).toBeVisible();
+      await page.keyboard.press('Escape');
+    }
+    if (width >= 1200) await page.mouse.move(0, 0);
     await expect(popup).toBeHidden();
     if (width < 768) {
       await waist.tap();
@@ -114,10 +122,25 @@ for (const width of [1440, 1024, 390, 320]) {
   });
 }
 
+test('expanding measurements keeps the existing columns anchored', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/about');
+  const heading = page.locator('#shannequin .shannequin__copy h2');
+  const media = page.locator('#shannequin .shannequin__media');
+  const top = async (locator: typeof heading) =>
+    locator.evaluate((element) => element.getBoundingClientRect().top + window.scrollY);
+  const headingBefore = await top(heading);
+  const mediaBefore = await top(media);
+  await page.locator('#shannequin .measurements__all summary').click();
+  await expect(page.locator('#shannequin .measurements__all')).toHaveAttribute('open', '');
+  await expect.poll(() => top(heading)).toBeCloseTo(headingBefore, 0);
+  await expect.poll(() => top(media)).toBeCloseTo(mediaBefore, 0);
+});
+
 test('About measurements remain readable without JavaScript', async ({ browser }) => {
   const context = await browser.newContext({ javaScriptEnabled: false });
   const page = await context.newPage();
-  await page.goto('http://localhost:3000/about');
+  await page.goto('/about');
   await page.locator('#shannequin').getByText('View all measurements', { exact: true }).click();
   await expect(page.locator('#shannequin .measurements__all dd')).toHaveCount(6);
   await expect(page.locator('#shannequin .measurement-hotspot:visible')).toHaveCount(0);

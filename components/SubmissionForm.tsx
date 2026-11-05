@@ -92,7 +92,7 @@ export function SubmissionForm({
         </div>
       )}
       <div className={kind === 'request' ? 'form-row request-form__email' : 'newsletter-field'}>
-        <label htmlFor={`${idPrefix}Email`}>
+        <label className="visually-hidden" htmlFor={`${idPrefix}Email`}>
           Email address{kind === 'request' && ' (required)'}
         </label>
         <div className="email-control" data-validation={emailState}>

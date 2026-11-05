@@ -15,7 +15,7 @@ test('homepage Looks keep the intended card width and navigation at each breakpo
     const featured = section.locator('.home-featured-look');
     if (await featured.count()) {
       await expect(section.getByText('Shop the Look', { exact: true })).toBeVisible();
-      await expect(featured.getByRole('heading', { level: 2 })).toBeVisible();
+      await expect(featured.getByRole('heading', { level: 3 })).toBeVisible();
       await expect(featured.getByRole('link', { name: /Shop This Look/ })).toHaveAttribute(
         'href',
         /^\/looks\//,
@@ -43,7 +43,7 @@ test('homepage Looks keep the intended card width and navigation at each breakpo
         .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
         .analyze();
       expect(accessibility.violations.map((violation) => violation.id)).toEqual([]);
-      const title = await featured.getByRole('heading', { level: 2 }).innerText();
+      const title = await featured.getByRole('heading', { level: 3 }).innerText();
       await featured.getByRole('link', { name: /Shop This Look/ }).click();
       await expect(page.getByRole('heading', { name: title, level: 1 })).toBeVisible();
       continue;

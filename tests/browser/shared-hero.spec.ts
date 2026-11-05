@@ -12,13 +12,10 @@ for (const width of [1440, 390, 320]) {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     for (const [route, title] of [
       ['/reviews', 'Fashion Reviews'],
-      ['/shop/closet', 'My Closet'],
-      ['/shop/finds', 'Curated Finds'],
       ['/blog', 'The Blog'],
-      ['/wishlist', 'Wishlist'],
       ['/support', 'Support the Reviews'],
-      ['/about', 'About CurvyGirlReviews'],
-      ['/privacy', 'Privacy Policy'],
+      ['/about', 'Curvy Girl Reviews'],
+      ['/privacy', 'Privacy'],
       ['/thank-you', 'Thank You!'],
     ]) {
       await page.goto(route);
@@ -26,6 +23,33 @@ for (const width of [1440, 390, 320]) {
       await expect(hero).toHaveCount(1);
       await expect(page.getByRole('heading', { level: 1 })).toHaveCount(1);
       await expect(hero.getByRole('heading', { level: 1 })).toHaveText(title);
+      if (await hero.locator('.editorial-hero__background-video').count()) {
+        expect(route).toBe('/about');
+        await expect(hero.locator('.editorial-hero__photo')).toHaveCount(0);
+        await expect(hero.locator('.editorial-hero__background-video')).toHaveAttribute(
+          'playsinline',
+          '',
+        );
+        const axe = await new AxeBuilder({ page })
+          .include('.editorial-hero')
+          .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])
+          .analyze();
+        expect(axe.violations.map((violation) => violation.id), route).toEqual([]);
+        continue;
+      }
+      if (route === '/support') {
+        await expect(hero).toHaveClass(/editorial-hero--landscape/);
+        await expect(hero.locator('.editorial-hero__photo--main, .editorial-hero__photo--small')).toHaveCount(0);
+        await expect(
+          hero.locator('.editorial-hero__photo--landscape > img, .editorial-hero__photo--landscape > .image-placeholder'),
+        ).toHaveCount(1);
+        const axe = await new AxeBuilder({ page })
+          .include('.editorial-hero')
+          .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])
+          .analyze();
+        expect(axe.violations.map((violation) => violation.id), route).toEqual([]);
+        continue;
+      }
       const images = hero.locator('.editorial-hero__photo img');
       await expect(images).toHaveCount(2);
       await expect(hero.locator('.editorial-hero__measure')).toHaveCount(0);
@@ -42,7 +66,15 @@ for (const width of [1440, 390, 320]) {
         elements.map((image) => image.getAttribute('src')!),
       );
       expect(new Set(paths.map(poolPath)).size).toBe(2);
-      expect(paths.map(poolPath).every((path) => path.startsWith('/img/hero/'))).toBe(true);
+      expect(
+        paths
+          .map(poolPath)
+          .every(
+            (path) =>
+              path.startsWith('/img/hero/') ||
+              (route === '/reviews' && path.startsWith('https://cdn.sanity.io/images/')),
+          ),
+      ).toBe(true);
       await expect(hero.locator('.editorial-hero__label, .editorial-hero__paper')).toHaveCount(0);
       for (const photo of await hero.locator('.editorial-hero__photo').all()) {
         expect(await photo.evaluate((element) => getComputedStyle(element).transform)).toBe('none');
@@ -59,12 +91,6 @@ for (const width of [1440, 390, 320]) {
         axe.violations.map((violation) => violation.id),
         route,
       ).toEqual([]);
-      if (route === '/wishlist') {
-        await expect(hero.locator('.editorial-hero__disclaimer')).toContainText(
-          'Saved in this browser only.',
-        );
-        await page.screenshot({ path: `test-results/shared-hero-wishlist-${width}.png` });
-      }
     }
   });
 }

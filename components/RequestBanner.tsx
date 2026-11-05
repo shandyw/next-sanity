@@ -11,7 +11,7 @@ export function RequestBanner({
       <div className="container">
         <div className="request-banner">
           <div className="request-banner__copy-wrap">
-            <h2 className="request-banner__title" id={headingId}>
+            <h2 className="headline-lg" id={headingId}>
               {content.requestTitle || 'Your Wishlist. My Fitting Room.'}
             </h2>
             <p className="request-banner__copy">

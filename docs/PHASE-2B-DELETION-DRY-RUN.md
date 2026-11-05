@@ -1,8 +1,10 @@
 # Phase 2B deletion dry run
 
+Historical pre-deletion snapshot. The authorized deletion completed on 2026-11-01; see the [execution record](PHASE-2B-FINAL-DELETION-VERIFICATION.md) for current counts and verification.
+
 Dataset: production
-Generated: 2026-10-29T12:33:29.924Z
-Total documents scanned: 101
+Generated: 2026-11-01T23:33:38.832Z
+Total documents scanned: 94
 Backup: imports/phase2b-production-2026-10-28.tar.gz (SHA-256 f92208082af9927df44b18b281adb8a135672a84949b8c3f315697994ba22927)
 
 ## Document counts
@@ -16,7 +18,7 @@ Backup: imports/phase2b-production-2026-10-28.tar.gz (SHA-256 f92208082af9927df4
 - look: 2
 - product: 22
 - sanity.imageAsset: 36
-- sanity.previewUrlSecret: 9
+- sanity.previewUrlSecret: 2
 - siteSettings: 1
 - system.group: 11
 - system.retention: 1

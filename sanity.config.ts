@@ -94,11 +94,7 @@ export default defineConfig({
   schema: {
     types: schemaTypes,
     templates: (templates) => [
-      ...templates.filter(
-        (t) =>
-          !singletonTypes.has(t.schemaType) &&
-          !['product', 'productCollection'].includes(t.schemaType),
-      ),
+      ...templates.filter((t) => !singletonTypes.has(t.schemaType)),
       {
         id: 'quick-add-find',
         title: 'Quick Add Find',

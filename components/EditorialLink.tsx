@@ -1,6 +1,12 @@
 import type { ReactNode } from 'react';
-import type { Settings, DocumentContent } from '@/lib/types';
-import { amazonLink, isAmazonUrl, type Experience } from '@/lib/amazon';
+import type { Settings } from '@/lib/types';
+import {
+  associatesActive,
+  isAmazonUrl,
+  ordinaryAmazonUrl,
+  validAmazonAffiliateUrl,
+  type Experience,
+} from '@/lib/amazon';
 import { safeExternal } from '@/lib/urls';
 export function EditorialLink({
   href,
@@ -24,17 +30,31 @@ export function EditorialLink({
   experience?: Experience;
 }) {
   const amazon = isAmazonUrl(href);
-  const product: DocumentContent = {
-    _id: sourceId,
-    _type: 'product',
-    slug: '',
-    title: '',
-    purchaseUrl: href,
-    affiliateLink: affiliate,
-    amazonAffiliateUrl: affiliateHref,
-    amazonShortLinkVerified: shortVerified,
-  };
-  const resolved = amazon ? amazonLink(product, settings) : undefined;
+  const plain = amazon ? ordinaryAmazonUrl(href) : undefined;
+  const active = amazon && affiliate && associatesActive(settings);
+  const supplied = active
+    ? validAmazonAffiliateUrl(affiliateHref, settings.amazonAssociates?.tag, shortVerified)
+    : undefined;
+  const sourceAsin = plain?.match(/\/dp\/([a-z0-9]{10})/i)?.[1]?.toUpperCase();
+  const targetAsin = supplied
+    ?.match(/\/(?:dp|gp\/product|gp\/aw\/d)\/([a-z0-9]{10})/i)?.[1]
+    ?.toUpperCase();
+  const validSupplied =
+    supplied &&
+    (new URL(supplied).hostname === 'amzn.to' || !sourceAsin || sourceAsin === targetAsin)
+      ? supplied
+      : undefined;
+  const generated = active && !affiliateHref && plain ? new URL(plain) : undefined;
+  if (generated) generated.searchParams.set('tag', settings.amazonAssociates!.tag!);
+  const resolved = amazon
+    ? validSupplied
+      ? { href: validSupplied, affiliate: true }
+      : generated
+        ? { href: generated.href, affiliate: true }
+        : plain
+          ? { href: plain, affiliate: false }
+          : undefined
+    : undefined;
   const target = amazon ? resolved?.href : safeExternal(href);
   if (!target) return <>{children}</>;
   const productId =

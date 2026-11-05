@@ -9,7 +9,7 @@ test.beforeAll(async () => {
       contents: `import React from 'react';import {createRoot} from 'react-dom/client';import {ReviewArticle} from './components/ReviewArticle';
       const root=createRoot(document.getElementById('fixture'));const copy=text=>[{_type:'block',_key:text,style:'normal',markDefs:[],children:[{_type:'span',_key:'span',text,marks:[]}]}];
       window.pauses=0;HTMLMediaElement.prototype.pause=function(){window.pauses++};
-      window.renderReview=async(mode='finds')=>{const legacy=mode==='legacy';const doc={_id:'test-review',_type:'review',slug:'test-review',title:'Great jeans. Questionable pockets.',titleAccent:'Questionable pockets.',publishedAt:'2026-10-15T12:00:00Z',sizeWorn:'18',categories:[{_id:'denim',title:'Denim'}],featuredImage:{asset:{_ref:'front'},alt:'Front view of jeans'},photos:[{asset:{_ref:'front'},alt:'Front view of jeans'},{asset:{_ref:'back'},alt:'Back of jeans',caption:'Back detail'}],videoUrl:'https://example.test/try-on.mp4',format:legacy?'video':'both',transcript:'Readable try-on transcript.',reviewSections:legacy?undefined:{firstImpression:{heading:'My first look',copy:copy('First impressions copy')},fitComfort:{copy:copy('Comfort copy')},whoMightLike:{copy:copy('Who copy')},finalTake:{copy:copy('Final copy')}},body:legacy?copy('Existing legacy article copy'):undefined,shannequinQuote:legacy?undefined:'A sample pocket observation.',ctaProduct:legacy?undefined:{_id:'linked',_type:'product',title:'Linked jeans',slug:'linked-jeans',shoppingSection:mode,availability:mode==='closet'?'sold':'available'},ctaLabel:mode==='closet'?'See this piece':undefined};root.render(await ReviewArticle({document:doc,returnTo:'/reviews?category=denim'}));};window.renderReview();`,
+      window.renderReview=async(mode='linked')=>{const legacy=mode==='legacy';const doc={_id:'test-review',_type:'review',slug:'test-review',title:'Great jeans. Questionable pockets.',titleAccent:'Questionable pockets.',publishedAt:'2026-10-15T12:00:00Z',sizeWorn:'18',categories:[{_id:'denim',title:'Denim'}],featuredImage:{asset:{_ref:'front'},alt:'Front view of jeans'},photos:[{asset:{_ref:'front'},alt:'Front view of jeans'},{asset:{_ref:'back'},alt:'Back of jeans',caption:'Back detail'},{asset:{_ref:'side'},alt:'Side of jeans',caption:'Side detail'},{asset:{_ref:'waist'},alt:'Waist of jeans',caption:'Waist detail'}],videoUrl:mode==='youtube'?'https://youtu.be/M7lc1UVf-VE?si=shared':mode==='local'?'/public/videos/try-on.mp4':'https://example.test/try-on.mp4',format:legacy?'video':'both',transcript:'Readable try-on transcript.',reviewSections:legacy?undefined:{firstImpression:{heading:'My first look',copy:copy('First impressions copy')},fitComfort:{copy:copy('Comfort copy')},whoMightLike:{copy:copy('Who copy')},finalTake:{copy:copy('Final copy')}},body:legacy?copy('Existing legacy article copy'):undefined,shannequinQuote:legacy?undefined:'A sample pocket observation.',primaryFind:legacy?undefined:{_id:'linked',title:'Linked jeans',amazonUrl:'https://www.amazon.com/dp/B0ABC12345'}};root.render(await ReviewArticle({document:doc,returnTo:'/reviews?category=denim'}));};window.renderReview();`,
       resolveDir: process.cwd(),
       loader: 'tsx',
     },
@@ -25,7 +25,7 @@ test.beforeAll(async () => {
           builder.onResolve(
             {
               filter:
-                /^(next\/link|next-sanity|@\/lib\/content|@\/lib\/seo)$|^(\.\/ContentImage|@\/components\/ContentImage)$/,
+                /^(next\/link|next-sanity|@\/lib\/content|@\/lib\/seo|@\/lib\/looks)$|^(\.\/ContentImage|@\/components\/ContentImage)$/,
             },
             (args) => ({ path: args.path, namespace: 'fixture' }),
           );
@@ -38,10 +38,12 @@ test.beforeAll(async () => {
                 : args.path === 'next-sanity'
                   ? `export const stegaClean=value=>value;`
                   : args.path === '@/lib/content'
-                    ? `export const demoEnabled=false;export const getDocuments=async()=>[];export const getSettings=async()=>({});export const getContent=async()=>({shannequinImage:{asset:{_ref:'shared-cutout'},alt:'Shared full-body Shannequin photograph'}});`
+                    ? `export const demoEnabled=false;export const getDocuments=async()=>[];export const getSettings=async()=>({});export const getContent=async(type)=>{if(type!=='aboutPage')throw new Error('Shannequin image must come from About page');return {shannequinImage:{asset:{_ref:'shared-cutout'},alt:'Shared full-body Shannequin photograph'}}};`
                     : args.path === '@/lib/seo'
                       ? `export const siteUrl=()=>new URL('https://example.test');`
-                      : `export function ContentImage({image,width,height,className}){return <img className={className} src={'/img/curvy.png?asset='+image?.asset?._ref} alt={image?.alt||'Review photograph placeholder'} width={width} height={height}/>;}`,
+                      : args.path === '@/lib/looks'
+                        ? `export const findAmazonLink=(find)=>find?.amazonUrl?{href:find.amazonUrl,affiliate:false}:undefined;`
+                        : `export function ContentImage({image,width,height,className}){return <img className={className} src={'/img/curvy.png?asset='+image?.asset?._ref} alt={image?.alt||'Review photograph placeholder'} width={width} height={height}/>;}`,
           }));
         },
       },
@@ -50,7 +52,7 @@ test.beforeAll(async () => {
   fixture = result.outputFiles[0].text;
 });
 for (const width of [1440, 390]) {
-  test(`editorial sections, mixed media, shared image and optional product CTA at ${width}px`, async ({
+  test(`editorial sections, mixed media, shared image and optional Find CTA at ${width}px`, async ({
     page,
   }) => {
     await page.setViewportSize({ width, height: 1000 });
@@ -62,6 +64,12 @@ for (const width of [1440, 390]) {
     );
     await page.route('https://example.test/try-on.mp4', (route) =>
       route.fulfill({ contentType: 'video/mp4', body: '' }),
+    );
+    await page.route('**/videos/try-on.mp4', (route) =>
+      route.fulfill({
+        contentType: 'video/mp4',
+        path: 'public/videos/smiling-woman-posing-in-front-of-clothing-rack-2026-10-03-03-59-46-utc.mp4',
+      }),
     );
     await page.goto('/review-layout-fixture');
     await page.addStyleTag({
@@ -80,21 +88,27 @@ for (const width of [1440, 390]) {
     const sharedSrc = await sharedImage.getAttribute('src');
     expect(sharedSrc).toContain('shared-cutout');
     await expect(page.locator('.shannequin__number')).toHaveCount(0);
-    await page.getByRole('button', { name: 'Watch my try-on', exact: true }).click();
+    await expect(page.locator('.review-story__thumbnail')).toHaveCount(4);
+    await expect(page.getByRole('button', { name: /Watch video:/ })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Next photographs' })).toBeVisible();
+    await page.getByRole('button', { name: 'Next photographs' }).click();
+    await expect(page.getByRole('button', { name: 'Previous photographs' })).toBeEnabled();
+    await page.getByRole('button', { name: 'Watch me try it on' }).click();
     await expect(page.getByLabel('Fashion review video')).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Watch video: My try-on' })).toHaveAttribute(
-      'aria-pressed',
-      'true',
-    );
+    await expect(page.getByRole('dialog', { name: 'Watch my try-on video' })).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(page.getByRole('dialog', { name: 'Watch my try-on video' })).toBeHidden();
+    await expect(page.getByRole('button', { name: 'Watch me try it on' })).toBeFocused();
     await page.getByRole('button', { name: 'Show photograph: Back detail' }).focus();
     await page.keyboard.press('Enter');
-    await expect(page.getByLabel('Fashion review video')).toBeHidden();
-    expect(
-      await page.evaluate(() => (window as unknown as { pauses: number }).pauses),
-    ).toBeGreaterThan(1);
-    await expect(
-      page.getByRole('link', { name: 'Explore this find', exact: true }),
-    ).toHaveAttribute('href', '/shop/linked-jeans');
+    await expect(page.locator('.review-story__media-stage').nth(1)).toBeVisible();
+    await expect
+      .poll(() => page.evaluate(() => (window as unknown as { pauses: number }).pauses))
+      .toBeGreaterThan(0);
+    await expect(page.getByRole('link', { name: /View on Amazon/ })).toHaveAttribute(
+      'href',
+      'https://www.amazon.com/dp/B0ABC12345',
+    );
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
     ).toBeTruthy();
@@ -104,25 +118,57 @@ for (const width of [1440, 390]) {
     expect(result.violations.map((v) => v.id)).toEqual([]);
     await page.evaluate(() =>
       (window as unknown as { renderReview: (mode: string) => Promise<void> }).renderReview(
-        'closet',
-      ),
-    );
-    await expect(page.getByRole('link', { name: 'See this piece', exact: true })).toHaveAttribute(
-      'href',
-      '/shop/linked-jeans',
-    );
-    await expect(
-      page.getByText('This item has sold. Its details are still available.'),
-    ).toBeVisible();
-    await expect(sharedImage).toHaveAttribute('src', sharedSrc!);
-    await page.evaluate(() =>
-      (window as unknown as { renderReview: (mode: string) => Promise<void> }).renderReview(
         'legacy',
       ),
     );
     await expect(page.getByText('Existing legacy article copy')).toBeVisible();
     await expect(page.locator('.review-story__product,.review-shannequin')).toHaveCount(0);
-    await expect(page.getByLabel('Fashion review video')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Watch me try it on' })).toBeVisible();
+    await page.evaluate(() =>
+      (window as unknown as { renderReview: (mode: string) => Promise<void> }).renderReview(
+        'youtube',
+      ),
+    );
+    await expect(page.locator('.review-story__video-dialog iframe')).toHaveCount(0);
+    await page.getByRole('button', { name: 'Watch me try it on' }).click();
+    await expect(page.locator('.review-story__video-dialog iframe')).toHaveAttribute(
+      'src',
+      'https://www.youtube-nocookie.com/embed/M7lc1UVf-VE',
+    );
+    await page.getByRole('button', { name: 'Close video' }).click();
+    await expect(page.locator('.review-story__video-dialog iframe')).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Watch me try it on' })).toBeFocused();
+    await page.evaluate(() =>
+      (window as unknown as { renderReview: (mode: string) => Promise<void> }).renderReview(
+        'local',
+      ),
+    );
+    await page.getByRole('button', { name: 'Watch me try it on' }).click();
+    await expect(page.locator('.review-story__video-dialog video')).toHaveAttribute(
+      'src',
+      '/videos/try-on.mp4',
+    );
+    await expect(page.locator('.review-story__video-dialog iframe')).toHaveCount(0);
+    const localVideo = page.locator('.review-story__video-dialog video');
+    await expect
+      .poll(() => localVideo.evaluate((video: HTMLVideoElement) => video.readyState))
+      .toBeGreaterThan(0);
+    await localVideo.evaluate((video: HTMLVideoElement) => {
+      video.dataset.previousOpening = 'true';
+    });
+    await page.getByRole('button', { name: 'Close video' }).click();
+    await page.getByRole('button', { name: 'Watch me try it on' }).click();
+    await expect(page.locator('.review-story__video-dialog video')).not.toHaveAttribute(
+      'data-previous-opening',
+      'true',
+    );
+    await expect
+      .poll(() =>
+        page
+          .locator('.review-story__video-dialog video')
+          .evaluate((video: HTMLVideoElement) => video.currentTime),
+      )
+      .toBeLessThan(1);
   });
 }
 test('review copy and all photos remain available without JavaScript', async ({ browser }) => {
