@@ -154,7 +154,7 @@ export const aiFashionModel = defineType({
       validation: (rule) =>
         rule
           .required()
-          .max(800)
+          .max(1200)
           .custom((value) =>
             !value || value.trim().length >= 40
               ? true
