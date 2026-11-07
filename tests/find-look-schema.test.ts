@@ -365,6 +365,14 @@ test('Looks reference Finds once, preserve order and attach hotspots to included
   const items = field(look.fields, 'items');
   assert.equal(items.of?.[0].type, 'object');
   assert.equal(field(items.of![0].fields!, 'find').to?.[0].type, 'find');
+  assert.deepEqual(
+    field(items.of![0].fields!, 'placementRole').options?.list?.map((option) => option.value),
+    ['essential', 'alternative'],
+  );
+  assert.equal(field(items.of![0].fields!, 'placementRole').initialValue, 'essential');
+  assert.equal(field(items.of![0].fields!, 'role').type, 'string');
+  assert.equal(field(items.of![0].fields!, 'stylingNote').type, 'text');
+  assert.equal(field(document('find').fields, 'editorialTitle').type, 'string');
   const hotspot = field(items.of![0].fields!, 'hotspot');
   assert.deepEqual(
     hotspot.fields?.map((item) => item.name),

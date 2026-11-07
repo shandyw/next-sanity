@@ -18,6 +18,10 @@ type ImageEntry = {
 export type LookFind = {
   _id: string;
   title: string;
+  editorialTitle?: string;
+  description?: string;
+  asin?: string;
+  category?: { title?: string; slug?: string };
   experienceStatus?: 'notTested' | 'received' | 'tested';
   amazonUrl?: string;
   affiliateUrl?: string;
@@ -28,6 +32,7 @@ export type LookFind = {
 export type LookItem = {
   _key: string;
   role?: string;
+  placementRole?: 'essential' | 'alternative';
   stylingNote?: string;
   hotspot?: { x?: number; y?: number };
   find?: LookFind;
@@ -62,8 +67,8 @@ export function lookOccasionLabel(value?: string) {
 const lookFields = `_id,title,"slug":slug.current,description,occasion,publishedAt,
   coverImage{image,alt,sourceKind},
   variations[]{image{image,alt,sourceKind}},
-  items[]{_key,role,stylingNote,hotspot,
-    "find":find->{_id,title,experienceStatus,amazonUrl,affiliateUrl,affiliateShortLinkVerified,
+  items[]{_key,role,placementRole,stylingNote,hotspot,
+    "find":find->{_id,title,editorialTitle,description,asin,"category":category->{title,"slug":slug.current},experienceStatus,amazonUrl,affiliateUrl,affiliateShortLinkVerified,
       "productImages":productImages[approvalStatus == "approved" && sourceKind in ["original","licensed"] && (sourceKind != "licensed" || defined(sourceCredit))]{image,alt,approvalStatus,sourceKind,sourceCredit,selected}}},
   seo{title,description,socialImage}`;
 
@@ -108,6 +113,13 @@ export function lookImage(look: Look) {
     displayableLookImage(look.coverImage) ||
     look.variations?.map((variation) => displayableLookImage(variation.image)).find(Boolean)
   );
+}
+
+export function lookImageSource(look: Look) {
+  const entry = displayableLookImage(look.coverImage)
+    ? look.coverImage
+    : look.variations?.find((variation) => displayableLookImage(variation.image))?.image;
+  return entry?.sourceKind;
 }
 
 export function findImage(find?: LookFind) {

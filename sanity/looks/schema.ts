@@ -140,16 +140,30 @@ export const look = defineType({
             }),
             defineField({
               name: 'role',
-              title: 'Outfit role',
+              title: 'Legacy garment role',
+              type: 'string',
+              hidden: true,
+            }),
+            defineField({
+              name: 'placementRole',
+              title: 'Place in this Look',
               type: 'string',
               options: {
-                list: ['Dress', 'Top', 'Bottom', 'Shoes', 'Bag', 'Accessories', 'Layer', 'Other'],
+                layout: 'radio',
+                list: [
+                  { title: 'Essential — Build the Look', value: 'essential' },
+                  { title: 'Alternative — Make It Your Own', value: 'alternative' },
+                ],
               },
+              initialValue: 'essential',
+              description: 'Existing items without a selection appear as essential pieces.',
             }),
             defineField({
               name: 'stylingNote',
-              title: 'Styling note',
-              type: 'string',
+              title: 'Styling note for this Look',
+              type: 'text',
+              rows: 3,
+              description: 'A concise styling idea, not an unverified claim about fit or quality.',
               validation: (r) => r.max(240),
             }),
             defineField({
@@ -177,13 +191,14 @@ export const look = defineType({
           preview: {
             select: {
               title: 'find.title',
-              role: 'role',
+              role: 'placementRole',
+              legacyRole: 'role',
               note: 'stylingNote',
               media: 'find.productImages.0.image',
             },
-            prepare: ({ title, role, note, media }) => ({
+            prepare: ({ title, role, legacyRole, note, media }) => ({
               title: title || 'Choose a Find',
-              subtitle: [role, note].filter(Boolean).join(' · '),
+              subtitle: [role || legacyRole, note].filter(Boolean).join(' · '),
               media,
             }),
           },

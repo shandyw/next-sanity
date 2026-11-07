@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Box, Button, Card, Dialog, Stack, Text } from '@sanity/ui';
 import { useClient, useFormValue, type ObjectInputProps } from 'sanity';
 import { deleteFind } from './delete';
+import { FindImageGenerator } from './FindImageGenerator';
 
 export function FindDocumentInput(props: ObjectInputProps) {
   const id = useFormValue(['_id']) as string | undefined;
@@ -20,6 +21,7 @@ export function FindDocumentInput(props: ObjectInputProps) {
 
   return (
     <Stack gap={5}>
+      <FindImageGenerator />
       <Card border padding={3} radius={2}>
         {deleted ? (
           <Text role="status">Find deleted.</Text>

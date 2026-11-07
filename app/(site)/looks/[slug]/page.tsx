@@ -4,17 +4,83 @@ import { stegaClean } from 'next-sanity';
 import { ContentImage } from '@/components/ContentImage';
 import { WishlistButton } from '@/components/WishlistButton';
 import { AMAZON_DISCLOSURE } from '@/lib/amazon';
+import { findAsin } from '@/lib/finds';
 import { getSettings } from '@/lib/content';
 import {
   findAmazonLink,
-  findImage,
   getLook,
   getLooks,
   lookImage,
+  lookImageSource,
   lookOccasionLabel,
 } from '@/lib/looks';
+import {
+  findCategoryIcon,
+  findDisplayTitle,
+  groupLookItems,
+  relatedLooks,
+} from '@/lib/look-presentation';
 import { pageMetadata, socialImageUrl } from '@/lib/seo';
 import { ArrowIcon } from '@/components/ArrowIcon';
+import type { LookItem, LookFind } from '@/lib/looks';
+import type { Settings } from '@/lib/types';
+
+function LookFindRow({
+  item,
+  index,
+  settings,
+  compact = false,
+}: {
+  item: LookItem & { find: LookFind };
+  index: number;
+  settings: Settings;
+  compact?: boolean;
+}) {
+  const find = item.find;
+  const link = findAmazonLink(find, settings);
+  const fullTitle = stegaClean(findDisplayTitle(find));
+  const characters = Array.from(fullTitle);
+  const displayTitle =
+    characters.length > 140 ? `${characters.slice(0, 139).join('')}…` : fullTitle;
+
+  return (
+    <article
+      className={`look-item${compact ? ' look-item--alternative' : ''}`}
+      id={`look-item-${index}`}
+    >
+      <img
+        className="look-item__icon"
+        src={findCategoryIcon(find.category?.slug)}
+        alt=""
+        width="56"
+        height="56"
+      />
+      <div className="look-item__copy">
+        <p className="eyebrow">{find.category?.title || 'Curated Find'}</p>
+        <h3 aria-label={characters.length > 140 ? fullTitle : undefined}>{displayTitle}</h3>
+        {(item.stylingNote?.trim() || find.description?.trim()) && (
+          <p>{item.stylingNote?.trim() || find.description?.trim()}</p>
+        )}
+      </div>
+      {link && (
+        <div className="look-item__cta">
+          <a
+            className="text-link"
+            href={link.href}
+            target="_blank"
+            aria-label={`View ${fullTitle} on Amazon (opens in a new tab)`}
+            data-amazon-product={findAsin(find) || find._id}
+            data-placement="collection"
+            data-experience="curated"
+            rel={link.affiliate ? 'sponsored noopener noreferrer' : 'noopener noreferrer'}
+          >
+            View on Amazon <ArrowIcon />
+          </a>
+        </div>
+      )}
+    </article>
+  );
+}
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -40,119 +106,92 @@ export default async function LookPage({ params }: Props) {
   const { slug } = await params;
   const [look, settings, all] = await Promise.all([getLook(slug), getSettings(), getLooks()]);
   if (!look) notFound();
-  const items = look.items?.filter((item) => item.find) || [];
+  const { essential, alternative } = groupLookItems(look);
   const image = lookImage(look);
-  const related = all
-    .filter((other) => other._id !== look._id && other.occasion === look.occasion)
-    .slice(0, 3);
+  const related = relatedLooks(look, all);
 
   return (
-    <main id="main" className="container look-detail">
+    <main id="main" className={`container look-detail${image ? '' : ' look-detail--text-first'}`}>
       <nav aria-label="Breadcrumb" className="look-breadcrumb">
         <Link href="/shop">Shop the Looks</Link> / <span aria-current="page">{look.title}</span>
       </nav>
-      <header className="look-detail__header">
-        <p className="eyebrow">{lookOccasionLabel(look.occasion)}</p>
-        <h1>{look.title}</h1>
-        <WishlistButton id={look._id} title={look.title} />
-        {look.description && <p className="look__intro">{look.description}</p>}
-      </header>
-      <figure className="look-detail__hero">
-        <ContentImage
-          image={image}
-          width={1200}
-          height={900}
-          sizes="(max-width: 767px) 100vw, 90vw"
-          priority
-          preserveFullImage
-        />
-        {image && items.some((item) => item.hotspot && item.find) && (
-          <div className="look-hotspots" aria-label="Items in this Look">
-            {items.map((item, index) => {
-              const x = item.hotspot?.x;
-              const y = item.hotspot?.y;
-              if (
-                !item.find ||
-                x === undefined ||
-                y === undefined ||
-                x < 0 ||
-                x > 100 ||
-                y < 0 ||
-                y > 100
-              )
-                return null;
-              return (
-                <a
-                  className="look-hotspot"
-                  key={item._key}
-                  href={`#look-item-${index + 1}`}
-                  style={{ left: `${x}%`, top: `${y}%` }}
-                  aria-label={`Jump to ${stegaClean(item.find.title)}`}
-                >
-                  {index + 1}
-                </a>
-              );
-            })}
+      <div className="flex flex-col">
+        <header className="look-detail__header order-2 md:flex order-1 items-center justify-between">
+          <div className="">
+            <p className="eyebrow">{lookOccasionLabel(look.occasion)}</p>
+
+            <h1>{look.title}</h1>
+
+            {look.description && <p className="look__intro">{look.description}</p>}
           </div>
+          <WishlistButton id={look._id} title={look.title} showLabel />
+        </header>
+        {image && (
+          <figure className="look-detail__hero order-1 md:order-2">
+            <ContentImage
+              image={image}
+              width={1200}
+              height={900}
+              sizes="(max-width: 767px) 100vw, 90vw"
+              priority
+              preserveFullImage
+            />
+            <figcaption className="look-detail__caption">
+              {lookImageSource(look) === 'aiGenerated' ? (
+                <>
+                  AI styling concept. This image illustrates the outfit’s mood; linked products may
+                  differ.
+                </>
+              ) : (
+                <>Editorial mood image; linked products may differ from what is pictured.</>
+              )}
+            </figcaption>
+          </figure>
         )}
-      </figure>
-      <section className="look-detail__products" aria-labelledby="look-items-heading">
-        <h2 id="look-items-heading">Shop this Look</h2>
-        {items.length ? (
-          <>
-            <p className="affiliate-note">{AMAZON_DISCLOSURE} Links open Amazon in a new tab.</p>
-            <div className="look-item-grid">
-              {items.map((item, index) => {
-                const find = item.find!;
-                const link = findAmazonLink(find, settings);
-                const fullTitle = stegaClean(find.title);
-                const titleCharacters = Array.from(fullTitle);
-                const displayTitle =
-                  titleCharacters.length > 140
-                    ? `${titleCharacters.slice(0, 139).join('')}…`
-                    : find.title;
-                return (
-                  <article className="look-item" id={`look-item-${index + 1}`} key={item._key}>
-                    <ContentImage image={findImage(find)} width={520} height={650} />
-                    <div className="look-item__copy">
-                      {item.role && <p className="eyebrow">{item.role}</p>}
-                      <h3 aria-label={titleCharacters.length > 140 ? fullTitle : undefined}>
-                        {displayTitle}
-                      </h3>
-                      {item.stylingNote && <p>{item.stylingNote}</p>}
-                      {find.experienceStatus === 'tested' && <p>Personally tested</p>}
-                      {find.experienceStatus === 'received' && <p>Received, not yet tested</p>}
-                      {link && (
-                        <div className="look-item__cta">
-                          <a
-                            className="btn btn-accent"
-                            href={link.href}
-                            target="_blank"
-                            rel={
-                              link.affiliate
-                                ? 'sponsored noopener noreferrer'
-                                : 'noopener noreferrer'
-                            }
-                          >
-                            View on Amazon{' '}
-                            <span className="visually-hidden">(opens in a new tab)</span>
-                            <ArrowIcon />
-                          </a>
-                        </div>
-                      )}
-                    </div>
-                  </article>
-                );
-              })}
-            </div>
-          </>
+      </div>
+      <div className="look-detail__shopping">
+        {essential.length || alternative.length ? (
+          <p className="affiliate-note">{AMAZON_DISCLOSURE} Links open Amazon in a new tab.</p>
         ) : (
-          <p>There are no shoppable Finds in this Look yet.</p>
+          <p className="look-detail__empty">
+            This Look is taking shape. Check back for the finishing pieces.
+          </p>
         )}
-      </section>
+        {essential.length > 0 && (
+          <section className="look-detail__products" aria-labelledby="build-look-heading">
+            <h2 id="build-look-heading">Build the Look</h2>
+            <p>The essential pieces behind this outfit.</p>
+            <div className="look-item-list">
+              {essential.map((item, index) => (
+                <LookFindRow key={item._key} item={item} index={index + 1} settings={settings} />
+              ))}
+            </div>
+          </section>
+        )}
+        {alternative.length > 0 && (
+          <section
+            className="look-detail__products look-detail__products--alternatives"
+            aria-labelledby="alternatives-heading"
+          >
+            <h2 id="alternatives-heading">Make It Your Own</h2>
+            <p>Switch up the vibe with these alternatives and finishing touches.</p>
+            <div className="look-item-list look-item-list--alternatives">
+              {alternative.map((item, index) => (
+                <LookFindRow
+                  key={item._key}
+                  item={item}
+                  index={essential.length + index + 1}
+                  settings={settings}
+                  compact
+                />
+              ))}
+            </div>
+          </section>
+        )}
+      </div>
       {related.length > 0 && (
         <section className="look-related" aria-labelledby="related-looks-heading">
-          <h2 id="related-looks-heading">More Looks</h2>
+          <h2 id="related-looks-heading">More Looks to Love</h2>
           <div className="look-grid">
             {related.map((other) => (
               <article className="look-card" key={other._id}>
@@ -164,9 +203,16 @@ export default async function LookPage({ params }: Props) {
                   <ContentImage image={lookImage(other)} width={720} height={900} />
                 </Link>
                 <div className="look-card__copy">
+                  <p className="eyebrow">{lookOccasionLabel(other.occasion)}</p>
                   <h3>
                     <Link href={`/looks/${encodeURIComponent(other.slug)}`}>{other.title}</Link>
                   </h3>
+                  <Link
+                    className="text-link text-link--editorial"
+                    href={`/looks/${encodeURIComponent(other.slug)}`}
+                  >
+                    Explore the Look <ArrowIcon />
+                  </Link>
                 </div>
               </article>
             ))}

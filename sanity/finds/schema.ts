@@ -45,6 +45,7 @@ type FindImage = {
   prompt?: string;
   model?: string;
   generatedAt?: string;
+  aiReferenceAuthorized?: boolean;
 };
 
 const imageSourceChoices = [
@@ -103,6 +104,22 @@ export const editorialImageEntry = defineType({
         ),
     }),
     defineField({
+      name: 'aiReferenceAuthorized',
+      title: 'I authorize this product photo as an AI generation reference',
+      type: 'boolean',
+      initialValue: false,
+      description:
+        'Required before this product photograph can be sent to an image provider. Confirm your rights first.',
+      hidden: ({ path }) => !path.includes('productImages'),
+    }),
+    defineField({
+      name: 'aiReferenceRights',
+      title: 'AI reference usage rights / provenance',
+      type: 'string',
+      description: 'Record why this exact product photo may be sent to OpenAI as a reference.',
+      hidden: ({ path }) => !path.includes('productImages'),
+    }),
+    defineField({
       name: 'prompt',
       title: 'Generation prompt',
       type: 'text',
@@ -128,6 +145,35 @@ export const editorialImageEntry = defineType({
       title: 'Generated date',
       type: 'datetime',
       hidden: ({ parent }) => (parent as FindImage | undefined)?.sourceKind !== 'aiGenerated',
+    }),
+    defineField({
+      name: 'stylingInstructions',
+      title: 'Styling instructions used',
+      type: 'text',
+      rows: 2,
+      readOnly: true,
+      hidden: ({ parent }) => (parent as FindImage | undefined)?.sourceKind !== 'aiGenerated',
+    }),
+    defineField({
+      name: 'productReferenceAssetId',
+      title: 'Product reference asset ID',
+      type: 'string',
+      readOnly: true,
+      hidden: ({ parent }) => (parent as FindImage | undefined)?.sourceKind !== 'aiGenerated',
+    }),
+    defineField({
+      name: 'productReferenceRights',
+      title: 'Product reference rights',
+      type: 'string',
+      readOnly: true,
+      hidden: ({ parent }) => (parent as FindImage | undefined)?.sourceKind !== 'aiGenerated',
+    }),
+    defineField({
+      name: 'generationDigest',
+      title: 'Generation digest',
+      type: 'string',
+      readOnly: true,
+      hidden: true,
     }),
     defineField({
       name: 'approvalStatus',
@@ -224,6 +270,15 @@ export const find = defineType({
       type: 'string',
       group: 'product',
       validation: (r) => r.required().max(160),
+    }),
+    defineField({
+      name: 'editorialTitle',
+      title: 'Editorial Display Title',
+      type: 'string',
+      group: 'editorial',
+      description:
+        'A shorter, reader-friendly product name used on Curvy Girl Reviews. The original product title remains unchanged.',
+      validation: (r) => r.max(160),
     }),
     defineField({
       name: 'slug',

@@ -22,6 +22,8 @@ export function sanityClient() {
           'reviewCurrency',
           'sourceKind',
           'experienceStatus',
+          'placementRole',
+          'role',
           'tag',
           'sizeWorn',
           'format',
