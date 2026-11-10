@@ -8,6 +8,7 @@ type Entry = {
   children?: Entry[];
   childEntry?: Entry;
   filterValue?: string;
+  defaultOrder?: { field: string; direction: string }[];
 };
 
 function builder(kind: string): Entry & Record<string, unknown> {
@@ -27,6 +28,10 @@ function builder(kind: string): Entry & Record<string, unknown> {
     },
     filter(filterValue: string) {
       entry.filterValue = filterValue;
+      return this;
+    },
+    defaultOrdering(order: { field: string; direction: string }[]) {
+      entry.defaultOrder = order;
       return this;
     },
     schemaType() {
@@ -74,6 +79,15 @@ test('Studio keeps editorial content, Finds, AI models, and website settings org
   assert.ok(
     root.children?.[1].childEntry?.children?.some((item) => item.label === 'Needs Attention'),
   );
+  const findLists = root.children?.[1].childEntry?.children;
+  assert.equal(
+    findLists?.find((item) => item.label === 'Finds Needing Attention')?.childEntry?.filterValue,
+    '_type == "find" && linkStatus == "needsReview"',
+  );
+  assert.equal(
+    findLists?.find((item) => item.label === 'Manually Unavailable Finds')?.childEntry?.filterValue,
+    '_type == "find" && linkStatus == "unavailable"',
+  );
   const aiStudio = root.children?.[2].childEntry?.children;
   assert.deepEqual(
     aiStudio?.map((item) => item.label),
@@ -88,6 +102,9 @@ test('Studio keeps editorial content, Finds, AI models, and website settings org
     aiStudio?.[2].childEntry?.filterValue,
     '_type == "aiFashionModel" && active == false',
   );
+  const website = root.children?.find((item) => item.label === 'Website')?.childEntry;
+  const categories = website?.children?.find((item) => item.label === 'Clothing categories');
+  assert.deepEqual(categories?.childEntry?.defaultOrder, [{ field: 'title', direction: 'asc' }]);
   assert.deepEqual(
     studio.schema.templates([]).find((item) => item.id === 'quick-add-find'),
     {

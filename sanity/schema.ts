@@ -7,6 +7,8 @@ import { defineType, defineField, defineArrayMember } from 'sanity';
 import { closetShopUrl, safeBackgroundVideoUrl, safeExternal, safeVideoUrl } from '../lib/urls';
 import { amazonSettingsField } from './amazon-fields';
 import { aiFashionModel } from './ai-fashion-model/schema';
+import { fitCheck } from './fit-check/schema';
+import { ReviewTitleInput } from './reviews/ReviewTitleInput';
 const reviewCatalogFields = [
   defineField({
     name: 'readerProvided',
@@ -119,14 +121,6 @@ const videoUrl = (
             ? true
             : 'Use an HTTPS URL or a path beginning with a single /.',
         ),
-  });
-const currency = (name: string, label: string) =>
-  defineField({
-    name,
-    title: label,
-    type: 'string',
-    options: { list: ['USD', 'GBP', 'EUR', 'CAD', 'AUD', 'PLN', 'CZK', 'SEK', 'DKK'] },
-    validation: (r) => r.regex(/^[A-Z]{3}$/),
   });
 const seo = defineType({
   name: 'seo',
@@ -265,17 +259,13 @@ const review = defineType({
       description:
         'Choose an existing Find only when this review covers that product. Linking a Find does not imply that you tested it; state your firsthand experience separately.',
     }),
-    ...articleFields.map((field) =>
-      field.name === 'body'
-        ? defineField({
-            ...field,
-            title: 'Additional / legacy article copy',
-            description:
-              'Preserved for older reviews. New reviews use the four numbered sections below.',
-            validation: undefined,
-          })
-        : field,
-    ),
+    ...articleFields.filter((field) => field.name === 'experienceStatus'),
+    defineField({
+      ...title,
+      description:
+        'Prefilled once from the linked Find’s editorial display title when blank. You can edit it; changing the Find will not replace your title.',
+      components: { input: ReviewTitleInput },
+    }),
     defineField({
       name: 'titleAccent',
       title: 'Script phrase in the review headline (optional)',
@@ -292,6 +282,9 @@ const review = defineType({
               : 'Use the exact ending phrase of the full title.',
           ),
     }),
+    ...articleFields.filter((field) =>
+      !['experienceStatus', 'title', 'body', 'author'].includes(field.name),
+    ),
     defineField({
       name: 'reviewSections',
       title: 'Numbered review sections',
@@ -327,6 +320,36 @@ const review = defineType({
       description:
         'Displays the shared Shannequin panel when supplied. Its image is managed once in About page → Shannequin full-body photograph.',
       validation: (r) => r.max(500),
+    }),
+    defineField({ name: 'fitCheck', title: 'Shannequin Fit Check', type: 'fitCheck' }),
+    defineField({
+      name: 'acquisitionSource',
+      title: 'How did you get this item?',
+      type: 'string',
+      description:
+        'Review-specific disclosure. Do not infer this from the Amazon link or the linked Find.',
+      options: {
+        list: [
+          { title: 'Purchased myself', value: 'selfPurchased' },
+          { title: 'Gifted by a brand', value: 'brandGift' },
+          { title: 'Provided for review', value: 'providedForReview' },
+          { title: 'Other', value: 'other' },
+        ],
+      },
+    }),
+    defineField({
+      name: 'acquisitionNote',
+      title: 'Acquisition detail (for Other)',
+      type: 'string',
+      hidden: ({ document }) => document?.acquisitionSource !== 'other',
+      validation: (r) => r.max(160),
+    }),
+    defineField({
+      name: 'finalVerdict',
+      title: 'Final verdict (optional)',
+      type: 'string',
+      description: 'A short, manually written buying recommendation shown within Final Take.',
+      validation: (r) => r.max(140),
     }),
     defineField({
       name: 'titleHighlight',
@@ -385,14 +408,18 @@ const review = defineType({
       },
       validation: (r) => r.required(),
     }),
-    videoUrl(
-      'Video URL (MP4, WebM, or YouTube)',
-      'Paste a direct MP4/WebM URL, a regular YouTube watch URL, or a youtu.be share URL. For a file in public/videos, enter /videos/filename.mp4 (omit /public).',
-    ),
+    defineField({
+      ...videoUrl(
+        'Video URL (MP4, WebM, or YouTube)',
+        'Paste a direct MP4/WebM URL, a regular YouTube watch URL, or a youtu.be share URL. For a file in public/videos, enter /videos/filename.mp4 (omit /public).',
+      ),
+      hidden: ({ document }) => !document?.format || document.format === 'written',
+    }),
     defineField({
       name: 'videoCaptionsUrl',
       title: 'English captions (.vtt path on this site)',
       type: 'string',
+      hidden: ({ document }) => !document?.format || document.format === 'written',
       description: 'Recommended for video accessibility. Missing captions do not block publishing.',
       validation: (r) => [
         r.custom((v) =>
@@ -411,18 +438,10 @@ const review = defineType({
       name: 'transcript',
       title: 'Video transcript (optional)',
       type: 'text',
+      hidden: ({ document }) => !document?.format || document.format === 'written',
       description: 'A readable text version of the video. Optional and does not block publishing.',
     }),
     defineField({ name: 'sizeWorn', title: 'Size worn', type: 'string' }),
-    defineField({ name: 'fitNotes', title: 'Fit notes', type: 'text' }),
-    defineField({
-      name: 'priceWhenReviewed',
-      title: 'Price when reviewed',
-      type: 'number',
-      description: 'Historical editorial price, separate from the current listing price.',
-      validation: (r) => r.min(0),
-    }),
-    currency('reviewCurrency', 'Reviewed price currency'),
     refs('categories', 'clothingCategory', 'Clothing categories'),
     ref('brand', 'brand', 'Brand reviewed'),
     defineField({
@@ -438,14 +457,12 @@ const review = defineType({
         const sections = d.reviewSections as Record<string, { copy?: unknown[] }> | undefined;
         const hasSections = reviewSections.some(({ key }) => sections?.[key]?.copy?.length);
         if (hasSections && reviewSections.some(({ key }) => !sections?.[key]?.copy?.length))
-          return 'Add copy to all four numbered sections, or clear them and use the legacy article field.';
+          return 'Add copy to all four numbered sections.';
         if (!hasSections && !(Array.isArray(d.body) && d.body.length))
-          return 'Write the four numbered sections or supply legacy article copy.';
+          return 'Write the four numbered sections.';
       }
       if (d && (d.format === 'video' || d.format === 'both') && !d.videoUrl)
         return 'Video reviews need a video URL.';
-      if (d?.priceWhenReviewed !== undefined && !d.reviewCurrency)
-        return 'Select the currency for the historical price.';
       return true;
     }),
 });
@@ -459,8 +476,24 @@ const blog = defineType({
     refs('relatedReviews', 'review', 'Related reviews'),
   ],
 });
-const named = (name: string, label: string) =>
-  defineType({ name, title: label, type: 'document', fields: [title, slug] });
+const named = (name: string, label: string, alphabetical = false) =>
+  defineType({
+    name,
+    title: label,
+    type: 'document',
+    fields: [title, slug],
+    ...(alphabetical
+      ? {
+          orderings: [
+            {
+              title: 'Title A–Z',
+              name: 'titleAsc',
+              by: [{ field: 'title', direction: 'asc' as const }],
+            },
+          ],
+        }
+      : {}),
+  });
 const author = defineType({
   name: 'author',
   title: 'Author',
@@ -763,6 +796,7 @@ const settings = defineType({
 });
 export const schemaTypes = [
   editorialImageEntry,
+  fitCheck,
   lookImageEntry,
   aiFashionModel,
   find,
@@ -772,7 +806,7 @@ export const schemaTypes = [
   review,
   blog,
   author,
-  named('clothingCategory', 'Clothing category'),
+  named('clothingCategory', 'Clothing category', true),
   named('brand', 'Brand'),
   named('blogCategory', 'Blog category'),
   homepage,

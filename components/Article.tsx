@@ -73,7 +73,6 @@ export async function Article({
         <div className="review-detail__content">
           <h2 className="headline-md review-detail__review-title">The review</h2>
           {d.sizeWorn && <p>Size worn: {d.sizeWorn}</p>}
-          {d.fitNotes && <p>{d.fitNotes}</p>}
           {d.priceWhenReviewed !== undefined && d.reviewCurrency && (
             <p>
               Price when reviewed:{' '}

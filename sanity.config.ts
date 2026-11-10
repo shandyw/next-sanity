@@ -47,6 +47,20 @@ export default defineConfig({
                           .initialValueTemplates([S.initialValueTemplateItem('quick-add-find')]),
                       ),
                     S.documentTypeListItem('find').title('All Finds'),
+                    S.listItem()
+                      .title('Finds Needing Attention')
+                      .child(
+                        S.documentTypeList('find')
+                          .title('Finds Needing Attention')
+                          .filter('_type == "find" && linkStatus == "needsReview"'),
+                      ),
+                    S.listItem()
+                      .title('Manually Unavailable Finds')
+                      .child(
+                        S.documentTypeList('find')
+                          .title('Manually Unavailable Finds')
+                          .filter('_type == "find" && linkStatus == "unavailable"'),
+                      ),
                     ...[
                       ['Not Tested', 'coalesce(experienceStatus, "notTested") == "notTested"'],
                       ['Received — Needs Testing', 'experienceStatus == "received"'],
@@ -105,7 +119,13 @@ export default defineConfig({
                       .title('Site settings')
                       .child(S.document().schemaType('siteSettings').documentId('siteSettings')),
                     S.divider(),
-                    S.documentTypeListItem('clothingCategory').title('Clothing categories'),
+                    S.listItem()
+                      .title('Clothing categories')
+                      .child(
+                        S.documentTypeList('clothingCategory')
+                          .title('Clothing categories')
+                          .defaultOrdering([{ field: 'title', direction: 'asc' }]),
+                      ),
                     S.documentTypeListItem('brand').title('Brands'),
                     S.documentTypeListItem('blogCategory').title('Blog categories'),
                     S.documentTypeListItem('author').title('Authors'),

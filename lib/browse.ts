@@ -30,7 +30,6 @@ export function browse(all: DocumentContent[], params: SearchParams) {
           d.title,
           d.excerpt,
           d.description,
-          d.fitNotes,
           d.brand?.title,
           ...(d.categories || []).map((c) => c.title),
         ]

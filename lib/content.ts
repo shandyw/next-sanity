@@ -1,4 +1,4 @@
-import { publicProjection } from './public-projection';
+import { blogPublicProjection, publicProjection } from './public-projection';
 import 'server-only';
 import { cache } from 'react';
 import { draftMode } from 'next/headers';
@@ -14,7 +14,7 @@ export const getDocuments = cache(
     if (configured) {
       const preview = (await draftMode()).isEnabled;
       const documents = await fetchContent<DocumentContent[]>(
-        `*[_type==$type && defined(slug.current) && ($preview || (defined(publishedAt) && publishedAt <= now()))] | order(publishedAt desc, _id asc) ${projection}`,
+        `*[_type==$type && defined(slug.current) && ($preview || (defined(publishedAt) && publishedAt <= now()))] | order(publishedAt desc, _id asc) ${type === 'blogPost' ? blogPublicProjection : projection}`,
         { type, preview },
       );
       return type === 'review' ? localDemoReviews(documents) : documents;

@@ -247,6 +247,7 @@ export const find = defineType({
     { name: 'experience', title: 'Experience' },
     { name: 'images', title: 'Images' },
     { name: 'editorial', title: 'Editorial' },
+    { name: 'monitoring', title: 'Link monitoring' },
   ],
   fields: [
     defineField({
@@ -341,6 +342,38 @@ export const find = defineType({
       initialValue: false,
       hidden: ({ document }) =>
         !String(document?.affiliateUrl || '').startsWith('https://amzn.to/'),
+    }),
+    defineField({
+      name: 'linkStatus',
+      title: 'Link status',
+      type: 'string',
+      group: 'monitoring',
+      initialValue: 'unchecked',
+      options: {
+        layout: 'radio',
+        list: [
+          { title: 'Unchecked', value: 'unchecked' },
+          { title: 'Healthy — URL checks passed', value: 'healthy' },
+          { title: 'Needs review', value: 'needsReview' },
+          { title: 'Unavailable — manually confirmed', value: 'unavailable' },
+        ],
+      },
+      description:
+        'Healthy checks only link structure, tag, and ASIN; it does not confirm stock. Select Unavailable only after checking the product yourself.',
+    }),
+    defineField({
+      name: 'linkLastCheckedAt',
+      title: 'Last checked',
+      type: 'datetime',
+      group: 'monitoring',
+      readOnly: true,
+    }),
+    defineField({
+      name: 'linkCheckResult',
+      title: 'Last check result',
+      type: 'string',
+      group: 'monitoring',
+      readOnly: true,
     }),
     defineField({
       name: 'category',

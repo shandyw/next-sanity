@@ -116,8 +116,8 @@ export default async function LookPage({ params }: Props) {
         <Link href="/shop">Shop the Looks</Link> / <span aria-current="page">{look.title}</span>
       </nav>
       <div className="flex flex-col">
-        <header className="look-detail__header order-2 md:flex order-1 items-center justify-between">
-          <div className="">
+        <header className="look-detail__header md:flex order-1 items-center justify-between">
+          <div>
             <p className="eyebrow">{lookOccasionLabel(look.occasion)}</p>
 
             <h1>{look.title}</h1>

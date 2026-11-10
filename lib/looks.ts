@@ -2,9 +2,9 @@ import 'server-only';
 import { cache } from 'react';
 import { draftMode } from 'next/headers';
 import { stegaClean } from 'next-sanity';
-import { ordinaryAmazonUrl, associatesActive, validAmazonAffiliateUrl } from './amazon';
 import { configured, fetchContent } from './sanity';
-import type { ContentPhoto, Settings } from './types';
+import type { ContentPhoto } from './types';
+export { findAmazonLink } from './find-amazon-link';
 
 type ImageEntry = {
   image?: ContentPhoto;
@@ -26,6 +26,7 @@ export type LookFind = {
   amazonUrl?: string;
   affiliateUrl?: string;
   affiliateShortLinkVerified?: boolean;
+  linkStatus?: 'unchecked' | 'healthy' | 'needsReview' | 'unavailable';
   productImages?: ImageEntry[];
 };
 
@@ -68,7 +69,7 @@ const lookFields = `_id,title,"slug":slug.current,description,occasion,published
   coverImage{image,alt,sourceKind},
   variations[]{image{image,alt,sourceKind}},
   items[]{_key,role,placementRole,stylingNote,hotspot,
-    "find":find->{_id,title,editorialTitle,description,asin,"category":category->{title,"slug":slug.current},experienceStatus,amazonUrl,affiliateUrl,affiliateShortLinkVerified,
+    "find":find->{_id,title,editorialTitle,description,asin,"category":category->{title,"slug":slug.current},experienceStatus,amazonUrl,affiliateUrl,affiliateShortLinkVerified,linkStatus,
       "productImages":productImages[approvalStatus == "approved" && sourceKind in ["original","licensed"] && (sourceKind != "licensed" || defined(sourceCredit))]{image,alt,approvalStatus,sourceKind,sourceCredit,selected}}},
   seo{title,description,socialImage}`;
 
@@ -126,17 +127,4 @@ export function findImage(find?: LookFind) {
   const images = (find?.productImages || []).filter((entry) => entry.sourceKind !== 'aiGenerated');
   const selected = images.find((entry) => entry.selected && approvedImage(entry));
   return approvedImage(selected) || approvedImage(images.find((entry) => approvedImage(entry)));
-}
-
-export function findAmazonLink(find: LookFind, settings: Settings) {
-  if (associatesActive(settings)) {
-    const affiliate = validAmazonAffiliateUrl(
-      find.affiliateUrl,
-      settings.amazonAssociates?.tag,
-      find.affiliateShortLinkVerified,
-    );
-    if (affiliate) return { href: affiliate, affiliate: true };
-  }
-  const ordinary = ordinaryAmazonUrl(find.amazonUrl || find.affiliateUrl);
-  return ordinary ? { href: ordinary, affiliate: false } : undefined;
 }

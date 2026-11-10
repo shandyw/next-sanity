@@ -34,7 +34,6 @@ const sample: DocumentContent = {
   categories: [{ _id: 'sample-jeans', slug: 'jeans', title: 'Jeans' }],
   brand: { _id: 'sample-label', title: 'Example label' },
   sizeWorn: '18',
-  fitNotes: 'Sample fit notes: room through the hips and thighs; pocket depth needs a closer look.',
   titleAccent: 'Questionable pockets.',
   reviewSections: {
     firstImpression: {

@@ -5,6 +5,7 @@ import { FindAsinInput } from '../sanity/finds/FindAsinInput';
 import { FindDocumentInput } from '../sanity/finds/FindDocumentInput';
 import { assertNoFindReferences, deleteFind } from '../sanity/finds/delete';
 import { schemaTypes } from '../sanity/schema';
+import { ReviewTitleInput, reviewTitleToAutofill } from '../sanity/reviews/ReviewTitleInput';
 
 type Field = {
   name: string;
@@ -80,6 +81,43 @@ test('Find ASIN input fills only a blank value from a supported full URL', () =>
   assert.equal(asinToAutofill('https://amazon.com/dp/B0ABC12345', 'B0DEF67890'), undefined);
   assert.equal(asinToAutofill('https://amzn.to/example'), undefined);
   assert.equal(asinToAutofill('https://amazon.com/dp/INVALID'), undefined);
+});
+
+test('Review editor keeps only current fields, prefills an empty title, and hides video inputs for written reviews', () => {
+  const review = document('review');
+  const names = review.fields.map((entry) => entry.name);
+  for (const removed of ['body', 'author', 'usualSize', 'priceWhenReviewed', 'reviewCurrency'])
+    assert.equal(names.includes(removed), false, `${removed} removed from Review editor`);
+  assert.equal(names.indexOf('titleAccent'), names.indexOf('title') + 1);
+  assert.equal(field(review.fields, 'title').components?.input, ReviewTitleInput);
+  const slug = field(review.fields, 'slug') as Field & { options?: { source?: string } };
+  assert.equal(slug.options?.source, 'title');
+  for (const name of ['videoUrl', 'videoCaptionsUrl', 'transcript']) {
+    const input = field(review.fields, name) as Field & { hidden?: (context: { document?: { format?: string } }) => boolean };
+    assert.equal(input.hidden?.({ document: { format: 'written' } }), true);
+    assert.equal(input.hidden?.({ document: { format: 'both' } }), false);
+  }
+  const acquisition = field(review.fields, 'acquisitionSource') as Field & { title?: string };
+  assert.equal(acquisition.title, 'How did you get this item?');
+  assert.deepEqual(acquisition.options?.list?.map(({ value }) => value), [
+    'selfPurchased', 'brandGift', 'providedForReview', 'other',
+  ]);
+});
+
+test('Review title fills once from a Find short title and remains editable', () => {
+  const initial = reviewTitleToAutofill('  Summer Brunch  ', undefined);
+  assert.equal(initial, 'Summer Brunch');
+  const manual = 'What I Wore to Brunch';
+  assert.equal(reviewTitleToAutofill('Summer Brunch', manual), undefined);
+  assert.equal(reviewTitleToAutofill('Updated Find Title', manual), undefined);
+  assert.equal(reviewTitleToAutofill('Different Find', manual), undefined);
+  assert.equal(reviewTitleToAutofill('Different Find', '', true), undefined);
+});
+
+test('Review title stays empty when the linked Find has no short title', () => {
+  assert.equal(reviewTitleToAutofill(undefined, undefined), undefined);
+  assert.equal(reviewTitleToAutofill('   ', undefined), undefined);
+  assert.equal(reviewTitleToAutofill('', ''), undefined);
 });
 
 test('Find deletion checks links to both published and draft versions', async () => {
@@ -239,6 +277,13 @@ test('Find deletion stops if a Look cannot be updated', async () => {
 
 test('Find has reusable product identity, distinct experience and approved image entries', async () => {
   const find = document('find');
+  assert.equal(field(find.fields, 'linkStatus').initialValue, 'unchecked');
+  assert.deepEqual(
+    field(find.fields, 'linkStatus').options?.list?.map((item) => item.value),
+    ['unchecked', 'healthy', 'needsReview', 'unavailable'],
+  );
+  assert.equal(field(find.fields, 'linkLastCheckedAt').type, 'datetime');
+  assert.equal(field(find.fields, 'linkCheckResult').type, 'string');
   assert.equal(field(find.fields, 'experienceStatus').initialValue, 'notTested');
   assert.deepEqual(
     field(find.fields, 'experienceStatus').options?.list?.map((item) => item.value),
@@ -423,7 +468,11 @@ test('Looks reference Finds once, preserve order and attach hotspots to included
 
 test('Review keeps editorial fields and an optional primary Find', () => {
   const review = document('review');
-  for (const name of ['photos', 'videoUrl', 'fitNotes', 'shannequinQuote'])
+  for (const name of ['photos', 'videoUrl', 'fitCheck', 'shannequinQuote'])
     assert.ok(field(review.fields, name));
+  assert.equal(
+    review.fields.some((entry) => entry.name === 'fitNotes'),
+    false,
+  );
   assert.equal(field(review.fields, 'primaryFind').to?.[0].type, 'find');
 });

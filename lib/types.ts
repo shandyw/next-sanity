@@ -28,6 +28,11 @@ export interface DocumentContent {
     >
   >;
   shannequinQuote?: string;
+  fitCheck?: import('./fit-check').FitCheck;
+  usualSize?: string;
+  finalVerdict?: string;
+  acquisitionSource?: 'selfPurchased' | 'brandGift' | 'providedForReview' | 'borrowed' | 'other';
+  acquisitionNote?: string;
   experienceStatus?: 'tested' | 'mannequin' | 'curated';
   personallyTried?: boolean;
   readerProvided?: boolean;
@@ -37,10 +42,12 @@ export interface DocumentContent {
   primaryFind?: {
     _id: string;
     title: string;
+    category?: { title?: string; slug?: string };
     experienceStatus?: 'notTested' | 'received' | 'tested';
     amazonUrl?: string;
     affiliateUrl?: string;
     affiliateShortLinkVerified?: boolean;
+    linkStatus?: 'unchecked' | 'healthy' | 'needsReview' | 'unavailable';
   };
   excerpt?: string;
   description?: string;
@@ -53,7 +60,6 @@ export interface DocumentContent {
   categories?: Named[];
   brand?: Named;
   sizeWorn?: string;
-  fitNotes?: string;
   format?: 'written' | 'video' | 'both';
   videoUrl?: string;
   transcript?: string;

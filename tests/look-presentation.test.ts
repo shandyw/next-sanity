@@ -58,7 +58,7 @@ test('category icons map to existing assets with a generic fallback', () => {
   }
   assert.equal(findCategoryIcon('dresses'), '/img/product-icons/dress.svg');
   assert.equal(findCategoryIcon('shoes'), '/img/product-icons/shoe.svg');
-  assert.equal(findCategoryIcon('outerwear'), '/img/product-icons/cardigan.svg');
+  assert.equal(findCategoryIcon('outerwear'), '/img/product-icons/outerwear.svg');
   assert.equal(findCategoryIcon('unknown'), '/img/product-icons/shirt.svg');
   assert.equal(findCategoryIcon(), '/img/product-icons/shirt.svg');
 });
