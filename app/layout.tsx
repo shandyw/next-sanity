@@ -1,8 +1,10 @@
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import localFont from 'next/font/local';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import './globals.css';
 import { siteUrl } from '@/lib/seo';
+import { BodyPageClass } from '@/components/BodyPageClass';
 const bodyFont = localFont({
   src: '../node_modules/@fontsource-variable/montserrat/files/montserrat-latin-wght-normal.woff2',
   variable: '--font-montserrat',
@@ -36,8 +38,14 @@ export const metadata: Metadata = {
 };
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${bodyFont.variable} ${editorialSerif.variable} ${editorialScript.variable}`}>
+    <html
+      lang="en"
+      className={`${bodyFont.variable} ${editorialSerif.variable} ${editorialScript.variable}`}
+    >
       <body>
+        <Suspense fallback={null}>
+          <BodyPageClass />
+        </Suspense>
         {children}
         <SpeedInsights />
       </body>

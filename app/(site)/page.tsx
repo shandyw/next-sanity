@@ -15,6 +15,9 @@ import { getSettings } from '@/lib/content';
 import { ClosetBanner } from '@/components/ClosetBanner';
 import { HomeLooksCarousel } from '@/components/HomeLooksCarousel';
 import { HomeFeaturedLook } from '@/components/HomeFeaturedLook';
+import { findCategoryIcon } from '@/lib/look-presentation';
+import { HomeReviewCategories } from '@/components/HomeReviewCategories';
+import { homeReviewCategories } from '@/lib/home-review-categories';
 export const metadata = pageMetadata(
   'Real Curves. Unfiltered Reviews.',
   'Honest plus-size fashion reviews, clothing finds, and review requests.',
@@ -28,13 +31,21 @@ export default async function Home() {
     getLooks(),
     getSettings(),
   ]);
-  const categories = [
-    ...new Map(
-      reviews
-        .flatMap((review) => review.categories || [])
-        .map((category) => [category.slug || category._id, category]),
-    ).values(),
-  ].slice(0, 8);
+  const categories = homeReviewCategories(reviews).map((category) => ({
+    ...category,
+    media: category.homepageImage?.asset?._ref ? (
+      <ContentImage
+        image={category.homepageImage}
+        width={900}
+        height={600}
+        sizes="(max-width: 767px) 100vw, 50vw"
+      />
+    ) : (
+      <div className="home-categories__media-fallback" aria-hidden="true">
+        <img src={findCategoryIcon(category.slug)} alt="" width="160" height="160" />
+      </div>
+    ),
+  }));
   return (
     <main id="main">
       <EditorialHero
@@ -73,6 +84,8 @@ export default async function Home() {
 
       <LatestVerdicts reviews={reviews} />
 
+      {categories.length > 0 && <HomeReviewCategories categories={categories} />}
+
       {looks.length === 1 ? (
         <HomeFeaturedLook look={looks[0]} />
       ) : (
@@ -81,7 +94,7 @@ export default async function Home() {
             <div className="home-section-heading">
               <div>
                 <h2 id="home-looks-heading">Shop the Looks</h2>
-                <p>Outfits for wherever life takes you.</p>
+                <p className="home-looks-heading__blurb">Outfits for wherever life takes you.</p>
               </div>
               <Link className="btn btn-ghost" href="/shop">
                 Browse all Looks
@@ -115,25 +128,6 @@ export default async function Home() {
             ) : (
               <p>Outfit stories are coming soon.</p>
             )}
-          </div>
-        </section>
-      )}
-
-      {categories.length > 0 && (
-        <section className="home-categories" aria-labelledby="home-categories-heading">
-          <div className="container">
-            <h2 id="home-categories-heading">Browse by Category</h2>
-            <div className="cgr-filters">
-              {categories.map((category) => (
-                <Link
-                  className="btn btn-filter"
-                  key={category._id}
-                  href={`/reviews?category=${encodeURIComponent(category.slug || category._id)}`}
-                >
-                  {category.title}
-                </Link>
-              ))}
-            </div>
           </div>
         </section>
       )}

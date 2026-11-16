@@ -84,13 +84,26 @@ export function ReviewMedia({ items, video }: { items: PhotoItem[]; video?: Reac
           <button
             ref={watchButton}
             type="button"
-            className="btn btn-accent review-story__watch"
+            className="review-story__watch"
             onClick={() => {
               setVideoOpen(true);
               dialog.current?.showModal();
             }}
           >
-            Watch me try it on
+            <svg
+              className="review-story__watch-play"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5" />
+              <path d="m10 8 6 4-6 4V8Z" fill="currentColor" />
+            </svg>
+            <span>Watch me try it on</span>
+            <ArrowIcon className="review-story__watch-arrow" />
           </button>
           <dialog
             ref={dialog}

@@ -20,6 +20,7 @@ export async function EditorialHero({
   mainPhoto,
   smallPhoto,
   landscapePhoto,
+  landscapeFallbackSrc,
   videoSrc,
   copyTone = 'light',
   media,
@@ -35,6 +36,7 @@ export async function EditorialHero({
   mainPhoto?: ContentPhoto;
   smallPhoto?: ContentPhoto;
   landscapePhoto?: ContentPhoto;
+  landscapeFallbackSrc?: string;
   videoSrc?: string;
   copyTone?: 'light' | 'dark';
   media?: ReactNode;
@@ -131,14 +133,25 @@ export async function EditorialHero({
                 className="editorial-hero__photo editorial-hero__photo--landscape"
                 data-hero-part="main-photo"
               >
-                <ContentImage
-                  image={landscapePhoto}
-                  width={1400}
-                  height={1000}
-                  preserveFullImage
-                  sizes="(max-width: 767px) 90vw, 52vw"
-                  priority
-                />
+                {landscapePhoto?.asset?._ref || !landscapeFallbackSrc ? (
+                  <ContentImage
+                    image={landscapePhoto}
+                    width={1400}
+                    height={1000}
+                    preserveFullImage
+                    sizes="(max-width: 767px) 90vw, 52vw"
+                    priority
+                  />
+                ) : (
+                  <Image
+                    src={landscapeFallbackSrc}
+                    alt=""
+                    width={1400}
+                    height={934}
+                    sizes="(max-width: 767px) 90vw, 52vw"
+                    priority
+                  />
+                )}
               </figure>
             ) : (
               <>

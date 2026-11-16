@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { getDocument } from '@/lib/content';
 import { Article } from '@/components/Article';
+import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { documentMetadata } from '@/lib/seo';
 import type { SearchParams } from '@/lib/types';
 type Props = { params: Promise<{ slug: string }>; searchParams: Promise<SearchParams> };
@@ -18,5 +19,16 @@ export default async function Page({ params, searchParams }: Props) {
   const from = (await searchParams).from;
   const returnTo =
     typeof from === 'string' && /^\/(reviews|blog|my-faves)(\?|$)/.test(from) ? from : '/reviews';
-  return <Article document={d} returnTo={returnTo} base="/reviews" />;
+  return (
+    <>
+      <Breadcrumbs
+        items={[
+          { label: 'Home', href: '/' },
+          { label: 'Reviews', href: '/reviews' },
+          { label: d.title, href: `/reviews/${encodeURIComponent(slug)}` },
+        ]}
+      />
+      <Article document={d} returnTo={returnTo} base="/reviews" />
+    </>
+  );
 }

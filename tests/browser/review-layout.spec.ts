@@ -90,6 +90,20 @@ for (const width of [1440, 390]) {
     await expect(page.locator('.shannequin__number')).toHaveCount(0);
     await expect(page.locator('.review-story__thumbnail')).toHaveCount(4);
     await expect(page.getByRole('button', { name: /Watch video:/ })).toHaveCount(0);
+    const watch = page.getByRole('button', { name: 'Watch me try it on' });
+    await expect(watch).toHaveCSS('min-height', '44px');
+    await expect(watch).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+    await expect(watch.locator('svg')).toHaveCount(2);
+    const stageBounds = await page.locator('.review-story__stage-wrap').boundingBox();
+    const watchBounds = await watch.boundingBox();
+    expect(stageBounds && watchBounds).toBeTruthy();
+    expect(
+      Math.abs(stageBounds!.x + stageBounds!.width - watchBounds!.x - watchBounds!.width),
+    ).toBeLessThan(2);
+    expect(watchBounds!.y).toBeGreaterThanOrEqual(stageBounds!.y + stageBounds!.height);
+    expect(watchBounds!.y - (stageBounds!.y + stageBounds!.height)).toBeLessThan(12);
+    await watch.focus();
+    await expect(watch).toHaveCSS('outline-style', 'solid');
     await expect(page.getByRole('button', { name: 'Next photographs' })).toBeVisible();
     await page.getByRole('button', { name: 'Next photographs' }).click();
     await expect(page.getByRole('button', { name: 'Previous photographs' })).toBeEnabled();
@@ -173,7 +187,7 @@ for (const width of [1440, 390]) {
       .toBeLessThan(1);
   });
 }
-test('Review verdict, transparency, affiliate CTA and Saved Items follow available data', async ({
+test('Review verdict, transparency, affiliate CTA and linked Find saving follow available data', async ({
   page,
 }) => {
   await page.route('**/review-layout-fixture', (route) =>
@@ -197,12 +211,13 @@ test('Review verdict, transparency, affiliate CTA and Saved Items follow availab
   await expect(page.locator('.review-story__final-cta .affiliate-disclosure')).toContainText(
     'As an Amazon Associate',
   );
-  const save = page.getByRole('button', { name: 'Save item: Great jeans. Questionable pockets.' });
+  await expect(page.locator('.review-story__header .wishlist-action')).toHaveCount(0);
+  const save = page.getByRole('button', { name: 'Save product: Linked jeans' });
   await expect(save).toHaveAttribute('aria-pressed', 'false');
   await save.focus();
   await page.keyboard.press('Enter');
   const unsave = page.getByRole('button', {
-    name: 'Remove from saved items: Great jeans. Questionable pockets.',
+    name: 'Remove product from saved items: Linked jeans',
   });
   await expect(unsave).toHaveAttribute('aria-pressed', 'true');
   await unsave.click();
@@ -224,10 +239,15 @@ test('Review verdict, transparency, affiliate CTA and Saved Items follow availab
   for (const mode of ['noFind', 'unavailable']) {
     await page.evaluate(
       (value) =>
-        (window as unknown as { renderReview: (mode: string) => Promise<void> }).renderReview(value),
+        (window as unknown as { renderReview: (mode: string) => Promise<void> }).renderReview(
+          value,
+        ),
       mode,
     );
     await expect(page.getByRole('link', { name: /Shop this sweater on Amazon/ })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Save product: Linked jeans' })).toHaveCount(
+      mode === 'noFind' ? 0 : 1,
+    );
   }
   await page.evaluate(() =>
     (window as unknown as { renderReview: (mode: string) => Promise<void> }).renderReview(

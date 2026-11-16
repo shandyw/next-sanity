@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { ArrowIcon } from './ArrowIcon';
 
 export function carouselPosition(
   count: number,
@@ -79,7 +80,9 @@ export function HomeLooksCarousel({ children }: { children: React.ReactNode[] })
             disabled={position.index === 0}
             aria-label="Previous Look"
           >
-            <span aria-hidden="true">←</span>
+            <span aria-hidden="true">
+              <ArrowIcon />
+            </span>
           </button>
           <button
             type="button"
@@ -87,7 +90,9 @@ export function HomeLooksCarousel({ children }: { children: React.ReactNode[] })
             disabled={position.index === position.last}
             aria-label="Next Look"
           >
-            <span aria-hidden="true">→</span>
+            <span aria-hidden="true">
+              <ArrowIcon />
+            </span>
           </button>
         </div>
       )}

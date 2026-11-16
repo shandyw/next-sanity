@@ -13,6 +13,8 @@ export interface Named {
   _id: string;
   title: string;
   slug?: string;
+  homepageBlurb?: string;
+  homepageImage?: ContentPhoto;
 }
 export interface DocumentContent {
   _id: string;
@@ -42,6 +44,7 @@ export interface DocumentContent {
   primaryFind?: {
     _id: string;
     title: string;
+    editorialTitle?: string;
     category?: { title?: string; slug?: string };
     experienceStatus?: 'notTested' | 'received' | 'tested';
     amazonUrl?: string;

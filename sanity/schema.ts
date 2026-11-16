@@ -481,7 +481,22 @@ const named = (name: string, label: string, alphabetical = false) =>
     name,
     title: label,
     type: 'document',
-    fields: [title, slug],
+    fields: [
+      title,
+      slug,
+      ...(name === 'clothingCategory'
+        ? [
+            defineField({
+              name: 'homepageBlurb',
+              title: 'Homepage category blurb',
+              type: 'text',
+              rows: 3,
+              validation: (r) => r.max(300),
+            }),
+            image('homepageImage', 'Homepage category image'),
+          ]
+        : []),
+    ],
     ...(alphabetical
       ? {
           orderings: [

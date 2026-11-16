@@ -11,7 +11,7 @@ for (const width of [1440, 390]) {
     await expect(page.locator('.saved-finds__count')).toHaveText('0');
     if (width < 1024) await expect(page.locator('.social-links--mobile-nav')).toBeVisible();
     else await expect(page.locator('.social-links--mobile-nav')).toBeHidden();
-    await expect(page.locator('.footer-base__links a[href="/wishlist"]')).toHaveCount(1);
+    await expect(page.locator('.site-footer a[href="/wishlist"]')).toHaveCount(1);
     if (width < 1024) await expect(page.locator('.social-tab')).toBeHidden();
     else await expect(page.locator('.social-tab')).toBeVisible();
     await expect(page.locator('.site-footer .social-links')).toHaveCount(1);
@@ -28,7 +28,7 @@ for (const width of [1440, 390]) {
     await shortcut.focus();
     await page.keyboard.press('Enter');
     await expect(page).toHaveURL(/\/wishlist$/);
-    await expect(page.getByRole('link', { name: title })).toBeVisible();
+    await expect(page.getByRole('link', { name: title, exact: true })).toBeVisible();
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
     ).toBeTruthy();
@@ -47,7 +47,7 @@ for (const width of [1440, 390]) {
   });
 }
 
-test('bookmark shows the exact count and handles blocked storage', async ({ page }) => {
+test('bookmark ignores legacy IDs and handles blocked storage', async ({ page }) => {
   await page.addInitScript(() =>
     localStorage.setItem(
       'curvygirlreviews:wishlist:v1',
@@ -55,7 +55,7 @@ test('bookmark shows the exact count and handles blocked storage', async ({ page
     ),
   );
   await page.goto('/support');
-  await expect(page.locator('.saved-finds__count')).toHaveText('3');
+  await expect(page.locator('.saved-finds__count')).toHaveText('0');
   await expect(page.locator('.saved-finds')).toHaveAttribute('href', '/wishlist');
   await page.addInitScript(() =>
     Object.defineProperty(window, 'localStorage', {
@@ -80,6 +80,6 @@ for (const width of [1440, 390]) {
     await heart.focus();
     await page.keyboard.press('Enter');
     await expect(page).toHaveURL(/\/wishlist$/);
-    await expect(page.getByText('No available Reviews or Looks are saved yet.')).toBeVisible();
+    await expect(page.getByText('No available Finds or Looks are saved yet.')).toBeVisible();
   });
 }

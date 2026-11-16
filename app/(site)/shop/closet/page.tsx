@@ -1,5 +1,6 @@
 import { getSettings } from '@/lib/content';
 import { ClosetBanner } from '@/components/ClosetBanner';
+import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { pageMetadata } from '@/lib/seo';
 export const metadata = pageMetadata(
   'Shop My Closet',
@@ -10,8 +11,16 @@ export const metadata = pageMetadata(
 export default async function Page() {
   const settings = await getSettings();
   return (
-    <main id="main" className="container closet-destination">
-      <ClosetBanner settings={settings} headingLevel="h1" />
-    </main>
+    <>
+      <Breadcrumbs
+        items={[
+          { label: 'Home', href: '/' },
+          { label: 'My Closet', href: '/shop/closet' },
+        ]}
+      />
+      <main id="main" className="closet-destination">
+        <ClosetBanner settings={settings} headingLevel="h1" />
+      </main>
+    </>
   );
 }

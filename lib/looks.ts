@@ -83,6 +83,45 @@ export const getLooks = cache(async (): Promise<Look[]> => {
   );
 });
 
+/** Saved Items never includes draft content, even while an editor is previewing. */
+export const getPublishedLooks = cache(async (): Promise<Look[]> =>
+  configured
+    ? fetchContent<Look[]>(
+        `*[_type == "look" && defined(slug.current) && defined(publishedAt) && publishedAt <= now()]
+          | order(publishedAt desc, _id asc){${lookFields}}`,
+        {},
+        false,
+      )
+    : [],
+);
+
+export const getPublishedFinds = cache(async (): Promise<LookFind[]> =>
+  configured
+    ? fetchContent<LookFind[]>(
+        `*[_type == "find" && defined(title)] | order(title asc, _id asc){
+          _id,title,editorialTitle,description,asin,
+          "category":category->{title,"slug":slug.current},
+          experienceStatus,amazonUrl,affiliateUrl,affiliateShortLinkVerified,linkStatus
+        }`,
+        {},
+        false,
+      )
+    : [],
+);
+
+export const getPublishedSaveableIds = cache(async (): Promise<string[]> => {
+  if (!configured) return [];
+  const result = await fetchContent<{ finds: string[]; looks: string[] }>(
+    `{
+      "finds": *[_type == "find" && defined(title)]._id,
+      "looks": *[_type == "look" && defined(slug.current) && defined(publishedAt) && publishedAt <= now()]._id
+    }`,
+    {},
+    false,
+  );
+  return [...result.finds, ...result.looks];
+});
+
 export async function getLook(slug: string) {
   return (await getLooks()).find((look) => stegaClean(look.slug) === slug);
 }

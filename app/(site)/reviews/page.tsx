@@ -1,5 +1,6 @@
 import { getDocuments, getSettings } from '@/lib/content';
 import { Archive } from '@/components/Archive';
+import { Breadcrumbs } from '@/components/Breadcrumbs';
 import type { SearchParams } from '@/lib/types';
 import { pageMetadata } from '@/lib/seo';
 import { redirect, notFound } from 'next/navigation';
@@ -19,5 +20,15 @@ export default async function Page({ searchParams }: { searchParams: Promise<Sea
     if (match) redirect('/reviews/' + match.slug);
     notFound();
   }
-  return <Archive all={all} params={params} kind="review" heroPhotos={settings.reviewsHero} />;
+  return (
+    <>
+      <Breadcrumbs
+        items={[
+          { label: 'Home', href: '/' },
+          { label: 'Reviews', href: '/reviews' },
+        ]}
+      />
+      <Archive all={all} params={params} kind="review" heroPhotos={settings.reviewsHero} />
+    </>
+  );
 }

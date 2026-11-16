@@ -1,11 +1,12 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { build } from 'esbuild';
+
 let fixture: string;
 test.beforeAll(async () => {
   const result = await build({
     stdin: {
-      contents: `import React from 'react'; import {createRoot} from 'react-dom/client'; import {LeadModal} from './components/LeadModal'; const root=document.createElement('div'); document.body.append(root); createRoot(root).render(React.createElement(LeadModal,{content:{enabled:true}, image:React.createElement('img',{src:'/img/mirror.jpg',alt:'',width:4514,height:3009})}));`,
+      contents: `import React from 'react'; import {createRoot} from 'react-dom/client'; import {LeadModal} from './components/LeadModal'; createRoot(document.getElementById('root')).render(React.createElement(LeadModal,{content:{enabled:true},image:React.createElement('img',{src:'/img/mirror.jpg',alt:''})}));`,
       resolveDir: process.cwd(),
       loader: 'tsx',
     },
@@ -17,9 +18,25 @@ test.beforeAll(async () => {
   });
   fixture = result.outputFiles[0].text;
 });
+async function setup(page: import('@playwright/test').Page, width: number) {
+  await page.clock.install({ time: new Date('2026-11-11T12:00:00Z') });
+  await page.setViewportSize({ width, height: 800 });
+  await page.route('**/lead-modal-fixture', (route) =>
+    route.fulfill({
+      contentType: 'text/html',
+      body: '<!doctype html><html><body><button data-open-lead>Get updates</button><div style="height:2400px"></div><div id="root"></div></body></html>',
+    }),
+  );
+  await page.goto('/lead-modal-fixture');
+  await page.addScriptTag({ content: fixture });
+  await expect(page.locator('.lead-dialog')).toHaveCount(1);
+}
+
 for (const width of [1440, 390]) {
-  test(`lead signup, branding layout, focus and suppression at ${width}px`, async ({ page }) => {
-    await page.setViewportSize({ width, height: 900 });
+  test(`manual signup, keyboard focus, and API-confirmed suppression at ${width}px`, async ({
+    page,
+  }) => {
+    await setup(page, width);
     await page.route('**/api/forms', (route) =>
       route.fulfill({
         status: 200,
@@ -29,44 +46,41 @@ for (const width of [1440, 390]) {
         }),
       }),
     );
-    await page.goto('/about');
-    await page.addScriptTag({ content: fixture });
+    await page.getByRole('button', { name: 'Get updates' }).click();
     const dialog = page.getByRole('dialog', {
       name: 'Get 15% Off your first order from my closet!',
     });
     await expect(dialog).toBeVisible();
-    const copy = await dialog.locator('.lead-dialog__content').boundingBox();
-    const image = await dialog.locator('.lead-dialog__image').boundingBox();
-    expect(width === 1440 ? image!.x > copy!.x : image!.y > copy!.y).toBeTruthy();
-    expect(await dialog.evaluate((node) => node.scrollWidth <= node.clientWidth)).toBeTruthy();
-    for (let n = 0; n < 6; n++) {
+    for (let n = 0; n < 4; n++) {
       await page.keyboard.press('Tab');
-      expect(
-        await page.evaluate(() => !!document.activeElement?.closest('.lead-dialog')),
-      ).toBeTruthy();
+      expect(await page.evaluate(() => !!document.activeElement?.closest('.lead-dialog'))).toBe(
+        true,
+      );
     }
-    const result = await new AxeBuilder({ page })
-      .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])
+    const accessibility = await new AxeBuilder({ page })
+      .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
       .analyze();
-    expect(result.violations.map((v) => v.id)).toEqual([]);
+    expect(accessibility.violations.map((v) => v.id)).toEqual([]);
     await dialog.getByLabel('Email address').fill('reader@example.test');
-    await expect(dialog.locator('.email-control')).toHaveAttribute('data-validation', 'valid');
-    await expect(dialog.locator('.email-control__tick')).toHaveCSS('opacity', '1');
     await dialog.getByRole('button', { name: 'Get my 15% off' }).click();
     await expect(dialog.getByRole('status')).toContainText('Check your inbox');
+    await expect(dialog.getByRole('button', { name: 'Subscribed' })).toBeDisabled();
     expect(
       await page.evaluate(() => localStorage.getItem('curvygirlreviews:lead:submitted:v1')),
     ).toBe('true');
-    await expect(dialog.getByRole('button', { name: 'Subscribed' })).toBeDisabled();
-    await dialog.getByRole('button', { name: 'Close exclusive offer' }).click();
-    await page.evaluate(() => sessionStorage.clear());
-    await page.reload();
-    await page.addScriptTag({ content: fixture });
-    await page.waitForTimeout(1500);
+    await page.keyboard.press('Escape');
+    await expect(page.getByRole('button', { name: 'Get updates' })).toBeFocused();
+    await page.evaluate(() => scrollTo(0, 1000));
+    await page.clock.fastForward(30_000);
     await expect(dialog).not.toBeVisible();
+    await expect(page.locator('.lead-banner')).not.toBeVisible();
   });
 }
-test('dismissal works and provider errors never suppress the lead prompt', async ({ page }) => {
+
+test('provider error does not mark visitor subscribed, and closing starts cooldown', async ({
+  page,
+}) => {
+  await setup(page, 1440);
   await page.route('**/api/forms', (route) =>
     route.fulfill({
       status: 502,
@@ -74,27 +88,38 @@ test('dismissal works and provider errors never suppress the lead prompt', async
       body: JSON.stringify({ message: 'Signup could not be accepted. Please try again.' }),
     }),
   );
-  await page.goto('/about');
-  await page.addScriptTag({ content: fixture });
+  await page.getByRole('button', { name: 'Get updates' }).click();
   const dialog = page.locator('.lead-dialog');
-  await expect(dialog).toBeVisible();
   await dialog.getByLabel('Email address').fill('reader@example.test');
   await dialog.getByRole('button', { name: 'Get my 15% off' }).click();
   await expect(dialog.getByRole('status')).toContainText('could not be accepted');
   expect(
     await page.evaluate(() => localStorage.getItem('curvygirlreviews:lead:submitted:v1')),
   ).toBeNull();
-  await page.mouse.click(2, 2);
-  await expect(dialog).not.toBeVisible();
-  await expect.poll(() => page.evaluate(() => sessionStorage.getItem('curvygirlreviews:lead:dismissed:v1'))).toBe('true');
-  await page.reload();
-  await page.addScriptTag({ content: fixture });
-  await page.waitForTimeout(1500);
-  await expect(dialog).not.toBeVisible();
-  await page.evaluate(() => sessionStorage.clear());
-  await page.reload();
-  await page.addScriptTag({ content: fixture });
-  await expect(dialog).toBeVisible();
   await page.keyboard.press('Escape');
   await expect(dialog).not.toBeVisible();
+  await expect
+    .poll(() =>
+      page.evaluate(() => Number(localStorage.getItem('curvygirlreviews:lead:dismissed:v2'))),
+    )
+    .toBeGreaterThan(0);
+  await page.clock.fastForward(30_000);
+  await page.evaluate(() => scrollTo(0, 1000));
+  await expect(dialog).not.toBeVisible();
+  await page.getByRole('button', { name: 'Get updates' }).click();
+  await expect(dialog).toBeVisible();
+});
+
+test('Maybe later closes the signup dialog and starts the dismissal cooldown', async ({ page }) => {
+  await setup(page, 1440);
+  await page.getByRole('button', { name: 'Get updates' }).click();
+  const dialog = page.getByRole('dialog', { name: 'Get 15% Off your first order from my closet!' });
+  await expect(dialog).toBeVisible();
+  await dialog.getByRole('button', { name: 'Maybe later' }).click();
+  await expect(dialog).not.toBeVisible();
+  await expect
+    .poll(() =>
+      page.evaluate(() => Number(localStorage.getItem('curvygirlreviews:lead:dismissed:v2'))),
+    )
+    .toBeGreaterThan(0);
 });

@@ -25,3 +25,12 @@ export function parseWishlist(raw: string | null): string[] {
     return [];
   }
 }
+
+/** Legacy Review IDs remain harmless in storage but never count as public saved items. */
+export function availableWishlistIds(
+  ids: readonly string[],
+  publicIds: readonly string[],
+): string[] {
+  const eligible = new Set(publicIds);
+  return [...new Set(ids.filter((id) => eligible.has(id)))];
+}

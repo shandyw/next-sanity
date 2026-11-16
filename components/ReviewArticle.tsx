@@ -177,7 +177,6 @@ export async function ReviewArticle({
                   })}
                 </time>
               )}
-              {!d.demo && <WishlistButton id={d._id.replace(/^drafts\./, '')} title={d.title} />}
             </div>
           </div>
           {acknowledgment(d) && <p className="review-story__acknowledgment">{acknowledgment(d)}</p>}
@@ -210,10 +209,21 @@ export async function ReviewArticle({
             {d.excerpt && <p className="review-story__intro">{d.excerpt}</p>}
             {acquisition && (
               <p className="review-story__acquisition">
-                <span aria-hidden="true">✓ </span>{acquisition}
+                <span aria-hidden="true">✓ </span>
+                {acquisition}
               </p>
             )}
             {shoppingCta}
+            {primaryFind && !primaryFind._id.startsWith('drafts.') && (
+              <div className="review-story__save-product">
+                <WishlistButton
+                  id={primaryFind._id}
+                  title={primaryFind.editorialTitle?.trim() || primaryFind.title}
+                  kind="find"
+                  showLabel
+                />
+              </div>
+            )}
             {d.experienceStatus && experienceStatus(d) !== 'tested' && (
               <p className="body-sm review-story__experience">
                 {experienceLabel(d)}
@@ -259,46 +269,45 @@ export async function ReviewArticle({
         </div>
       </article>
       <ShannequinFitCheck value={d.fitCheck} sizeWorn={d.sizeWorn} />
-      {sections.length > 0 &&
-        (remainingSections.length > 0 || d.body?.length) && (
-          <div className="container review-story__lower">
-            {remainingSections.length > 0 && (
-              <div className="review-story__sections">
-                {remainingSections.map(({ key, heading }, index) => (
-                  <section
-                    className="review-story__section"
-                    aria-labelledby={`review-${key}`}
-                    key={key}
-                  >
-                    <p className="review-story__number" aria-hidden="true">
-                      {String(index + 1).padStart(2, '0')}
-                      <span />
-                    </p>
-                    <h2 id={`review-${key}`}>{d.reviewSections?.[key]?.heading || heading}</h2>
-                    <div className="review-story__copy">
-                      <Copy
-                        settings={settings}
-                        sourceId={d._id}
-                        experience={experienceStatus(d)}
-                        value={d.reviewSections?.[key]?.copy}
-                      />
-                    </div>
-                  </section>
-                ))}
-              </div>
-            )}
-            {d.body?.length && (
-              <div className="review-story__additional">
-                <Copy
-                  settings={settings}
-                  sourceId={d._id}
-                  experience={experienceStatus(d)}
-                  value={d.body}
-                />
-              </div>
-            )}
-          </div>
-        )}
+      {sections.length > 0 && (remainingSections.length > 0 || d.body?.length) && (
+        <div className="container review-story__lower">
+          {remainingSections.length > 0 && (
+            <div className="review-story__sections">
+              {remainingSections.map(({ key, heading }, index) => (
+                <section
+                  className="review-story__section"
+                  aria-labelledby={`review-${key}`}
+                  key={key}
+                >
+                  <p className="review-story__number" aria-hidden="true">
+                    {String(index + 1).padStart(2, '0')}
+                    <span />
+                  </p>
+                  <h2 id={`review-${key}`}>{d.reviewSections?.[key]?.heading || heading}</h2>
+                  <div className="review-story__copy">
+                    <Copy
+                      settings={settings}
+                      sourceId={d._id}
+                      experience={experienceStatus(d)}
+                      value={d.reviewSections?.[key]?.copy}
+                    />
+                  </div>
+                </section>
+              ))}
+            </div>
+          )}
+          {d.body?.length && (
+            <div className="review-story__additional">
+              <Copy
+                settings={settings}
+                sourceId={d._id}
+                experience={experienceStatus(d)}
+                value={d.body}
+              />
+            </div>
+          )}
+        </div>
+      )}
       {d.shannequinQuote?.trim() && (
         <section className="review-shannequin" aria-labelledby="review-shannequin-title">
           <div className="container nopad review-shannequin__inner">

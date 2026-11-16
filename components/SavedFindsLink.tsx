@@ -3,10 +3,11 @@
 import Link from 'next/link';
 import { useWishlist } from './WishlistStore';
 import { WishlistHeart } from './WishlistHeart';
+import { availableWishlistIds } from '@/lib/wishlist';
 
-export function SavedFindsLink() {
+export function SavedFindsLink({ saveableIds }: { saveableIds: string[] }) {
   const { ids, ready, available } = useWishlist();
-  const count = ready && available ? ids.length : 0;
+  const count = ready && available ? availableWishlistIds(ids, saveableIds).length : 0;
   const savedText = 'Saved Items:';
   const icon = (
     <>

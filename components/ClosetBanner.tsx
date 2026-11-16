@@ -17,7 +17,7 @@ export function ClosetBanner({
 
   return (
     <section className="closet-banner" aria-labelledby="closet-banner-title">
-      <div className="closet-banner__copy">
+      <div className="container closet-banner__copy">
         <p className="closet-banner__eyebrow">Lets Go</p>
         <Heading id="closet-banner-title">Shop My Closet</Heading>
         <p className="closet-banner__intro">

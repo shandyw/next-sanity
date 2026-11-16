@@ -2,7 +2,13 @@
 import { useState, useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import { SavedFindsLink } from './SavedFindsLink';
-export function Header({ mobileSocials }: { mobileSocials?: React.ReactNode }) {
+export function Header({
+  mobileSocials,
+  saveableIds,
+}: {
+  mobileSocials?: React.ReactNode;
+  saveableIds: string[];
+}) {
   const pathname = usePathname();
   const activeSection =
     pathname === '/shop/closet' || pathname.startsWith('/shop/closet/')
@@ -38,8 +44,8 @@ export function Header({ mobileSocials }: { mobileSocials?: React.ReactNode }) {
       <header className="site-header" id="site-header">
         <div className="header-inner">
           <a className="wordmark" href="/" aria-label="CurvyGirlReviews home">
-            <img className="wordmark__icon" src="/img/curvy.png" alt="CurvyGirlReviews Logo" />
-            CurvyGirlReviews
+            {/* <img className="wordmark__icon" src="/img/curvy.png" alt="CurvyGirlReviews Logo" /> */}
+            CurvyGirl Reviews
           </a>
 
           <button
@@ -88,7 +94,7 @@ export function Header({ mobileSocials }: { mobileSocials?: React.ReactNode }) {
             </ul>
 
             <div className="nav-actions">
-              <SavedFindsLink />
+              <SavedFindsLink saveableIds={saveableIds} />
 
               <button
                 type="button"

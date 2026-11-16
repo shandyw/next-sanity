@@ -55,14 +55,16 @@ export function Shannequin({
             <br />I bring the commentary.
           </p>
           {about && (
-            <div className="shannequin__measurement-hint">
-              <span aria-hidden="true">+</span>
-              <div>
-                <strong>Get to know her measurements</strong>
-                <p>Hover or tap a point to explore.</p>
-                <ShannequinMeasurementList measurements={measurements} />
+            <>
+              <div className="shannequin__measurement-hint">
+                <span aria-hidden="true">+</span>
+                <div>
+                  <strong>Get to know her measurements</strong>
+                  <p>Hover or tap a point to explore.</p>
+                </div>
               </div>
-            </div>
+              <ShannequinMeasurementList measurements={measurements} />
+            </>
           )}
           {!about && (
             <a className="btn btn-accent" href="/about#shannequin">

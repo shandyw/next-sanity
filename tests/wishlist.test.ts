@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { parseWishlist, wishlistLimit } from '../lib/wishlist';
+import { availableWishlistIds, parseWishlist, wishlistLimit } from '../lib/wishlist';
 
 test('wishlist storage handles corrupt data, unknown versions, duplicates, and limits', () => {
   for (const value of [
@@ -24,4 +24,19 @@ test('wishlist storage handles corrupt data, unknown versions, duplicates, and l
     ).length,
     wishlistLimit,
   );
+});
+
+test('legacy Review IDs are ignored while saved Finds and Looks stay unique', () => {
+  const stored = parseWishlist(
+    JSON.stringify({
+      version: 1,
+      ids: ['review-old', 'look-one', 'find-sandals', 'find-sandals', 'find-unpublished'],
+    }),
+  );
+  assert.deepEqual(stored, ['review-old', 'look-one', 'find-sandals', 'find-unpublished']);
+  assert.deepEqual(
+    availableWishlistIds(stored, ['look-one', 'find-sandals', 'find-sandals']),
+    ['look-one', 'find-sandals'],
+  );
+  assert.deepEqual(availableWishlistIds(stored, []), []);
 });

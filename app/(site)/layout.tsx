@@ -10,6 +10,7 @@ import { Dialogs } from '@/components/Dialogs';
 import { LeadModal } from '@/components/LeadModal';
 import { ContentImage } from '@/components/ContentImage';
 import { getSettings, demoEnabled } from '@/lib/content';
+import { getPublishedSaveableIds } from '@/lib/looks';
 export async function generateMetadata() {
   const preview = (await draftMode()).isEnabled;
   const settings = await getSettings();
@@ -22,7 +23,7 @@ export async function generateMetadata() {
   };
 }
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
-  const settings = await getSettings();
+  const [settings, saveableIds] = await Promise.all([getSettings(), getPublishedSaveableIds()]);
   const preview = (await draftMode()).isEnabled;
   return (
     <>
@@ -30,6 +31,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
         Skip to content
       </a>
       <Header
+        saveableIds={saveableIds}
         mobileSocials={<SocialLinks settings={settings} className="social-links--mobile-nav" />}
       />
       <SocialTab settings={settings} />

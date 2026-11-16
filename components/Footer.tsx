@@ -9,10 +9,10 @@ export function Footer({ demo, settings }: { demo: boolean; settings: Settings }
       <div className="container footer-bar">
         <h2>
           <a className="wordmark wordmark--footer" href="/" aria-label="CurvyGirlReviews home">
-            CurvyGirl<br></br>Reviews
+            CurvyGirl Reviews
           </a>
         </h2>
-        <div className="container">
+        <div>
           <ul className="footer-bar__links">
             <li>
               <a href="/reviews/">Reviews</a>
@@ -33,6 +33,18 @@ export function Footer({ demo, settings }: { demo: boolean; settings: Settings }
             <li>
               <a href="/wishlist">Saved Items</a>
             </li>
+            {settings.leadModal?.enabled && settings.leadModal.image && (
+              <li>
+                <button
+                  type="button"
+                  data-open-lead
+                  aria-haspopup="dialog"
+                  aria-controls="leadDialog"
+                >
+                  Get updates
+                </button>
+              </li>
+            )}
             <li>
               <a
                 href="#contactDialog"
@@ -45,7 +57,7 @@ export function Footer({ demo, settings }: { demo: boolean; settings: Settings }
             </li>
           </ul>
         </div>
-        <div className="container">
+        <div>
           <p className="footer-pitch">
             Get new reviews, outfit finds, and honest takes in your inbox.
           </p>
@@ -58,7 +70,7 @@ export function Footer({ demo, settings }: { demo: boolean; settings: Settings }
         <AffiliateDisclosure active={associatesActive(settings)} />
       </div>
       <div className="container">
-        <div className="body-sm flex flex-row justify-between">
+        <div className="body-sm footer-bottom">
           <p>&copy; {new Date().getFullYear()} CurvyGirlReviews.</p>
           <p>
             <a href="/privacy/">Privacy</a>&nbsp;&nbsp;|&nbsp;&nbsp;

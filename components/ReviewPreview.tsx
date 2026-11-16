@@ -2,24 +2,27 @@ import type { DocumentContent } from '@/lib/types';
 import { ImageCarousel } from './ImageCarousel';
 import { ContentImage } from './ContentImage';
 import { ArrowIcon } from './ArrowIcon';
-import { WishlistButton } from './WishlistButton';
 
 export function ReviewPreview({
   item,
   heading = 'h2',
   base = '/reviews',
   returnTo,
+  truncateBlurb = false,
 }: {
   item: DocumentContent;
   heading?: 'h2' | 'h3';
   base?: string;
   returnTo?: string;
+  truncateBlurb?: boolean;
 }) {
   const Heading = heading;
   const href = `${base}/${encodeURIComponent(item.slug)}${returnTo ? '?from=' + encodeURIComponent(returnTo) : ''}`;
+  const words = item.excerpt?.trim().split(/\s+/) || [];
+  const blurb =
+    truncateBlurb && words.length > 15 ? `${words.slice(0, 15).join(' ')}…` : item.excerpt;
   return (
     <article className="review-card__body review-preview">
-      {!item.demo && <WishlistButton id={item._id} title={item.title} />}
       {item.demo && <p className="body-sm">Illustrative sample review</p>}
       <ImageCarousel
         title={item.title}
@@ -34,7 +37,7 @@ export function ReviewPreview({
           <span className="review-preview__title-backing">{item.title}</span>
         </a>
       </Heading>
-      {item.excerpt && <p className="review-card__blurb">{item.excerpt}</p>}
+      {blurb && <p className="review-card__blurb">{blurb}</p>}
       {item.sizeWorn && <p className="review-card__meta">Tried in size {item.sizeWorn}</p>}
       <a
         className="text-link text-link--editorial"

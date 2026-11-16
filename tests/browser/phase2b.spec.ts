@@ -33,8 +33,8 @@ test('a published Look can be opened, saved, and revisited', async ({ page }) =>
   const title = await firstLook.locator('h2').innerText();
   await firstLook.getByRole('button', { name: /Save item/ }).click();
   await page.goto('/wishlist');
-  await expect(page.getByRole('link', { name: title })).toBeVisible();
-  await page.getByRole('link', { name: title }).click();
+  await expect(page.getByRole('link', { name: title, exact: true })).toBeVisible();
+  await page.getByRole('link', { name: title, exact: true }).click();
   await expect(page.getByRole('heading', { name: title, level: 1 })).toBeVisible();
   const sections = page.getByRole('heading', { name: /^(Build the Look|Make It Your Own)$/ });
   if (await page.locator('.look-item').count()) await expect(sections.first()).toBeVisible();
@@ -102,7 +102,7 @@ test('old product URLs are not presented as Find pages, and legacy saved IDs can
     );
   });
   await page.goto('/wishlist');
-  await expect(page.getByText('1 older saved item is no longer available.')).toBeVisible();
+  await expect(page.getByText('1 older or unpublished saved item is not currently available.')).toBeVisible();
   await page.getByRole('button', { name: 'Clear unavailable items' }).click();
-  await expect(page.getByText('1 older saved item is no longer available.')).toHaveCount(0);
+  await expect(page.getByText('1 older or unpublished saved item is not currently available.')).toHaveCount(0);
 });

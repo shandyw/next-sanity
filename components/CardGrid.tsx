@@ -26,6 +26,7 @@ export function CardGrid({
             heading={homepage ? 'h3' : 'h2'}
             base={base}
             returnTo={returnTo}
+            truncateBlurb={base === '/reviews'}
           />
         </li>
       ))}

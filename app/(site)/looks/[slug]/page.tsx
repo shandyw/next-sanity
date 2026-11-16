@@ -22,6 +22,7 @@ import {
 } from '@/lib/look-presentation';
 import { pageMetadata, socialImageUrl } from '@/lib/seo';
 import { ArrowIcon } from '@/components/ArrowIcon';
+import { Breadcrumbs } from '@/components/Breadcrumbs';
 import type { LookItem, LookFind } from '@/lib/looks';
 import type { Settings } from '@/lib/types';
 
@@ -62,8 +63,9 @@ function LookFindRow({
           <p>{item.stylingNote?.trim() || find.description?.trim()}</p>
         )}
       </div>
-      {link && (
-        <div className="look-item__cta">
+      <div className="look-item__cta">
+        <WishlistButton id={find._id} title={fullTitle} kind="find" inline />
+        {link && (
           <a
             className="text-link"
             href={link.href}
@@ -76,8 +78,8 @@ function LookFindRow({
           >
             View on Amazon <ArrowIcon />
           </a>
-        </div>
-      )}
+        )}
+      </div>
     </article>
   );
 }
@@ -111,10 +113,15 @@ export default async function LookPage({ params }: Props) {
   const related = relatedLooks(look, all);
 
   return (
-    <main id="main" className={`container look-detail${image ? '' : ' look-detail--text-first'}`}>
-      <nav aria-label="Breadcrumb" className="look-breadcrumb">
-        <Link href="/shop">Shop the Looks</Link> / <span aria-current="page">{look.title}</span>
-      </nav>
+    <>
+      <Breadcrumbs
+        items={[
+          { label: 'Home', href: '/' },
+          { label: 'Shop the Looks', href: '/shop' },
+          { label: look.title, href: `/looks/${encodeURIComponent(slug)}` },
+        ]}
+      />
+      <main id="main" className={`container look-detail${image ? '' : ' look-detail--text-first'}`}>
       <div className="flex flex-col">
         <header className="look-detail__header md:flex order-1 items-center justify-between">
           <div>
@@ -219,6 +226,7 @@ export default async function LookPage({ params }: Props) {
           </div>
         </section>
       )}
-    </main>
+      </main>
+    </>
   );
 }
