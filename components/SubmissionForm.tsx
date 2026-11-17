@@ -54,11 +54,13 @@ export function SubmissionForm({
       {kind === 'request' && (
         <>
           <div className="form-row">
-            <label htmlFor="reqProduct">Item name or link (required)</label>
+            <label htmlFor="reqProduct">
+              Item name or link <span className="required">(Required)</span>
+            </label>
             <input
               id="reqProduct"
               name="product"
-              placeholder="Paste a product link or enter its name"
+              placeholder="Paste a product link"
               required
               maxLength={1000}
             />
@@ -92,9 +94,14 @@ export function SubmissionForm({
         </div>
       )}
       <div className={kind === 'request' ? 'form-row request-form__email' : 'newsletter-field'}>
-        <label className="visually-hidden" htmlFor={`${idPrefix}Email`}>
-          Email address{kind === 'request' && ' (required)'}
+        <label className={kind === 'request' ? undefined : 'visually-hidden'} htmlFor={`${idPrefix}Email`}>
+          Email address {kind === 'request' && <span className="required">(Required)</span>}
         </label>
+        {kind === 'request' && (
+          <p id={`${idPrefix}EmailHint`} className="form-hint">
+            So I can follow up about your request.
+          </p>
+        )}
         <div className="email-control" data-validation={emailState}>
           <input
             id={`${idPrefix}Email`}
@@ -153,11 +160,6 @@ export function SubmissionForm({
               ? 'Enter a valid email address, such as you@example.com.'
               : ''}
         </span>
-        {kind === 'request' && (
-          <p id={`${idPrefix}EmailHint`} className="form-hint">
-            So I can follow up about your request.
-          </p>
-        )}
       </div>
       {kind === 'request' && (
         <p className="request-form__promise">
